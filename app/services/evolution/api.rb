@@ -14,7 +14,6 @@ class Evolution::Api
   private
 
   def perform_request
-    byebug
     response = RestClient::Request.execute(
       method: @method,
       url: "#{@url}/#{@path}",

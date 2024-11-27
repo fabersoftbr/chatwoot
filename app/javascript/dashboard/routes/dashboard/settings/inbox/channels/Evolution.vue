@@ -42,6 +42,7 @@ export default {
         const apiChannel = await this.$store.dispatch('inboxes/createChannel', {
           name: this.channelName,
           channel: {
+            inboxName: this.channelName,
             type: 'evolution',
             webhook_url: this.webhookUrl,
           },

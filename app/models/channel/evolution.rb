@@ -23,8 +23,10 @@
 class Channel::Evolution < ApplicationRecord
   include Channelable
 
+  attr_accessor :inboxName
+
   self.table_name = 'channel_evolution'
-  EDITABLE_ATTRS = [:webhook_url, :hmac_mandatory, { additional_attributes: {} }].freeze
+  EDITABLE_ATTRS = [:inboxName, :hmac_mandatory, { additional_attributes: {} }].freeze
 
   has_secure_token :identifier
   has_secure_token :hmac_token
@@ -50,7 +52,7 @@ class Channel::Evolution < ApplicationRecord
     errors.add(:agent_reply_time_window, 'agent_reply_time_window must be greater than 0')
   end
 
-  def create_evolution_instance
+  def create_evolution_instance # rubocop:disable Metrics/AbcSize,Metrics/MethodLength
     payload = {
       instanceName: identifier,
       apiToken: hmac_token,
@@ -63,12 +65,12 @@ class Channel::Evolution < ApplicationRecord
       chatwootReopenConversation: true,
       chatwootConversationPending: false,
       chatwootImportContacts: false,
-      chatwootNameInbox: 'WhatsApp'
-      # chatwootOrganization
+      chatwootNameInbox: inboxName,
+      autoCreate: false,
+      chatwootOrganization: account.id.to_s,
+      chatwootLogo: 'https://evolution-api.com/files/evolution-api-favicon.png'
     }
-    byebug
     response = Evolution::Api.new('instance/create', payload).call
-    byebug
     # Set QR CODE
     instance_id = response['instance'].fetch('instanceId', nil)
     self.instance_id = instance_id
