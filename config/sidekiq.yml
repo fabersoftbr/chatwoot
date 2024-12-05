@@ -33,3 +33,5 @@ production:
   :concurrency: <%= ENV.fetch("SIDEKIQ_CONCURRENCY", 10) %>
 staging:
   :concurrency: <%= ENV.fetch("SIDEKIQ_CONCURRENCY", 10) %>
+
+# config/sidekiq.yml
