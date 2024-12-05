@@ -2,7 +2,11 @@ import { frontendURL } from '../../../../helper/URLHelper';
 
 const campaigns = accountId => ({
   parentNav: 'campaigns',
-  routes: ['campaigns_sms_index', 'campaigns_livechat_index'],
+  routes: [
+    'campaigns_sms_index',
+    'campaigns_livechat_index',
+    'campaigns_whatsapp_index',
+  ], // Adicione a nova rota
   menuItems: [
     {
       icon: 'arrow-swap',
@@ -19,6 +23,14 @@ const campaigns = accountId => ({
       hasSubMenu: false,
       toState: frontendURL(`accounts/${accountId}/campaigns/sms`),
       toStateName: 'campaigns_sms_index',
+    },
+    {
+      key: 'whatsappCampaigns',
+      icon: 'message-circle', // Escolha o ícone apropriado
+      label: 'WHATSAPP', // Use a chave de tradução correspondente
+      hasSubMenu: false,
+      toState: frontendURL(`accounts/${accountId}/campaigns/whatsapp`),
+      toStateName: 'campaigns_whatsapp_index',
     },
   ],
 });

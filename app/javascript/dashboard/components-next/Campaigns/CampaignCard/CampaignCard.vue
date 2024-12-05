@@ -8,6 +8,7 @@ import CardLayout from 'dashboard/components-next/CardLayout.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 import LiveChatCampaignDetails from './LiveChatCampaignDetails.vue';
 import SMSCampaignDetails from './SMSCampaignDetails.vue';
+import WhatsappDetails from './WhatsappDetails.vue';
 
 const props = defineProps({
   title: {
@@ -22,6 +23,15 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isSmsChatType: {
+    type: Boolean,
+    default: false,
+  },
+  isWhatsappChatType: {
+    type: Boolean,
+    default: false,
+  },
+
   isEnabled: {
     type: Boolean,
     default: false,
@@ -53,7 +63,9 @@ const STATUS_COMPLETED = 'completed';
 const { formatMessage } = useMessageFormatter();
 
 const isActive = computed(() =>
-  props.isLiveChatType ? props.isEnabled : props.status !== STATUS_COMPLETED
+  props.isLiveChatType || props.isSmsChatType || props.isWhatsappChatType
+    ? props.isEnabled
+    : props.status !== STATUS_COMPLETED
 );
 
 const statusTextColor = computed(() => ({
@@ -67,10 +79,17 @@ const campaignStatus = computed(() => {
       ? t('CAMPAIGN.LIVE_CHAT.CARD.STATUS.ENABLED')
       : t('CAMPAIGN.LIVE_CHAT.CARD.STATUS.DISABLED');
   }
-
-  return props.status === STATUS_COMPLETED
-    ? t('CAMPAIGN.SMS.CARD.STATUS.COMPLETED')
-    : t('CAMPAIGN.SMS.CARD.STATUS.SCHEDULED');
+  if (props.isSmsChatType) {
+    return props.isEnabled
+      ? t('CAMPAIGN.SMS.CARD.STATUS.COMPLETED')
+      : t('CAMPAIGN.SMS.CARD.STATUS.SCHEDULED');
+  }
+  if (props.isWhatsappChatType) {
+    return props.isEnabled
+      ? t('CAMPAIGN.WHATSAPP.CARD.STATUS.COMPLETED')
+      : t('CAMPAIGN.WHATSAPP.CARD.STATUS.SCHEDULED');
+  }
+  return '';
 });
 
 const inboxName = computed(() => props.inbox?.name || '');
@@ -110,7 +129,13 @@ const inboxIcon = computed(() => {
             :inbox-icon="inboxIcon"
           />
           <SMSCampaignDetails
-            v-else
+            v-if="isSmsChatType"
+            :inbox-name="inboxName"
+            :inbox-icon="inboxIcon"
+            :scheduled-at="scheduledAt"
+          />
+          <WhatsappDetails
+            v-if="isWhatsappChatType"
             :inbox-name="inboxName"
             :inbox-icon="inboxIcon"
             :scheduled-at="scheduledAt"
