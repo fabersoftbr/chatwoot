@@ -5,7 +5,7 @@ import { useAlert, useTrack } from 'dashboard/composables';
 import { CAMPAIGN_TYPES } from 'shared/constants/campaign.js';
 import { CAMPAIGNS_EVENTS } from 'dashboard/helper/AnalyticsHelper/events.js';
 
-import SMSCampaignForm from 'dashboard/components-next/Campaigns/Pages/CampaignPage/mpaign/SMSCampaignForm.vue';
+import SMSCampaignForm from './SMSCampaignForm.vue';
 
 const emit = defineEmits(['close']);
 
