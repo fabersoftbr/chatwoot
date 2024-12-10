@@ -86,8 +86,8 @@ const campaignStatus = computed(() => {
   }
   if (props.isWhatsappChatType) {
     return props.isEnabled
-      ? t('CAMPAIGN.WHATSAPP.CARD.STATUS.COMPLETED')
-      : t('CAMPAIGN.WHATSAPP.CARD.STATUS.SCHEDULED');
+      ? t('CAMPAIGN.SMS.CARD.STATUS.COMPLETED')
+      : t('CAMPAIGN.SMS.CARD.STATUS.SCHEDULED');
   }
   return '';
 });

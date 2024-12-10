@@ -10,6 +10,11 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  isWhatsappType: {
+    // Adicionado para WhatsApp
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(['edit', 'delete']);
@@ -32,6 +37,7 @@ const handleDelete = campaign => emit('delete', campaign);
       :inbox="campaign.inbox"
       :scheduled-at="campaign.scheduled_at"
       :is-live-chat-type="isLiveChatType"
+      :is-whatsapp-type="isWhatsappType"
       @edit="handleEdit(campaign)"
       @delete="handleDelete(campaign)"
     />
