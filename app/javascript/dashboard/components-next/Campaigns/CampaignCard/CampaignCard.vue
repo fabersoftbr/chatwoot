@@ -27,11 +27,11 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
- /* isWhatsappChatType: {
+  isWhatsappChatType: {
     type: Boolean,
     default: false,
   },
-*/
+
   isEnabled: {
     type: Boolean,
     default: false,
@@ -63,7 +63,7 @@ const STATUS_COMPLETED = 'completed';
 const { formatMessage } = useMessageFormatter();
 
 const isActive = computed(() =>
-  props.isLiveChatType || props.isSmsChatType /* || props.isWhatsappChatType */
+  props.isLiveChatType || props.isSmsChatType || props.isWhatsappChatType
     ? props.isEnabled
     : props.status !== STATUS_COMPLETED
 );
@@ -84,11 +84,11 @@ const campaignStatus = computed(() => {
       ? t('CAMPAIGN.SMS.CARD.STATUS.COMPLETED')
       : t('CAMPAIGN.SMS.CARD.STATUS.SCHEDULED');
   }
- /* if (props.isWhatsappChatType) {
+  if (props.isWhatsappChatType) {
     return props.isEnabled
       ? t('CAMPAIGN.WHATSAPP.CARD.STATUS.COMPLETED')
       : t('CAMPAIGN.WHATSAPP.CARD.STATUS.SCHEDULED');
-  }*/
+  }
   return '';
 });
 

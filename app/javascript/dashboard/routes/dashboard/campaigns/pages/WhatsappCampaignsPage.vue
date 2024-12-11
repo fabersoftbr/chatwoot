@@ -8,27 +8,27 @@ import { CAMPAIGN_TYPES } from 'shared/constants/campaign.js';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
 import CampaignLayout from 'dashboard/components-next/Campaigns/CampaignLayout.vue';
 import CampaignList from 'dashboard/components-next/Campaigns/Pages/CampaignPage/CampaignList.vue';
-import WhatsappCampaignDialog from 'dashboard/components-next/Campaigns/Pages/CampaignPage/WhatsappCampaign/WhatsappCampaignDialog.vue';
+import SMSCampaignDialog from 'dashboard/components-next/Campaigns/Pages/CampaignPage/SMSCampaign/SMSCampaignDialog.vue';
 import ConfirmDeleteCampaignDialog from 'dashboard/components-next/Campaigns/Pages/CampaignPage/ConfirmDeleteCampaignDialog.vue';
-import WhatsappCampaignEmptyState from 'dashboard/components-next/Campaigns/EmptyState/WhatsappCampaignEmptyState.vue';
+import SMSCampaignEmptyState from 'dashboard/components-next/Campaigns/EmptyState/SMSCampaignEmptyState.vue';
 
 const { t } = useI18n();
 const getters = useStoreGetters();
 
 const selectedCampaign = ref(null);
-const [showWhatsappCampaignDialog, toggleWhatsappCampaignDialog] = useToggle();
+const [showSMSCampaignDialog, toggleSMSCampaignDialog] = useToggle();
 
 const uiFlags = useMapGetter('campaigns/getUIFlags');
 const isFetchingCampaigns = computed(() => uiFlags.value.isFetching);
 
 const confirmDeleteCampaignDialogRef = ref(null);
 
-const WhatsappCampaigns = computed(() =>
+const SMSCampaigns = computed(() =>
   getters['campaigns/getCampaigns'].value(CAMPAIGN_TYPES.ONE_OFF)
 );
 
-const hasNoWhatsappCampaigns = computed(
-  () => WhatsappCampaigns.value?.length === 0 && !isFetchingCampaigns.value
+const hasNoSMSCampaigns = computed(
+  () => SMSCampaigns.value?.length === 0 && !isFetchingCampaigns.value
 );
 
 const handleDelete = campaign => {
@@ -39,15 +39,15 @@ const handleDelete = campaign => {
 
 <template>
   <CampaignLayout
-    :header-title="t('CAMPAIGN.WHATSAPP.HEADER_TITLE')"
-    :button-label="t('CAMPAIGN.WHATSAPP.NEW_CAMPAIGN')"
-    @click="toggleWhatsappCampaignDialog()"
-    @close="toggleWhatsappCampaignDialog(false)"
+    :header-title="t('CAMPAIGN.SMS.HEADER_TITLE')"
+    :button-label="t('CAMPAIGN.SMS.NEW_CAMPAIGN')"
+    @click="toggleSMSCampaignDialog()"
+    @close="toggleSMSCampaignDialog(false)"
   >
     <template #action>
-      <WhatsappCampaignDialog
-        v-if="showWhatsappCampaignDialog"
-        @close="toggleWhatsappCampaignDialog(false)"
+      <SMSCampaignDialog
+        v-if="showSMSCampaignDialog"
+        @close="toggleSMSCampaignDialog(false)"
       />
     </template>
     <div
@@ -57,14 +57,14 @@ const handleDelete = campaign => {
       <Spinner />
     </div>
     <CampaignList
-      v-else-if="!hasNoWhatsappCampaigns"
-      :campaigns="WhatsappCampaigns"
+      v-else-if="!hasNoSMSCampaigns"
+      :campaigns="SMSCampaigns"
       @delete="handleDelete"
     />
-    <WhatsappCampaignEmptyState
+    <SMSCampaignEmptyState
       v-else
-      :title="t('CAMPAIGN.WHATSAPP.EMPTY_STATE.TITLE')"
-      :subtitle="t('CAMPAIGN.WHATSAPP.EMPTY_STATE.SUBTITLE')"
+      :title="t('CAMPAIGN.SMS.EMPTY_STATE.TITLE')"
+      :subtitle="t('CAMPAIGN.SMS.EMPTY_STATE.SUBTITLE')"
       class="pt-14"
     />
     <ConfirmDeleteCampaignDialog

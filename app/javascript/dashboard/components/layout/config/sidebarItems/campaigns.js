@@ -30,7 +30,7 @@ const campaigns = accountId => ({
       label: 'WHATSAPP', // Use a chave de tradução correspondente
       hasSubMenu: false,
       toState: frontendURL(`accounts/${accountId}/campaigns/whatsapp`),
-      toStateName: 'campaigns_Whatsapp_index',
+      toStateName: 'campaigns_whatsapp_index',
     },
   ],
 });
