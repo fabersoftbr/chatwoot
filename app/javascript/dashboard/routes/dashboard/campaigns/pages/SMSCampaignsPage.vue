@@ -24,7 +24,7 @@ const isFetchingCampaigns = computed(() => uiFlags.value.isFetching);
 const confirmDeleteCampaignDialogRef = ref(null);
 
 const SMSCampaigns = computed(() =>
-  getters['campaigns/getCampaigns'].value(CAMPAIGN_TYPES.ONE_OFF)
+  getters['campaigns/getCampaigns'].value(CAMPAIGN_TYPES.ONGOING)
 );
 
 const hasNoSMSCampaigns = computed(

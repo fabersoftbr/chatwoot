@@ -10,6 +10,10 @@ defineProps({
     type: Boolean,
     default: false,
   },
+  isWhatsappChatType: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const emit = defineEmits(['edit', 'delete']);
