@@ -24,7 +24,7 @@ const isFetchingCampaigns = computed(() => uiFlags.value.isFetching);
 const confirmDeleteCampaignDialogRef = ref(null);
 
 const WhatsAppCampaigns = computed(() =>
-  getters['campaigns/getCampaigns'].value(CAMPAIGN_TYPES.ONE_OFF)
+  getters['campaigns/getCampaigns'].value(CAMPAIGN_TYPES.WHATSAPP)
 );
 
 const hasNoWhatsappCampaigns = computed(
@@ -39,8 +39,8 @@ const handleDelete = campaign => {
 
 <template>
   <CampaignLayout
-    :header-title="t('CAMPAIGN.SMS.HEADER_TITLE')"
-    :button-label="t('CAMPAIGN.SMS.NEW_CAMPAIGN')"
+    :header-title="t('CAMPAIGN.WHATSAPP.HEADER_TITLE')"
+    :button-label="t('CAMPAIGN.WHATSAPP.NEW_CAMPAIGN')"
     @click="toggleWhatsappCampaignDialog()"
     @close="toggleWhatsappCampaignDialog(false)"
   >
@@ -64,8 +64,8 @@ const handleDelete = campaign => {
 
     <WhatsAppCampaignEmptyState
       v-else
-      :title="t('CAMPAIGN.SMS.EMPTY_STATE.TITLE')"
-      :subtitle="t('CAMPAIGN.SMS.EMPTY_STATE.SUBTITLE')"
+      :title="t('CAMPAIGN.WHATSAPP.EMPTY_STATE.TITLE')"
+      :subtitle="t('CAMPAIGN.WHATSAPP.EMPTY_STATE.SUBTITLE')"
       class="pt-14"
     />
 

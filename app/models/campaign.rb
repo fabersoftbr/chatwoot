@@ -41,7 +41,7 @@ class Campaign < ApplicationRecord
   belongs_to :inbox
   belongs_to :sender, class_name: 'User', optional: true
 
-  enum campaign_type: { ongoing: 0, one_off: 1 }
+  enum campaign_type: { ongoing: 0, one_off: 1, whatsapp: 2 }
   # TODO : enabled attribute is unneccessary . lets move that to the campaign status with additional statuses like draft, disabled etc.
   enum campaign_status: { active: 0, completed: 1 }
 
@@ -51,12 +51,19 @@ class Campaign < ApplicationRecord
   after_commit :set_display_id, unless: :display_id?
 
   def trigger!
-    return unless one_off?
+    return unless one_off? || whatsapp?  # Verifica se a campanha é 'one_off' ou 'whatsapp'
     return if completed?
-
+  
+    # Lógica para campanhas de 'Twilio SMS'
     Twilio::OneoffSmsCampaignService.new(campaign: self).perform if inbox.inbox_type == 'Twilio SMS'
+  
+    # Lógica para campanhas de 'Sms'
     Sms::OneoffSmsCampaignService.new(campaign: self).perform if inbox.inbox_type == 'Sms'
+  
+    # Lógica para campanhas de 'Whatsapp' - Adicionando a nova lógica para o tipo 'whatsapp'
+    Channels::Whatsapp::OneoffWhatsappCampaignService.new(campaign: self).perform if inbox.inbox_type == 'whatsapp'
   end
+  
 
   private
 
@@ -82,6 +89,23 @@ class Campaign < ApplicationRecord
       self.scheduled_at = nil
     end
   end
+
+  def check_and_set_whatsapp_campaign
+    return if trigger_rules['url'].blank?
+  
+    # Extrai o último segmento da URL
+    last_path = URI(trigger_rules['url']).path.split('/').last
+  
+    # Verifica se o último segmento é "whatsapp"
+    if last_path == 'whatsapp'
+      # Sobrescreve o tipo de inbox como 'whatsapp'
+      self.inbox.inbox_type = 'whatsapp' if self.inbox.present?
+      
+      # Define o tipo de campanha como WhatsApp
+      self.campaign_type = 'whatsapp'
+    end
+  end
+  
 
   def validate_url
     return unless trigger_rules['url']

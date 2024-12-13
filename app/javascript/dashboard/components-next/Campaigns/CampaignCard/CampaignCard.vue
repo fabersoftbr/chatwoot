@@ -86,8 +86,8 @@ const campaignStatus = computed(() => {
   }
   if (props.isWhatsappChatType) {
     return props.isEnabled
-      ? t('CAMPAIGN.SMS.CARD.STATUS.COMPLETED')
-      : t('CAMPAIGN.SMS.CARD.STATUS.SCHEDULED');
+      ? t('CAMPAIGN.WHATSAPP.CARD.STATUS.COMPLETED')
+      : t('CAMPAIGN.WHATSAPP.CARD.STATUS.SCHEDULED');
   }
   return '';
 });
@@ -151,6 +151,22 @@ const inboxIcon = computed(() => {
           size="sm"
           color="slate"
           icon="i-lucide-sliders-vertical"
+          @click="emit('edit')"
+        />
+        <Button
+          v-if="isSmsChatType"
+          variant="faded"
+          size="sm"
+          color="emerald"
+          icon="i-lucide-message-circle"
+          @click="emit('edit')"
+        />
+        <Button
+          v-if="isWhatsappChatType"
+          variant="faded"
+          size="sm"
+          color="teal"
+          icon="i-lucide-phone"
           @click="emit('edit')"
         />
         <Button

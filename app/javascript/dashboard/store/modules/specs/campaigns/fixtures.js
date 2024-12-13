@@ -29,6 +29,19 @@ export default [
   },
   {
     id: 3,
+    title: 'Onboarding Campaign',
+    description: null,
+    account_id: 1,
+    campaign_type: 'whatsapp',
+    trigger_rules: {
+      url: 'https://chatwoot.com',
+      time_on_page: '20',
+    },
+    created_at: '2021-05-03T08:15:35.828Z',
+    updated_at: '2021-05-03T08:15:35.828Z',
+  },
+  {
+    id: 4,
     title: 'Thanks',
     description: null,
     account_id: 1,
