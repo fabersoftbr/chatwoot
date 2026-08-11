@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2026_08_11_120000) do
+ActiveRecord::Schema[7.0].define(version: 2026_08_11_120100) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -583,6 +583,30 @@ ActiveRecord::Schema[7.0].define(version: 2026_08_11_120000) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["account_id", "position"], name: "index_deal_stages_on_account_id_and_position"
+  end
+
+  create_table "deals", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "contact_id", null: false
+    t.bigint "deal_stage_id", null: false
+    t.bigint "assignee_id"
+    t.string "title", null: false
+    t.text "description"
+    t.bigint "value_cents", default: 0, null: false
+    t.string "currency", default: "BRL", null: false
+    t.integer "temperature", default: 1, null: false
+    t.integer "position", default: 0, null: false
+    t.date "expected_close_on"
+    t.datetime "next_action_at"
+    t.string "next_action"
+    t.datetime "closed_at"
+    t.text "lost_reason"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "deal_stage_id", "position"], name: "index_deals_on_account_id_and_deal_stage_id_and_position"
+    t.index ["account_id", "next_action_at"], name: "index_deals_on_account_id_and_next_action_at"
+    t.index ["assignee_id"], name: "index_deals_on_assignee_id"
+    t.index ["contact_id"], name: "index_deals_on_contact_id"
   end
 
   create_table "email_templates", force: :cascade do |t|
