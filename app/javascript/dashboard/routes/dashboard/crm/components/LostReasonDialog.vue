@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useEventListener } from '@vueuse/core';
 
 const emit = defineEmits(['confirm', 'cancel']);
 
@@ -24,35 +25,44 @@ const cancel = () => {
   emit('cancel');
 };
 
+useEventListener(document, 'keydown', e => {
+  if (isOpen.value && e.key === 'Escape') cancel();
+});
+
 defineExpose({ open });
 </script>
 
 <template>
-  <div
-    v-if="isOpen"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-  >
-    <div class="w-96 p-5 bg-white rounded-lg dark:bg-slate-800">
-      <h3 class="mb-3 text-base font-medium">
-        {{ t('CRM.LOST_DIALOG.TITLE') }}
-      </h3>
-      <textarea
-        v-model="reason"
-        rows="3"
-        class="w-full p-2 text-sm border rounded border-slate-200 dark:border-slate-600 dark:bg-slate-900"
-        :placeholder="t('CRM.LOST_DIALOG.PLACEHOLDER')"
-      />
-      <div class="flex justify-end gap-2 mt-4">
-        <button class="px-3 py-1.5 text-sm" @click="cancel">
-          {{ t('CRM.LOST_DIALOG.CANCEL') }}
-        </button>
-        <button
-          class="px-3 py-1.5 text-sm text-white rounded bg-red-600 disabled:opacity-50"
-          :disabled="!reason.trim()"
-          @click="confirm"
-        >
-          {{ t('CRM.LOST_DIALOG.CONFIRM') }}
-        </button>
+  <div>
+    <div
+      v-if="isOpen"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="t('CRM.LOST_DIALOG.TITLE')"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
+    >
+      <div class="w-96 p-5 bg-white rounded-lg dark:bg-slate-800">
+        <h3 class="mb-3 text-base font-medium">
+          {{ t('CRM.LOST_DIALOG.TITLE') }}
+        </h3>
+        <textarea
+          v-model="reason"
+          rows="3"
+          class="w-full p-2 text-sm border rounded border-slate-200 dark:border-slate-600 dark:bg-slate-900"
+          :placeholder="t('CRM.LOST_DIALOG.PLACEHOLDER')"
+        />
+        <div class="flex justify-end gap-2 mt-4">
+          <button class="px-3 py-1.5 text-sm" @click="cancel">
+            {{ t('CRM.LOST_DIALOG.CANCEL') }}
+          </button>
+          <button
+            class="px-3 py-1.5 text-sm text-white rounded bg-red-600 disabled:opacity-50"
+            :disabled="!reason.trim()"
+            @click="confirm"
+          >
+            {{ t('CRM.LOST_DIALOG.CONFIRM') }}
+          </button>
+        </div>
       </div>
     </div>
   </div>
