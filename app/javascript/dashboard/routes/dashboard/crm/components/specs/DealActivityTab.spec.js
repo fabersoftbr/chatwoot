@@ -1,8 +1,10 @@
 import { mount, flushPromises } from '@vue/test-utils';
+import { useAlert } from 'dashboard/composables';
 import { useStore } from 'dashboard/composables/store';
 import DealActivityTab from '../DealActivityTab.vue';
 
 vi.mock('dashboard/composables/store');
+vi.mock('dashboard/composables', () => ({ useAlert: vi.fn() }));
 
 const manualActivity = {
   id: 1,
@@ -87,6 +89,22 @@ describe('DealActivityTab', () => {
     });
     expect(dispatch).toHaveBeenCalledWith('deals/fetchActivities', 1);
     expect(wrapper.find('textarea').element.value).toBe('');
+  });
+
+  it('surfaces the error with useAlert when the activity submit is rejected', async () => {
+    const dispatch = vi.fn().mockImplementation(action => {
+      if (action === 'deals/createActivity') {
+        return Promise.reject(new Error('Content cannot be blank.'));
+      }
+      return Promise.resolve([]);
+    });
+    const wrapper = await mountTab(dispatch);
+
+    await wrapper.find('textarea').setValue('A note');
+    await wrapper.get('button').trigger('click');
+    await flushPromises();
+
+    expect(useAlert).toHaveBeenCalledWith('Content cannot be blank.');
   });
 
   it('renders the empty-state label when there are no activities', async () => {

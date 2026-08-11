@@ -1,9 +1,11 @@
 import { computed } from 'vue';
-import { mount } from '@vue/test-utils';
+import { mount, flushPromises } from '@vue/test-utils';
+import { useAlert } from 'dashboard/composables';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import DealDrawer from '../DealDrawer.vue';
 
 vi.mock('dashboard/composables/store');
+vi.mock('dashboard/composables', () => ({ useAlert: vi.fn() }));
 
 const deal = {
   id: 26,
@@ -27,6 +29,24 @@ const mountDrawer = (dispatch, getDeal) => {
 describe('DealDrawer', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it('surfaces the error and re-syncs the form when an inline edit is rejected by the store', async () => {
+    const dispatch = vi.fn().mockRejectedValue(new Error('Title is too long.'));
+    const wrapper = mountDrawer(dispatch, () => deal);
+
+    const titleInput = wrapper.get('input');
+    await titleInput.setValue('An unacceptably long title');
+    await titleInput.trigger('blur');
+    await flushPromises();
+
+    expect(dispatch).toHaveBeenCalledWith('deals/update', {
+      id: 26,
+      title: 'An unacceptably long title',
+    });
+    expect(useAlert).toHaveBeenCalledWith('Title is too long.');
+    // The remounted tab re-seeds its form from the (unchanged) store value.
+    expect(wrapper.get('input').element.value).toBe('A late deal');
   });
 
   it('dispatches deals/show when the deal is not already in the store', () => {

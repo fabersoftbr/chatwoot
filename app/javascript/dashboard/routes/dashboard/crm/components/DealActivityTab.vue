@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useAlert } from 'dashboard/composables';
 import { useStore } from 'dashboard/composables/store';
 
 const props = defineProps({
@@ -44,8 +45,9 @@ const submit = async () => {
     content.value = '';
     load();
   } catch (error) {
-    // createActivity rejects on API errors (via throwErrorMessage); swallow
-    // it so a failed submit doesn't surface as an unhandled rejection.
+    // createActivity rejects on API errors (via throwErrorMessage); surface
+    // it so a failed submit isn't silently lost.
+    useAlert(error.message);
   }
 };
 

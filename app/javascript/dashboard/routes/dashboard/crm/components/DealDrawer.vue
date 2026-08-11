@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useAlert } from 'dashboard/composables';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import DealDetailsTab from './DealDetailsTab.vue';
 import DealActivityTab from './DealActivityTab.vue';
@@ -19,8 +20,20 @@ const activeTab = ref('details');
 const getDeal = useMapGetter('deals/getDeal');
 const deal = computed(() => getDeal.value(props.dealId));
 
+// A rejected update leaves the store's deal untouched, but DealDetailsTab's
+// local form state has already moved on (v-model updates it before the
+// dispatch resolves). Bumping this key remounts the tab so its form
+// re-seeds from the actual (unchanged) store value instead of continuing to
+// show the value the server refused.
+const detailsKey = ref(0);
+
 const onUpdate = fields =>
-  store.dispatch('deals/update', { id: props.dealId, ...fields });
+  store
+    .dispatch('deals/update', { id: props.dealId, ...fields })
+    .catch(error => {
+      useAlert(error.message);
+      detailsKey.value += 1;
+    });
 
 // `deal` only comes from the board's `fetchBoard`, which caps each stage at
 // 25 cards — the deep link can point at a deal the board never loaded. Fetch
@@ -77,6 +90,7 @@ watch(
       <div class="overflow-y-auto grow">
         <DealDetailsTab
           v-if="activeTab === 'details'"
+          :key="detailsKey"
           :deal="deal"
           @update="onUpdate"
         />
