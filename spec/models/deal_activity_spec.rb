@@ -73,7 +73,9 @@ RSpec.describe DealActivity do
       older = create(:deal_activity, deal: deal, created_at: 2.days.ago)
       newer = create(:deal_activity, deal: deal, created_at: 1.hour.ago)
 
-      expect(deal.deal_activities.latest.first(2)).to eq([newer, older])
+      manual = deal.deal_activities.latest.where.not(activity_type: :created)
+
+      expect(manual.first(2)).to eq([newer, older])
     end
   end
 end
