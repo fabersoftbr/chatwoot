@@ -20,8 +20,16 @@ class DealStage < ApplicationRecord
   def self.seed_defaults(account)
     return account.deal_stages.ordered if account.deal_stages.exists?
 
-    DEFAULT_STAGES.each_with_index do |attributes, index|
-      account.deal_stages.create!(attributes.merge(position: index))
+    # ponytail: account-level lock serializes concurrent first-calls so they
+    # don't each pass the exists? check and double-seed. Upgrade path: a
+    # unique DB constraint on (account_id, position) if this ever needs to
+    # scale past a single-row lock.
+    account.with_lock do
+      unless account.deal_stages.exists?
+        DEFAULT_STAGES.each_with_index do |attributes, index|
+          account.deal_stages.create!(attributes.merge(position: index))
+        end
+      end
     end
 
     account.deal_stages.ordered
