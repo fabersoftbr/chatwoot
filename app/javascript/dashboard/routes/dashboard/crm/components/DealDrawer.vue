@@ -33,7 +33,13 @@ const onUpdate = fields =>
         <h2 class="text-base font-medium">{{ deal.title }}</h2>
         <p class="text-xs text-slate-500">{{ deal.contact.name }}</p>
       </div>
-      <button class="text-slate-400" @click="emit('close')">❌</button>
+      <woot-button
+        icon="dismiss"
+        variant="clear"
+        color-scheme="secondary"
+        :aria-label="t('CRM.CLOSE')"
+        @click="emit('close')"
+      />
     </header>
 
     <nav

@@ -1,6 +1,7 @@
 {
   "CRM": {
     "HEADER": "Negócios",
+    "CLOSE": "Fechar",
     "NEW_DEAL": "Novo negócio",
     "EMPTY_STAGE": "Nenhum negócio aqui",
     "SEARCH_PLACEHOLDER": "Buscar negócios ou contatos",

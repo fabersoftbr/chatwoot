@@ -1,6 +1,7 @@
 {
   "CRM": {
     "HEADER": "Deals",
+    "CLOSE": "Close",
     "NEW_DEAL": "New deal",
     "EMPTY_STAGE": "No deals here",
     "SEARCH_PLACEHOLDER": "Search deals or contacts",
