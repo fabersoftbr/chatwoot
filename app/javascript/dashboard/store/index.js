@@ -28,6 +28,8 @@ import csat from './modules/csat';
 import customViews from './modules/customViews';
 import customRole from './modules/customRole';
 import dashboardApps from './modules/dashboardApps';
+import deals from './modules/deals';
+import dealStages from './modules/dealStages';
 import globalConfig from 'shared/store/globalConfig';
 import inboxAssignableAgents from './modules/inboxAssignableAgents';
 import inboxes from './modules/inboxes';
@@ -78,6 +80,8 @@ export default createStore({
     customViews,
     customRole,
     dashboardApps,
+    deals,
+    dealStages,
     globalConfig,
     inboxAssignableAgents,
     inboxes,
