@@ -14,6 +14,7 @@ import WeeklyAvailability from './components/WeeklyAvailability.vue';
 import GreetingsEditor from 'shared/components/GreetingsEditor.vue';
 import ConfigurationPage from './settingsPage/ConfigurationPage.vue';
 import CollaboratorsPage from './settingsPage/CollaboratorsPage.vue';
+import WhatsappTemplatesPage from './settingsPage/WhatsappTemplatesPage.vue';
 import WidgetBuilder from './WidgetBuilder.vue';
 import BotConfiguration from './components/BotConfiguration.vue';
 import { FEATURE_FLAGS } from '../../../../featureFlags';
@@ -34,6 +35,7 @@ export default {
     SenderNameExamplePreview,
     MicrosoftReauthorize,
     GoogleReauthorize,
+    WhatsappTemplatesPage,
   },
   mixins: [inboxMixin],
   setup() {
@@ -147,6 +149,15 @@ export default {
           {
             key: 'botConfiguration',
             name: this.$t('INBOX_MGMT.TABS.BOT_CONFIGURATION'),
+          },
+        ];
+      }
+      if (this.isAWhatsAppCloudChannel) {
+        visibleToAllChannelTabs = [
+          ...visibleToAllChannelTabs,
+          {
+            key: 'whatsappTemplates',
+            name: this.$t('INBOX_MGMT.TABS.WHATSAPP_TEMPLATES'),
           },
         ];
       }
@@ -767,6 +778,9 @@ export default {
     </div>
     <div v-if="selectedTabKey === 'configuration'">
       <ConfigurationPage :inbox="inbox" />
+    </div>
+    <div v-if="selectedTabKey === 'whatsappTemplates'">
+      <WhatsappTemplatesPage :inbox="inbox" />
     </div>
     <div v-if="selectedTabKey === 'preChatForm'">
       <PreChatFormSettings :inbox="inbox" />
