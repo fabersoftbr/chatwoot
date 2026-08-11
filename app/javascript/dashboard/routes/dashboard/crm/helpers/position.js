@@ -17,3 +17,15 @@ export const isOverdue = deal => {
 
   return new Date(deal.next_action_at).getTime() < Date.now();
 };
+
+export const centsToUnits = valueCents => {
+  const cents = Number(valueCents);
+
+  return Number.isFinite(cents) ? cents / 100 : 0;
+};
+
+export const unitsToCents = value => {
+  const units = Number(value);
+
+  return Number.isFinite(units) ? Math.round(units * 100) : 0;
+};

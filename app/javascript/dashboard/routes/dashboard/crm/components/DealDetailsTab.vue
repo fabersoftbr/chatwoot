@@ -1,7 +1,8 @@
 <script setup>
-import { reactive, watch } from 'vue';
+import { reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useMapGetter } from 'dashboard/composables/store';
+import { centsToUnits, unitsToCents } from '../helpers/position';
 
 const props = defineProps({
   deal: { type: Object, required: true },
@@ -15,7 +16,6 @@ const stages = useMapGetter('deals/getStages');
 const form = reactive({
   title: props.deal.title,
   description: props.deal.description,
-  value_cents: props.deal.value_cents,
   temperature: props.deal.temperature,
   deal_stage_id: props.deal.deal_stage_id,
   expected_close_on: props.deal.expected_close_on,
@@ -23,12 +23,19 @@ const form = reactive({
   next_action_at: props.deal.next_action_at,
 });
 
+const valueInput = ref(centsToUnits(props.deal.value_cents));
+
 watch(
   () => props.deal,
-  deal => Object.assign(form, deal)
+  deal => {
+    Object.assign(form, deal);
+    valueInput.value = centsToUnits(deal.value_cents);
+  }
 );
 
 const save = field => emit('update', { [field]: form[field] });
+const saveValue = () =>
+  emit('update', { value_cents: unitsToCents(valueInput.value) });
 </script>
 
 <template>
@@ -49,11 +56,11 @@ const save = field => emit('update', { [field]: form[field] });
 
     <label class="text-xs text-slate-500">{{ t('CRM.FORM.VALUE') }}</label>
     <input
-      v-model.number="form.value_cents"
+      v-model.number="valueInput"
       type="number"
       min="0"
       class="input"
-      @blur="save('value_cents')"
+      @blur="saveValue"
     />
 
     <label class="text-xs text-slate-500">{{

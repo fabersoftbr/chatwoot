@@ -60,6 +60,23 @@ describe('DealDetailsTab', () => {
     ]);
   });
 
+  it('renders the value input in currency units, not cents', () => {
+    const wrapper = mountTab({ ...baseDeal, value_cents: 1200000 });
+
+    expect(wrapper.get('input[type="number"]').element.value).toBe('12000');
+  });
+
+  it('emits value_cents converted from currency units when the value input is blurred', async () => {
+    const wrapper = mountTab(baseDeal);
+
+    const valueInput = wrapper.get('input[type="number"]');
+    await valueInput.setValue('500');
+    await valueInput.trigger('blur');
+
+    expect(wrapper.emitted('update')).toBeTruthy();
+    expect(wrapper.emitted('update')[0]).toEqual([{ value_cents: 50000 }]);
+  });
+
   it('emits update with only the deal_stage_id field when the stage select changes', async () => {
     const wrapper = mountTab(baseDeal);
 

@@ -100,6 +100,7 @@ describe('DealFormDialog', () => {
     await wrapper.vm.$nextTick();
 
     await wrapper.find('input[placeholder="Title"]').setValue('A real deal');
+    await wrapper.find('input[placeholder="Value"]').setValue('12000');
     await wrapper.get('button.bg-woot-500').trigger('click');
     await wrapper.vm.$nextTick();
 
@@ -107,7 +108,7 @@ describe('DealFormDialog', () => {
       title: 'A real deal',
       contact_id: 7,
       deal_stage_id: 1,
-      value_cents: 0,
+      value_cents: 1200000,
       temperature: 'warm',
     });
     expect(wrapper.emitted('created')).toBeTruthy();

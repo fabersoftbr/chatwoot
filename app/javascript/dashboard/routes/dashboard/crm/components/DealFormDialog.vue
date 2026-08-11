@@ -3,6 +3,7 @@ import { onMounted, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useEventListener } from '@vueuse/core';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
+import { unitsToCents } from '../helpers/position';
 
 const props = defineProps({
   contactId: { type: Number, default: null },
@@ -21,7 +22,7 @@ const form = reactive({
   title: '',
   contact_id: props.contactId,
   deal_stage_id: null,
-  value_cents: 0,
+  value: 0,
   temperature: 'warm',
 });
 
@@ -38,7 +39,7 @@ const open = () => {
   form.title = '';
   form.contact_id = props.contactId;
   form.deal_stage_id = stages.value[0]?.id ?? null;
-  form.value_cents = 0;
+  form.value = 0;
   form.temperature = 'warm';
   isOpen.value = true;
 };
@@ -46,7 +47,11 @@ const open = () => {
 const submit = async () => {
   if (!form.title.trim() || !form.contact_id || !form.deal_stage_id) return;
 
-  const deal = await store.dispatch('deals/create', { ...form });
+  const deal = await store.dispatch('deals/create', {
+    ...form,
+    value: undefined,
+    value_cents: unitsToCents(form.value),
+  });
   isOpen.value = false;
   emit('created', deal);
 };
@@ -106,7 +111,7 @@ defineExpose({ open });
         </select>
 
         <input
-          v-model.number="form.value_cents"
+          v-model.number="form.value"
           type="number"
           min="0"
           class="input"
