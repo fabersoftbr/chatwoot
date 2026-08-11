@@ -90,6 +90,9 @@ const nextStageId = deal => {
 const nextStageName = deal =>
   stages.value.find(stage => stage.id === nextStageId(deal))?.name ?? '';
 
+const stageName = deal =>
+  stages.value.find(stage => stage.id === deal.deal_stage_id)?.name ?? '';
+
 const advance = async deal => {
   const stageId = nextStageId(deal);
   if (!stageId) return;
@@ -150,7 +153,12 @@ const openDealBoard = deal => {
     </div>
 
     <div v-for="deal in sortedDeals" :key="deal.id" class="flex flex-col gap-1">
-      <DealCard :deal="deal" @click="openDealBoard" />
+      <DealCard
+        :deal="deal"
+        :show-contact="false"
+        :stage-name="stageName(deal)"
+        @click="openDealBoard"
+      />
       <button
         v-if="nextStageId(deal)"
         class="self-start text-xs text-woot-600"

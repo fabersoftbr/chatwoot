@@ -91,6 +91,18 @@ describe('ContactDeals', () => {
     expect(wrapper.text()).toContain('R$');
   });
 
+  it('renders the stage name on each deal card instead of the contact name', async () => {
+    const { wrapper } = await mountContactDeals([openDeal, wonDeal]);
+
+    // openDeal is in stage 1 ("New"), wonDeal in stage 3 ("Won").
+    expect(wrapper.text()).toContain('New');
+    expect(wrapper.text()).toContain('Won');
+    // The contact name must not be repeated on every card in this
+    // single-contact sidebar.
+    expect(wrapper.text()).not.toContain('Ana');
+    expect(wrapper.text()).not.toContain('Carla');
+  });
+
   it('renders a closed (won) deal instead of filtering it out', async () => {
     const { wrapper } = await mountContactDeals([openDeal, wonDeal]);
 

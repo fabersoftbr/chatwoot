@@ -6,6 +6,13 @@ import { formatDealValue, isOverdue } from '../helpers/position';
 
 const props = defineProps({
   deal: { type: Object, required: true },
+  // Board columns already group cards by stage, so showing the contact name
+  // per card is what tells them apart — default true keeps the kanban
+  // exactly as before. A single-contact list (the conversation sidebar)
+  // passes showContact: false and a stageName instead, since the contact is
+  // implied by the sidebar itself and repeating it on every row is noise.
+  showContact: { type: Boolean, default: true },
+  stageName: { type: String, default: '' },
 });
 
 defineEmits(['click']);
@@ -34,8 +41,14 @@ const overdue = computed(() => isOverdue(props.deal));
       </span>
     </div>
 
-    <span class="text-xs text-slate-600 dark:text-slate-400">
+    <span v-if="showContact" class="text-xs text-slate-600 dark:text-slate-400">
       {{ deal.contact.name }}
+    </span>
+    <span
+      v-else-if="stageName"
+      class="text-xs text-slate-600 dark:text-slate-400"
+    >
+      {{ stageName }}
     </span>
 
     <div class="flex items-center justify-between w-full gap-2 mt-1">

@@ -63,6 +63,21 @@ describe('DealCard', () => {
     expect(wrapper.text()).not.toContain('Overdue');
   });
 
+  it('renders the contact name by default (board behaviour)', () => {
+    const wrapper = mountCard(baseDeal);
+    expect(wrapper.text()).toContain('Jane Doe');
+  });
+
+  it('renders the stage name instead of the contact name when showContact is false', () => {
+    const wrapper = shallowMount(DealCard, {
+      props: { deal: baseDeal, showContact: false, stageName: 'Qualified' },
+      global: { stubs: { Avatar: { template: '<span />' } } },
+    });
+
+    expect(wrapper.text()).toContain('Qualified');
+    expect(wrapper.text()).not.toContain('Jane Doe');
+  });
+
   it('emits click with the deal when clicked', async () => {
     const wrapper = mountCard(baseDeal);
     await wrapper.find('button').trigger('click');
