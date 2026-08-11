@@ -93,3 +93,6 @@ yarn-debug.log*
 
 # Claude Code
 CLAUDE.md
+
+# superpowers scratch (subagent-driven development ledger, briefs, review packages)
+.superpowers/
