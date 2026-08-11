@@ -17,7 +17,7 @@ RSpec.describe DealPolicy, type: :policy do
     { user: agent, account: account, account_user: account.account_users.find_by(user_id: agent.id) }
   end
 
-  permissions :index?, :show?, :create?, :update?, :move? do
+  permissions :index?, :show?, :create?, :update?, :move?, :board? do
     context 'when administrator' do
       it { expect(deal_policy).to permit(administrator_context, deal) }
     end
