@@ -3,7 +3,7 @@ class Api::V1::Accounts::Contacts::DealsController < Api::V1::Accounts::BaseCont
   before_action :check_authorization
 
   def index
-    @deals = @contact.deals.includes(:contact, :assignee).ordered
+    @deals = @contact.deals.includes(contact: { avatar_attachment: [:blob] }, assignee: { avatar_attachment: [:blob] }).ordered
   end
 
   private
