@@ -70,6 +70,33 @@ describe('#actions', () => {
     });
   });
 
+  describe('#show', () => {
+    it('commits the fetched deal via EDIT_DEAL', async () => {
+      const deal = { id: 26, title: 'A late deal' };
+      axios.get.mockResolvedValue({ data: deal });
+
+      const result = await actions.show({ commit }, 26);
+
+      expect(result).toEqual(deal);
+      expect(commit.mock.calls).toEqual([
+        [types.SET_DEALS_UI_FLAG, { isFetching: true }],
+        [types.EDIT_DEAL, deal],
+        [types.SET_DEALS_UI_FLAG, { isFetching: false }],
+      ]);
+    });
+
+    it('clears the flag and throws when the request fails', async () => {
+      axios.get.mockRejectedValue({ message: 'boom' });
+
+      await expect(actions.show({ commit }, 26)).rejects.toThrow(Error);
+
+      expect(commit.mock.calls).toEqual([
+        [types.SET_DEALS_UI_FLAG, { isFetching: true }],
+        [types.SET_DEALS_UI_FLAG, { isFetching: false }],
+      ]);
+    });
+  });
+
   describe('#fetchActivities', () => {
     it('resolves to the activity payload without committing', async () => {
       const payload = [{ id: 1, activity_type: 'created' }];

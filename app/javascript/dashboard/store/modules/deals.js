@@ -42,6 +42,19 @@ export const actions = {
     }
   },
 
+  show: async ({ commit }, id) => {
+    commit(types.SET_DEALS_UI_FLAG, { isFetching: true });
+    try {
+      const { data } = await DealsAPI.show(id);
+      commit(types.EDIT_DEAL, data);
+      return data;
+    } catch (error) {
+      return throwErrorMessage(error);
+    } finally {
+      commit(types.SET_DEALS_UI_FLAG, { isFetching: false });
+    }
+  },
+
   fetchByContact: async ({ commit }, contactId) => {
     commit(types.SET_DEALS_UI_FLAG, { isFetching: true });
     try {
