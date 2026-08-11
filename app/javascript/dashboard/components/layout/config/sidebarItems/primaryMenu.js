@@ -34,7 +34,7 @@ const primaryMenuItems = accountId => [
     toStateName: 'contacts_dashboard',
   },
   {
-    icon: 'arrow-trending-lines',
+    icon: 'heart-handshake',
     key: 'deals',
     label: 'CRM',
     featureFlag: FEATURE_FLAGS.DEALS,
