@@ -29,6 +29,8 @@ pt_BR:
       invalid: Eventos inválidos
     deal_stages:
       has_deals: 'Este estágio ainda tem negócios. Mova-os para outro estágio primeiro.'
+    deal_activities:
+      invalid_type: 'Somente atividades de nota, ligação, reunião e e-mail podem ser criadas manualmente.'
     signup:
       disposable_email: Não permitimos e-mails descartáveis
       blocked_domain: Este domínio não é permitido. Se você acredita que isso é um erro, por favor contate o suporte.

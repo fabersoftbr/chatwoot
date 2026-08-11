@@ -43,6 +43,8 @@ en:
       invalid: Invalid events
     deal_stages:
       has_deals: 'This stage still has deals. Move them to another stage first.'
+    deal_activities:
+      invalid_type: 'Only note, call, meeting and email activities can be created manually.'
     signup:
       disposable_email: We do not allow disposable emails
       blocked_domain: This domain is not allowed. If you believe this is a mistake, please contact support.

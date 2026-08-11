@@ -79,6 +79,9 @@ Rails.application.routes.draw do
           resources :deals, only: [:index, :show, :create, :update, :destroy] do
             get :board, on: :collection
             patch :move, on: :member
+            scope module: :deals do
+              resources :activities, only: [:index, :create]
+            end
           end
           resources :sla_policies, only: [:index, :create, :show, :update, :destroy]
           resources :custom_roles, only: [:index, :create, :show, :update, :destroy]
@@ -146,6 +149,7 @@ Rails.application.routes.draw do
               resources :contact_inboxes, only: [:create]
               resources :labels, only: [:create, :index]
               resources :notes
+              resources :deals, only: [:index]
             end
           end
           resources :csat_survey_responses, only: [:index] do
