@@ -33,6 +33,10 @@ const load = async () => {
 onMounted(async () => {
   if (!stages.value.length) {
     try {
+      // ponytail: fetchBoard is a full board-shaped fetch (every stage plus
+      // up to 25 deals per column) used here only to read stage names; the
+      // guard above keeps it to once per session. Upgrade path: a
+      // stages-only action on the `deals` module if this ever shows up hot.
       await store.dispatch('deals/fetchBoard', {});
     } catch (error) {
       // Same rationale as load(): don't let a failed stage fetch throw.
