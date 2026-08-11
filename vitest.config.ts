@@ -32,7 +32,7 @@ export default defineConfig({
         inline: ['tinykeys', '@material/mwc-icon'],
       },
     },
-    setupFiles: ['./node_modules/fake-indexeddb/auto/index.mjs', 'vitest.setup.js'],
+    setupFiles: ['fake-indexeddb/auto', 'vitest.setup.js'],
     mockReset: true,
     clearMocks: true,
   },
