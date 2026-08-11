@@ -3,6 +3,8 @@ import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { formatDealValue } from 'dashboard/routes/dashboard/crm/helpers/position';
+import { frontendURL } from 'dashboard/helper/URLHelper.js';
+import DealCard from 'dashboard/routes/dashboard/crm/components/DealCard.vue';
 import DealFormDialog from 'dashboard/routes/dashboard/crm/components/DealFormDialog.vue';
 
 const props = defineProps({
@@ -18,6 +20,7 @@ const dealFormRef = ref(null);
 // reads for its stage dropdown, so this is the one module we populate and
 // consume here — `dealStages/get` writes into a different, unrelated store.
 const stages = useMapGetter('deals/getStages');
+const accountId = useMapGetter('getCurrentAccountId');
 
 const load = async () => {
   try {
@@ -52,18 +55,32 @@ watch(
   }
 );
 
-const openDeals = computed(() => {
-  const openStageIds = stages.value
+const openStageIds = computed(() =>
+  stages.value
     .filter(stage => stage.stage_type === 'open')
-    .map(stage => stage.id);
+    .map(stage => stage.id)
+);
 
-  return deals.value.filter(deal => openStageIds.includes(deal.deal_stage_id));
-});
+const isOpenDeal = deal => openStageIds.value.includes(deal.deal_stage_id);
 
-const stageName = deal =>
-  stages.value.find(stage => stage.id === deal.deal_stage_id)?.name ?? '';
+// Open deals first, then closed (won/lost); within each group, ascending by
+// id so the order is stable across re-fetches instead of depending on
+// whatever order the API happens to return.
+const sortedDeals = computed(() =>
+  [...deals.value].sort((a, b) => {
+    const aOpen = isOpenDeal(a) ? 0 : 1;
+    const bOpen = isOpenDeal(b) ? 0 : 1;
+    return aOpen !== bOpen ? aOpen - bOpen : a.id - b.id;
+  })
+);
 
 const nextStageId = deal => {
+  // A deal must currently be in an open stage to have a "next" stage — a
+  // closed deal isn't in the `ordered` (open-only) list below, so without
+  // this guard `findIndex` returns -1 and `ordered[-1 + 1]` would resolve
+  // to the FIRST open stage, wrongly offering to advance a closed deal.
+  if (!isOpenDeal(deal)) return null;
+
   const ordered = stages.value.filter(stage => stage.stage_type === 'open');
   const index = ordered.findIndex(stage => stage.id === deal.deal_stage_id);
   return ordered[index + 1]?.id ?? null;
@@ -81,6 +98,47 @@ const advance = async deal => {
   await store.dispatch('deals/move', { id: deal.id, stageId, position: 0 });
   load();
 };
+
+// wonTotal sums raw cents regardless of currency; wonCurrencies below is
+// what decides whether that sum is safe to show as a single formatted
+// figure (see the template).
+const wonTotal = computed(() => {
+  const wonStageIds = stages.value
+    .filter(stage => stage.stage_type === 'won')
+    .map(stage => stage.id);
+
+  return deals.value
+    .filter(deal => wonStageIds.includes(deal.deal_stage_id))
+    .reduce((sum, deal) => sum + deal.value_cents, 0);
+});
+
+const wonCurrencies = computed(() => {
+  const wonStageIds = stages.value
+    .filter(stage => stage.stage_type === 'won')
+    .map(stage => stage.id);
+
+  return [
+    ...new Set(
+      deals.value
+        .filter(deal => wonStageIds.includes(deal.deal_stage_id))
+        .map(deal => deal.currency)
+    ),
+  ];
+});
+
+// ponytail: won deals in more than one currency can't be summed into one
+// honest figure, so the total is hidden rather than mislabeled with a
+// single currency. Upgrade path: a per-currency subtotal list if mixed
+// currencies turn out to be common.
+const wonTotalCurrency = computed(() =>
+  wonCurrencies.value.length === 1 ? wonCurrencies.value[0] : null
+);
+
+const openDealBoard = deal => {
+  window.location.href = frontendURL(
+    `accounts/${accountId.value}/crm/${deal.id}`
+  );
+};
 </script>
 
 <template>
@@ -94,17 +152,8 @@ const advance = async deal => {
       </button>
     </div>
 
-    <div
-      v-for="deal in openDeals"
-      :key="deal.id"
-      class="flex flex-col gap-1 p-2 rounded bg-slate-25 dark:bg-slate-900"
-    >
-      <span class="text-sm">{{ deal.title }}</span>
-      <span class="text-xs text-slate-500">
-        {{ stageName(deal) }} ·
-        {{ t(`CRM.TEMPERATURE.${deal.temperature.toUpperCase()}`) }} ·
-        {{ formatDealValue(deal.value_cents, deal.currency) }}
-      </span>
+    <div v-for="deal in sortedDeals" :key="deal.id" class="flex flex-col gap-1">
+      <DealCard :deal="deal" @click="openDealBoard" />
       <button
         v-if="nextStageId(deal)"
         class="self-start text-xs text-woot-600"
@@ -114,8 +163,16 @@ const advance = async deal => {
       </button>
     </div>
 
-    <p v-if="!openDeals.length" class="text-xs text-slate-400">
+    <p v-if="!sortedDeals.length" class="text-xs text-slate-400">
       {{ t('CRM.CONTACT_PANEL.EMPTY') }}
+    </p>
+
+    <p
+      v-if="wonTotal && wonTotalCurrency"
+      class="text-xs font-medium text-slate-700 dark:text-slate-300"
+    >
+      {{ t('CRM.CONTACT_PANEL.TOTAL_WON') }}:
+      {{ formatDealValue(wonTotal, wonTotalCurrency) }}
     </p>
 
     <DealFormDialog ref="dealFormRef" :contact-id="contactId" @created="load" />

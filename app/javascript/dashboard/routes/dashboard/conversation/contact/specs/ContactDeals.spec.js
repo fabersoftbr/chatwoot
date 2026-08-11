@@ -18,6 +18,7 @@ const openDeal = {
   temperature: 'hot',
   value_cents: 120000,
   currency: 'BRL',
+  contact: { name: 'Ana' },
 };
 
 const lastStageDeal = {
@@ -27,6 +28,7 @@ const lastStageDeal = {
   temperature: 'warm',
   value_cents: 50000,
   currency: 'BRL',
+  contact: { name: 'Bruno' },
 };
 
 const wonDeal = {
@@ -36,6 +38,7 @@ const wonDeal = {
   temperature: 'cold',
   value_cents: 90000,
   currency: 'BRL',
+  contact: { name: 'Carla' },
 };
 
 // The global vitest setup (vitest.setup.js) already installs the real
@@ -65,21 +68,50 @@ describe('ContactDeals', () => {
     vi.clearAllMocks();
   });
 
-  it('renders open deals with title, stage, temperature and formatted value, filtering out non-open deals', async () => {
+  it('renders open deals with title and formatted value', async () => {
     const { wrapper } = await mountContactDeals([openDeal, wonDeal]);
 
     expect(wrapper.text()).toContain('Big deal');
-    expect(wrapper.text()).toContain('New');
-    expect(wrapper.text()).toContain('Hot');
     expect(wrapper.text()).toContain('R$');
-
-    expect(wrapper.text()).not.toContain('Closed deal');
   });
 
-  it('renders the empty state when the contact has no open deals', async () => {
-    const { wrapper } = await mountContactDeals([wonDeal]);
+  it('renders a closed (won) deal instead of filtering it out', async () => {
+    const { wrapper } = await mountContactDeals([openDeal, wonDeal]);
+
+    expect(wrapper.text()).toContain('Closed deal');
+  });
+
+  it('renders the empty state when the contact has no deals at all', async () => {
+    const { wrapper } = await mountContactDeals([]);
 
     expect(wrapper.text()).toContain('No deals for this contact');
+  });
+
+  it('sums only won-stage deals into a formatted won total, rendered under the list', async () => {
+    const { wrapper } = await mountContactDeals([
+      openDeal,
+      lastStageDeal,
+      wonDeal,
+    ]);
+
+    // Only wonDeal (90000 cents) counts toward the total.
+    expect(wrapper.text()).toContain('Total won');
+    expect(wrapper.text()).toContain('R$\xa0900');
+  });
+
+  it('does not render a won total when there are no won deals', async () => {
+    const { wrapper } = await mountContactDeals([openDeal, lastStageDeal]);
+
+    expect(wrapper.text()).not.toContain('Total won');
+  });
+
+  it('does not render an advance button for a deal in a non-open (closed) stage', async () => {
+    const { wrapper } = await mountContactDeals([wonDeal]);
+
+    const advanceButtons = wrapper
+      .findAll('button')
+      .filter(btn => btn.text().startsWith('>'));
+    expect(advanceButtons).toHaveLength(0);
   });
 
   it('does not render an advance button for a deal already in the last open stage', async () => {
