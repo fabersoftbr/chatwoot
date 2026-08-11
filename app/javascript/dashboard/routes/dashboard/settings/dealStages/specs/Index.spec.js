@@ -105,6 +105,40 @@ describe('Deal stages settings page', () => {
     );
   });
 
+  it('surfaces an alert and reverts the input on a rejected rename, without throwing', async () => {
+    const dispatch = vi
+      .fn()
+      .mockImplementation(action =>
+        action === 'dealStages/update'
+          ? Promise.reject(new Error('Name is too long.'))
+          : Promise.resolve()
+      );
+    const wrapper = mountPage(dispatch);
+
+    const rows = wrapper.findAll('.border-slate-100');
+    const nameInput = rows[0].find('input.grow');
+    await nameInput.setValue('x'.repeat(300));
+    await expect(nameInput.trigger('blur')).resolves.toBeUndefined();
+    await wrapper.vm.$nextTick();
+    await wrapper.vm.$nextTick();
+
+    expect(useAlert).toHaveBeenCalledWith('Name is too long.');
+    expect(
+      wrapper.findAll('.border-slate-100')[0].find('input.grow').element.value
+    ).toBe('New');
+  });
+
+  it('does not mutate the dealStages/getStages objects when a row name input changes', async () => {
+    const dispatch = vi.fn().mockResolvedValue();
+    const wrapper = mountPage(dispatch);
+
+    const rows = wrapper.findAll('.border-slate-100');
+    const nameInput = rows[0].find('input.grow');
+    await nameInput.setValue('Changed locally');
+
+    expect(sortedStages.find(stage => stage.id === 1).name).toBe('New');
+  });
+
   it('gives every row control an accessible name', () => {
     const wrapper = mountPage(vi.fn().mockResolvedValue());
 

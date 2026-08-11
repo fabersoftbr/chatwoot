@@ -15,7 +15,11 @@ onMounted(() => store.dispatch('dealStages/get'));
 
 const list = ref([]);
 const syncList = () => {
-  list.value = [...stages.value];
+  // Row copies, not store references: v-model on a row must never mutate
+  // dealStages/getStages' objects directly, or a rejected save would leave
+  // the store (and every other consumer of the getter) holding a value the
+  // server refused.
+  list.value = stages.value.map(stage => ({ ...stage }));
 };
 
 // The store getter returns a freshly sorted copy on every recompute, so the
@@ -36,9 +40,19 @@ const addStage = async () => {
 };
 
 const rename = stage =>
-  store.dispatch('dealStages/update', { id: stage.id, name: stage.name });
+  store
+    .dispatch('dealStages/update', { id: stage.id, name: stage.name })
+    .catch(error => {
+      useAlert(error.message);
+      syncList();
+    });
 const recolor = stage =>
-  store.dispatch('dealStages/update', { id: stage.id, color: stage.color });
+  store
+    .dispatch('dealStages/update', { id: stage.id, color: stage.color })
+    .catch(error => {
+      useAlert(error.message);
+      syncList();
+    });
 const remove = stage =>
   store
     .dispatch('dealStages/delete', stage.id)
