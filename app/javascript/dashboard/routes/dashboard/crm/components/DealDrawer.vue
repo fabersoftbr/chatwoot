@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import DealDetailsTab from './DealDetailsTab.vue';
+import DealActivityTab from './DealActivityTab.vue';
 
 const props = defineProps({
   dealId: { type: Number, required: true },
@@ -66,6 +67,7 @@ const onUpdate = fields =>
         :deal="deal"
         @update="onUpdate"
       />
+      <DealActivityTab v-if="activeTab === 'activity'" :deal-id="dealId" />
     </div>
   </aside>
 </template>

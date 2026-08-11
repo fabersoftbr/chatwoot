@@ -97,6 +97,27 @@ export const actions = {
     }
   },
 
+  fetchActivities: async (_, dealId) => {
+    try {
+      const { data } = await DealsAPI.getActivities(dealId);
+      return data.payload;
+    } catch (error) {
+      return throwErrorMessage(error);
+    }
+  },
+
+  createActivity: async (_, { dealId, activityType, content }) => {
+    try {
+      const { data } = await DealsAPI.createActivity(dealId, {
+        activityType,
+        content,
+      });
+      return data;
+    } catch (error) {
+      return throwErrorMessage(error);
+    }
+  },
+
   delete: async ({ commit }, id) => {
     commit(types.SET_DEALS_UI_FLAG, { isDeleting: true });
     try {

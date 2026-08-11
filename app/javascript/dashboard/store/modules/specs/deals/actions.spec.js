@@ -70,6 +70,52 @@ describe('#actions', () => {
     });
   });
 
+  describe('#fetchActivities', () => {
+    it('resolves to the activity payload without committing', async () => {
+      const payload = [{ id: 1, activity_type: 'created' }];
+      axios.get.mockResolvedValue({ data: { payload } });
+
+      const result = await actions.fetchActivities({ commit }, 10);
+
+      expect(result).toEqual(payload);
+      expect(commit).not.toHaveBeenCalled();
+    });
+
+    it('throws when the request fails', async () => {
+      axios.get.mockRejectedValue({ message: 'boom' });
+
+      await expect(actions.fetchActivities({ commit }, 10)).rejects.toThrow(
+        Error
+      );
+    });
+  });
+
+  describe('#createActivity', () => {
+    it('resolves to the created activity without committing', async () => {
+      const activity = { id: 1, activity_type: 'call', content: 'Called' };
+      axios.post.mockResolvedValue({ data: activity });
+
+      const result = await actions.createActivity(
+        { commit },
+        { dealId: 10, activityType: 'call', content: 'Called' }
+      );
+
+      expect(result).toEqual(activity);
+      expect(commit).not.toHaveBeenCalled();
+    });
+
+    it('throws when the request fails', async () => {
+      axios.post.mockRejectedValue({ message: 'boom' });
+
+      await expect(
+        actions.createActivity(
+          { commit },
+          { dealId: 10, activityType: 'call', content: 'Called' }
+        )
+      ).rejects.toThrow(Error);
+    });
+  });
+
   describe('#create', () => {
     it('adds the created deal', async () => {
       const deal = { id: 11, title: 'Upsell' };
