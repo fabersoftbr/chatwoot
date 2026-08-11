@@ -1,16 +1,20 @@
 <script>
+import { mapGetters } from 'vuex';
 import AccordionItem from 'dashboard/components/Accordion/AccordionItem.vue';
 import ContactConversations from 'dashboard/routes/dashboard/conversation/ContactConversations.vue';
+import ContactDeals from 'dashboard/routes/dashboard/conversation/contact/ContactDeals.vue';
 import ContactInfo from 'dashboard/routes/dashboard/conversation/contact/ContactInfo.vue';
 import ContactLabel from 'dashboard/routes/dashboard/contacts/components/ContactLabels.vue';
 import CustomAttributes from 'dashboard/routes/dashboard/conversation/customAttributes/CustomAttributes.vue';
 import Draggable from 'vuedraggable';
 import { useUISettings } from 'dashboard/composables/useUISettings';
+import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 
 export default {
   components: {
     AccordionItem,
     ContactConversations,
+    ContactDeals,
     ContactInfo,
     ContactLabel,
     CustomAttributes,
@@ -57,9 +61,19 @@ export default {
     };
   },
   computed: {
+    ...mapGetters({
+      isFeatureEnabledonAccount: 'accounts/isFeatureEnabledonAccount',
+      accountId: 'getCurrentAccountId',
+    }),
     hasContactAttributes() {
       const { custom_attributes: customAttributes } = this.contact;
       return customAttributes && Object.keys(customAttributes).length;
+    },
+    isDealsFeatureEnabled() {
+      return this.isFeatureEnabledonAccount(
+        this.accountId,
+        FEATURE_FLAGS.DEALS
+      );
     },
   },
   mounted() {
@@ -152,6 +166,16 @@ export default {
           </div>
         </template>
       </Draggable>
+      <div v-if="isDealsFeatureEnabled && contact.id" class="list-group-item">
+        <AccordionItem
+          :title="$t('CRM.CONTACT_PANEL.TITLE')"
+          :is-open="isContactSidebarItemOpen('is_ct_deals_open')"
+          compact
+          @toggle="value => toggleSidebarUIState('is_ct_deals_open', value)"
+        >
+          <ContactDeals :contact-id="contact.id" />
+        </AccordionItem>
+      </div>
     </div>
   </div>
 </template>
