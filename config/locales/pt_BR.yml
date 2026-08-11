@@ -27,6 +27,8 @@ pt_BR:
       presence: não pode ficar em branco
     webhook:
       invalid: Eventos inválidos
+    deal_stages:
+      has_deals: 'Este estágio ainda tem negócios. Mova-os para outro estágio primeiro.'
     signup:
       disposable_email: Não permitimos e-mails descartáveis
       blocked_domain: Este domínio não é permitido. Se você acredita que isso é um erro, por favor contate o suporte.

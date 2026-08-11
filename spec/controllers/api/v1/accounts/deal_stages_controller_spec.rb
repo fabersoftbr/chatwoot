@@ -63,6 +63,38 @@ RSpec.describe 'Api::V1::Accounts::DealStagesController', type: :request do
       expect(second.reload.position).to eq(0)
       expect(first.reload.position).to eq(1)
     end
+
+    it 'keeps positions distinct when the request omits a stage' do
+      first = create(:deal_stage, account: account, position: 0)
+      second = create(:deal_stage, account: account, position: 1)
+      third = create(:deal_stage, account: account, position: 2)
+
+      patch "/api/v1/accounts/#{account.id}/deal_stages/reorder",
+            params: { stage_ids: [third.id, first.id] },
+            headers: administrator.create_new_auth_token
+
+      expect(response).to have_http_status(:success)
+      expect(third.reload.position).to eq(0)
+      expect(first.reload.position).to eq(1)
+      expect(second.reload.position).to eq(2)
+      expect([first, second, third].map(&:position)).to contain_exactly(0, 1, 2)
+    end
+
+    it 'ignores a stage id belonging to another account' do
+      first = create(:deal_stage, account: account, position: 0)
+      second = create(:deal_stage, account: account, position: 1)
+      other_account_stage = create(:deal_stage)
+
+      patch "/api/v1/accounts/#{account.id}/deal_stages/reorder",
+            params: { stage_ids: [other_account_stage.id, second.id, first.id] },
+            headers: administrator.create_new_auth_token
+
+      expect(response).to have_http_status(:success)
+      expect([first.reload.position, second.reload.position]).to contain_exactly(0, 1)
+      expect(second.position).to eq(0)
+      expect(first.position).to eq(1)
+      expect(account.deal_stages.pluck(:position)).to contain_exactly(0, 1)
+    end
   end
 
   describe 'DELETE /api/v1/accounts/{account.id}/deal_stages/{id}' do

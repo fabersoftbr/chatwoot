@@ -31,10 +31,16 @@ class Api::V1::Accounts::DealStagesController < Api::V1::Accounts::BaseControlle
   end
 
   def reorder
-    Current.account.deal_stages.where(id: params[:stage_ids]).find_each do |stage|
-      # rubocop:disable Rails/SkipsModelValidations
-      stage.update_column(:position, params[:stage_ids].map(&:to_i).index(stage.id))
-      # rubocop:enable Rails/SkipsModelValidations
+    account_stage_ids = Current.account.deal_stages.ordered.pluck(:id)
+    supplied_ids = Array(params[:stage_ids]).map(&:to_i).uniq & account_stage_ids
+    ordered_ids = supplied_ids | account_stage_ids
+
+    ActiveRecord::Base.transaction do
+      ordered_ids.each_with_index do |id, position|
+        # rubocop:disable Rails/SkipsModelValidations
+        DealStage.where(id: id).update_all(position: position)
+        # rubocop:enable Rails/SkipsModelValidations
+      end
     end
 
     @deal_stages = Current.account.deal_stages.ordered
