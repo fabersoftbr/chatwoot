@@ -1,7 +1,7 @@
 <script setup>
-import { reactive, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { useMapGetter } from 'dashboard/composables/store';
+import { useMapGetter, useStore } from 'dashboard/composables/store';
 import { centsToUnits, unitsToCents } from '../helpers/position';
 
 const props = defineProps({
@@ -11,13 +11,19 @@ const props = defineProps({
 const emit = defineEmits(['update']);
 
 const { t } = useI18n();
+const store = useStore();
 const stages = useMapGetter('deals/getStages');
+const agents = useMapGetter('agents/getAgents');
+
+const CURRENCIES = ['BRL', 'USD', 'EUR'];
 
 const form = reactive({
   title: props.deal.title,
   description: props.deal.description,
   temperature: props.deal.temperature,
   deal_stage_id: props.deal.deal_stage_id,
+  assignee_id: props.deal.assignee_id,
+  currency: props.deal.currency,
   expected_close_on: props.deal.expected_close_on,
   next_action: props.deal.next_action,
   next_action_at: props.deal.next_action_at,
@@ -33,9 +39,17 @@ watch(
   }
 );
 
+onMounted(() => {
+  if (!agents.value.length) {
+    store.dispatch('agents/get');
+  }
+});
+
 const save = field => emit('update', { [field]: form[field] });
 const saveValue = () =>
   emit('update', { value_cents: unitsToCents(valueInput.value) });
+const saveAssignee = () =>
+  emit('update', { assignee_id: form.assignee_id || null });
 </script>
 
 <template>
@@ -51,6 +65,31 @@ const saveValue = () =>
     >
       <option v-for="stage in stages" :key="stage.id" :value="stage.id">
         {{ stage.name }}
+      </option>
+    </select>
+
+    <label class="text-xs text-slate-500">{{ t('CRM.FORM.ASSIGNEE') }}</label>
+    <select
+      v-model="form.assignee_id"
+      class="input"
+      :aria-label="t('CRM.FORM.ASSIGNEE')"
+      @change="saveAssignee"
+    >
+      <option value="" />
+      <option v-for="agent in agents" :key="agent.id" :value="agent.id">
+        {{ agent.name }}
+      </option>
+    </select>
+
+    <label class="text-xs text-slate-500">{{ t('CRM.FORM.CURRENCY') }}</label>
+    <select
+      v-model="form.currency"
+      class="input"
+      :aria-label="t('CRM.FORM.CURRENCY')"
+      @change="save('currency')"
+    >
+      <option v-for="currency in CURRENCIES" :key="currency" :value="currency">
+        {{ currency }}
       </option>
     </select>
 

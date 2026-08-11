@@ -27,6 +27,7 @@
       "VALUE": "Value",
       "TEMPERATURE": "Temperature",
       "ASSIGNEE": "Owner",
+      "CURRENCY": "Currency",
       "DESCRIPTION": "Description",
       "EXPECTED_CLOSE_ON": "Expected close date",
       "NEXT_ACTION": "Next action",

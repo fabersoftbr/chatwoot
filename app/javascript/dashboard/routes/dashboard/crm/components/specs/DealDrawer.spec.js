@@ -14,7 +14,11 @@ const deal = {
 const mountDrawer = (dispatch, getDeal) => {
   useStore.mockReturnValue({ dispatch });
   useMapGetter.mockImplementation(getter => {
-    const mockValues = { 'deals/getDeal': getDeal };
+    const mockValues = {
+      'deals/getDeal': getDeal,
+      'deals/getStages': [],
+      'agents/getAgents': [],
+    };
     return computed(() => mockValues[getter]);
   });
   return mount(DealDrawer, { props: { dealId: 26 } });

@@ -27,6 +27,7 @@
       "VALUE": "Valor",
       "TEMPERATURE": "Temperatura",
       "ASSIGNEE": "Responsável",
+      "CURRENCY": "Moeda",
       "DESCRIPTION": "Descrição",
       "EXPECTED_CLOSE_ON": "Previsão de fechamento",
       "NEXT_ACTION": "Próxima ação",
