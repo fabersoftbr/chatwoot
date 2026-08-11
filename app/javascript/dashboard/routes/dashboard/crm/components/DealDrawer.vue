@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import DealDetailsTab from './DealDetailsTab.vue';
 import DealActivityTab from './DealActivityTab.vue';
+import DealContactTab from './DealContactTab.vue';
 
 const props = defineProps({
   dealId: { type: Number, required: true },
@@ -59,7 +60,7 @@ watch(
         class="flex gap-4 px-4 border-b border-slate-100 dark:border-slate-700"
       >
         <button
-          v-for="tab in ['details', 'activity']"
+          v-for="tab in ['details', 'activity', 'contact']"
           :key="tab"
           class="py-2 text-sm"
           :class="
@@ -80,6 +81,10 @@ watch(
           @update="onUpdate"
         />
         <DealActivityTab v-if="activeTab === 'activity'" :deal-id="dealId" />
+        <DealContactTab
+          v-if="activeTab === 'contact'"
+          :contact="deal.contact"
+        />
       </div>
     </aside>
   </div>
