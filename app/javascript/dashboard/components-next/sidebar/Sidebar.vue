@@ -100,6 +100,10 @@ const hasDataImport = computed(() => {
   );
 });
 
+const hasDeals = computed(() => {
+  return isFeatureEnabledonAccount.value(accountId.value, FEATURE_FLAGS.DEALS);
+});
+
 const fetchConversationUnreadCounts = ([currentAccountId, isEnabled]) => {
   if (!currentAccountId) return;
 
@@ -666,6 +670,17 @@ const menuItems = computed(() => {
         },
       ],
     },
+    ...(hasDeals.value
+      ? [
+          {
+            name: 'CRM',
+            label: t('CRM.HEADER'),
+            icon: 'i-lucide-handshake',
+            to: accountScopedRoute('deals_board'),
+            activeOn: ['deals_board', 'deal_details'],
+          },
+        ]
+      : []),
     {
       name: 'Reports',
       label: t('SIDEBAR.REPORTS'),

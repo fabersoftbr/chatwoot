@@ -4,6 +4,7 @@ import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { useRoute, useRouter } from 'vue-router';
+import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 
 import ContactsDetailsLayout from 'dashboard/components-next/Contacts/ContactsDetailsLayout.vue';
 import Spinner from 'dashboard/components-next/spinner/Spinner.vue';
@@ -14,6 +15,7 @@ import ContactHistory from 'dashboard/components-next/Contacts/ContactsSidebar/C
 import ContactMedia from 'dashboard/components-next/Contacts/ContactsSidebar/ContactMedia.vue';
 import ContactMerge from 'dashboard/components-next/Contacts/ContactsSidebar/ContactMerge.vue';
 import ContactCustomAttributes from 'dashboard/components-next/Contacts/ContactsSidebar/ContactCustomAttributes.vue';
+import ContactDeals from 'dashboard/routes/dashboard/conversation/contact/ContactDeals.vue';
 
 const store = useStore();
 const route = useRoute();
@@ -21,6 +23,13 @@ const router = useRouter();
 
 const contact = useMapGetter('contacts/getContactById');
 const uiFlags = useMapGetter('contacts/getUIFlags');
+const accountId = useMapGetter('getCurrentAccountId');
+const isFeatureEnabledonAccount = useMapGetter(
+  'accounts/isFeatureEnabledonAccount'
+);
+const isDealsFeatureEnabled = computed(() =>
+  isFeatureEnabledonAccount.value(accountId.value, FEATURE_FLAGS.DEALS)
+);
 
 const activeTab = ref('attributes');
 const contactMergeRef = ref(null);
@@ -37,23 +46,31 @@ const showSpinner = computed(
 
 const { t } = useI18n();
 
-const CONTACT_TABS_OPTIONS = [
+// `DEALS` has no `CONTACTS_LAYOUT.SIDEBAR.TABS.DEALS` locale key of its own —
+// it reuses `CRM.HEADER` ("Deals") rather than adding a new translation key,
+// and only appears in the list at all once the feature flag is on so the
+// tab (and thus ContactDeals) never mounts while it's off.
+const CONTACT_TABS_OPTIONS = computed(() => [
   { key: 'ATTRIBUTES', value: 'attributes' },
   { key: 'HISTORY', value: 'history' },
   { key: 'NOTES', value: 'notes' },
   { key: 'MEDIA', value: 'media' },
   { key: 'MERGE', value: 'merge' },
-];
+  ...(isDealsFeatureEnabled.value ? [{ key: 'DEALS', value: 'deals' }] : []),
+]);
 
 const tabs = computed(() => {
-  return CONTACT_TABS_OPTIONS.map(tab => ({
-    label: t(`CONTACTS_LAYOUT.SIDEBAR.TABS.${tab.key}`),
+  return CONTACT_TABS_OPTIONS.value.map(tab => ({
+    label:
+      tab.key === 'DEALS'
+        ? t('CRM.HEADER')
+        : t(`CONTACTS_LAYOUT.SIDEBAR.TABS.${tab.key}`),
     value: tab.value,
   }));
 });
 
 const activeTabIndex = computed(() => {
-  return CONTACT_TABS_OPTIONS.findIndex(v => v.value === activeTab.value);
+  return CONTACT_TABS_OPTIONS.value.findIndex(v => v.value === activeTab.value);
 });
 
 const goToContactsList = () => {
@@ -176,6 +193,10 @@ onMounted(() => {
           <ContactNotes v-if="activeTab === 'notes'" />
           <ContactHistory v-if="activeTab === 'history'" />
           <ContactMedia v-if="activeTab === 'media'" />
+          <ContactDeals
+            v-if="activeTab === 'deals' && isDealsFeatureEnabled"
+            :contact-id="selectedContact.id"
+          />
           <ContactMerge
             v-if="activeTab === 'merge'"
             ref="contactMergeRef"
