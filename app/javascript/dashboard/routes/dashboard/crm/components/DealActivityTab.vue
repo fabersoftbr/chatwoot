@@ -50,6 +50,7 @@ const describe = activity => {
         <select
           v-model="activityType"
           class="p-2 text-sm border rounded border-slate-200 dark:border-slate-600 dark:bg-slate-900"
+          :aria-label="t('CRM.ACTIVITY.ADD')"
         >
           <option v-for="type in MANUAL_TYPES" :key="type" :value="type">
             {{ t(`CRM.ACTIVITY.TYPES.${type.toUpperCase()}`) }}
@@ -67,6 +68,7 @@ const describe = activity => {
         v-model="content"
         rows="2"
         class="w-full p-2 text-sm border rounded border-slate-200 dark:border-slate-600 dark:bg-slate-900"
+        :aria-label="t('CRM.ACTIVITY.PLACEHOLDER')"
         :placeholder="t('CRM.ACTIVITY.PLACEHOLDER')"
       />
     </div>
