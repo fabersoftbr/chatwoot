@@ -2,12 +2,14 @@
 import EditContact from 'dashboard/routes/dashboard/conversation/contact/EditContact.vue';
 import NewConversation from 'dashboard/routes/dashboard/conversation/contact/NewConversation.vue';
 import AddCustomAttribute from 'dashboard/modules/contact/components/AddCustomAttribute.vue';
+import ContactDeals from 'dashboard/routes/dashboard/conversation/contact/ContactDeals.vue';
 import ContactIntro from './ContactIntro.vue';
 import ContactFields from './ContactFields.vue';
 
 export default {
   components: {
     AddCustomAttribute,
+    ContactDeals,
     ContactFields,
     ContactIntro,
     EditContact,
@@ -79,6 +81,7 @@ export default {
       @update="updateField"
       @create-attribute="toggleCustomAttributeModal"
     />
+    <ContactDeals v-if="contact && contact.id" :contact-id="contact.id" />
     <EditContact
       v-if="showEditModal"
       :show="showEditModal"
