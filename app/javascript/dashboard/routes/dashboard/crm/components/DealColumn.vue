@@ -14,12 +14,22 @@ const emit = defineEmits(['move', 'select']);
 
 const { t } = useI18n();
 
-const total = computed(() =>
-  formatDealValue(
-    props.deals.reduce((sum, deal) => sum + deal.value_cents, 0),
-    props.deals[0]?.currency || 'BRL'
-  )
+// The board caps each column at 25 loaded deals, so `props.deals` can be a
+// partial view. `stage.deals_count` / `stage.deals_value_cents` come from
+// the server and reflect every deal in the stage, loaded or not.
+const dealsCount = computed(
+  () => props.stage.deals_count ?? props.deals.length
 );
+
+// ponytail: currency is assumed uniform per account/stage — mixed-currency
+// columns aren't summed server-side yet, so this only guards against
+// mislabeling with a currency that isn't actually shared by the loaded
+// cards. Upgrade path: a currency breakdown from the board endpoint.
+const total = computed(() => {
+  const currencies = new Set(props.deals.map(deal => deal.currency));
+  const currency = currencies.size === 1 ? [...currencies][0] : 'BRL';
+  return formatDealValue(props.stage.deals_value_cents ?? 0, currency);
+});
 
 // vuedraggable mutates the bound list; we ignore the mutation and let the store
 // re-render from the server response instead.
@@ -51,7 +61,7 @@ const onDrop = event => {
           :style="{ backgroundColor: stage.color }"
         />
         {{ stage.name }}
-        <span class="text-slate-500">{{ deals.length }}</span>
+        <span class="text-slate-500">{{ dealsCount }}</span>
       </span>
       <span class="text-xs text-slate-500">{{ total }}</span>
     </div>
