@@ -1,9 +1,9 @@
 <script setup>
 import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { formatDealValue } from 'dashboard/routes/dashboard/crm/helpers/position';
-import { frontendURL } from 'dashboard/helper/URLHelper.js';
 import DealCard from 'dashboard/routes/dashboard/crm/components/DealCard.vue';
 import DealFormDialog from 'dashboard/routes/dashboard/crm/components/DealFormDialog.vue';
 
@@ -13,6 +13,7 @@ const props = defineProps({
 
 const { t } = useI18n();
 const store = useStore();
+const router = useRouter();
 
 const deals = ref([]);
 const dealFormRef = ref(null);
@@ -99,32 +100,24 @@ const advance = async deal => {
   load();
 };
 
+const wonDeals = computed(() => {
+  const wonStageIds = stages.value
+    .filter(stage => stage.stage_type === 'won')
+    .map(stage => stage.id);
+
+  return deals.value.filter(deal => wonStageIds.includes(deal.deal_stage_id));
+});
+
 // wonTotal sums raw cents regardless of currency; wonCurrencies below is
 // what decides whether that sum is safe to show as a single formatted
 // figure (see the template).
-const wonTotal = computed(() => {
-  const wonStageIds = stages.value
-    .filter(stage => stage.stage_type === 'won')
-    .map(stage => stage.id);
+const wonTotal = computed(() =>
+  wonDeals.value.reduce((sum, deal) => sum + deal.value_cents, 0)
+);
 
-  return deals.value
-    .filter(deal => wonStageIds.includes(deal.deal_stage_id))
-    .reduce((sum, deal) => sum + deal.value_cents, 0);
-});
-
-const wonCurrencies = computed(() => {
-  const wonStageIds = stages.value
-    .filter(stage => stage.stage_type === 'won')
-    .map(stage => stage.id);
-
-  return [
-    ...new Set(
-      deals.value
-        .filter(deal => wonStageIds.includes(deal.deal_stage_id))
-        .map(deal => deal.currency)
-    ),
-  ];
-});
+const wonCurrencies = computed(() => [
+  ...new Set(wonDeals.value.map(deal => deal.currency)),
+]);
 
 // ponytail: won deals in more than one currency can't be summed into one
 // honest figure, so the total is hidden rather than mislabeled with a
@@ -135,9 +128,13 @@ const wonTotalCurrency = computed(() =>
 );
 
 const openDealBoard = deal => {
-  window.location.href = frontendURL(
-    `accounts/${accountId.value}/crm/${deal.id}`
-  );
+  // Same router the CRM board itself uses to open the drawer for a deal
+  // (see DealsBoardPage.vue's onSelect) — an in-SPA transition, not a
+  // full-page reload.
+  router.push({
+    name: 'deal_details',
+    params: { accountId: accountId.value, dealId: deal.id },
+  });
 };
 </script>
 

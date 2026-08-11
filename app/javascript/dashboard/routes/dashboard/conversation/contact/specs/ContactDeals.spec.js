@@ -1,9 +1,12 @@
 import { computed } from 'vue';
 import { mount, flushPromises } from '@vue/test-utils';
+import { useRouter } from 'vue-router';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
+import DealCard from 'dashboard/routes/dashboard/crm/components/DealCard.vue';
 import ContactDeals from '../ContactDeals.vue';
 
 vi.mock('dashboard/composables/store');
+vi.mock('vue-router');
 
 const stages = [
   { id: 1, name: 'New', stage_type: 'open' },
@@ -41,6 +44,16 @@ const wonDeal = {
   contact: { name: 'Carla' },
 };
 
+const wonDealUSD = {
+  id: 4,
+  title: 'Won in dollars',
+  deal_stage_id: 3,
+  temperature: 'warm',
+  value_cents: 30000,
+  currency: 'USD',
+  contact: { name: 'Dana' },
+};
+
 // The global vitest setup (vitest.setup.js) already installs the real
 // vue-i18n plugin with the app's `en` messages, so `useI18n()` resolves
 // actual translated strings here rather than needing a $t mock.
@@ -50,17 +63,20 @@ const mountContactDeals = async (deals, { contactId = 7 } = {}) => {
     return Promise.resolve();
   });
   useStore.mockReturnValue({ dispatch });
+  const push = vi.fn();
+  useRouter.mockReturnValue({ push });
   useMapGetter.mockImplementation(getter => {
     const mockValues = {
       'deals/getStages': stages,
       'contacts/getContacts': [],
+      getCurrentAccountId: 42,
     };
     return computed(() => mockValues[getter]);
   });
 
   const wrapper = mount(ContactDeals, { props: { contactId } });
   await flushPromises();
-  return { wrapper, dispatch };
+  return { wrapper, dispatch, push };
 };
 
 describe('ContactDeals', () => {
@@ -103,6 +119,23 @@ describe('ContactDeals', () => {
     const { wrapper } = await mountContactDeals([openDeal, lastStageDeal]);
 
     expect(wrapper.text()).not.toContain('Total won');
+  });
+
+  it('hides the won total instead of mislabeling a sum across mixed currencies', async () => {
+    const { wrapper } = await mountContactDeals([wonDeal, wonDealUSD]);
+
+    expect(wrapper.text()).not.toContain('Total won');
+  });
+
+  it('pushes to the deal_details route with accountId and dealId when a DealCard is clicked', async () => {
+    const { wrapper, push } = await mountContactDeals([openDeal]);
+
+    await wrapper.findComponent(DealCard).trigger('click');
+
+    expect(push).toHaveBeenCalledWith({
+      name: 'deal_details',
+      params: { accountId: 42, dealId: openDeal.id },
+    });
   });
 
   it('does not render an advance button for a deal in a non-open (closed) stage', async () => {
