@@ -6,6 +6,7 @@ import { useAlert } from 'dashboard/composables';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import DealColumn from '../components/DealColumn.vue';
 import DealDrawer from '../components/DealDrawer.vue';
+import DealFilters from '../components/DealFilters.vue';
 import DealFormDialog from '../components/DealFormDialog.vue';
 import LostReasonDialog from '../components/LostReasonDialog.vue';
 
@@ -20,6 +21,7 @@ const dealsByStage = useMapGetter('deals/getDealsByStage');
 const lostDialogRef = ref(null);
 const dealFormRef = ref(null);
 const pendingMove = ref(null);
+const filters = ref({});
 
 const selectedDealId = computed(() =>
   route.params.dealId ? Number(route.params.dealId) : null
@@ -34,9 +36,14 @@ const onSelect = deal =>
 const closeDrawer = () =>
   router.push({ name: 'deals_board', params: route.params });
 
-const refresh = () => store.dispatch('deals/fetchBoard', {});
+const refresh = () => store.dispatch('deals/fetchBoard', filters.value);
 
 onMounted(refresh);
+
+const onFiltersChange = newFilters => {
+  filters.value = newFilters;
+  refresh();
+};
 
 const applyMove = async (move, lostReason) => {
   try {
@@ -88,6 +95,8 @@ const onLostCancel = () => {
         {{ t('CRM.NEW_DEAL') }}
       </button>
     </div>
+
+    <DealFilters @change="onFiltersChange" />
 
     <div class="flex gap-3 overflow-x-auto grow">
       <DealColumn

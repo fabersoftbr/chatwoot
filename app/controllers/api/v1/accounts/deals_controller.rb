@@ -10,13 +10,12 @@ class Api::V1::Accounts::DealsController < Api::V1::Accounts::BaseController
 
   def board
     @deal_stages = DealStage.seed_defaults(Current.account)
-    stage_deals = Current.account.deals.where(deal_stage_id: @deal_stages.map(&:id))
+    stage_deals = filtered_deals(Current.account.deals.where(deal_stage_id: @deal_stages.map(&:id)))
 
-    @counts = stage_deals.group(:deal_stage_id).count
-    @sums = stage_deals.group(:deal_stage_id).sum(:value_cents)
+    @counts = stage_deals.unscope(:order).group(:deal_stage_id).count
+    @sums = stage_deals.unscope(:order).group(:deal_stage_id).sum(:value_cents)
     @deals_by_stage = @deal_stages.index_with do |stage|
-      stage_deals.where(deal_stage_id: stage.id).includes(contact: { avatar_attachment: [:blob] },
-                                                          assignee: { avatar_attachment: [:blob] }).ordered.limit(RESULTS_PER_PAGE)
+      stage_deals.where(deal_stage_id: stage.id).limit(RESULTS_PER_PAGE)
     end
   end
 
@@ -49,9 +48,9 @@ class Api::V1::Accounts::DealsController < Api::V1::Accounts::BaseController
   private
 
   # rubocop:disable Metrics/AbcSize
-  def filtered_deals
-    deals = Current.account.deals.includes(contact: { avatar_attachment: [:blob] }, assignee: { avatar_attachment: [:blob] }).ordered
-    deals = deals.where(deal_stage_id: params[:stage_id]) if params[:stage_id].present?
+  def filtered_deals(scope = Current.account.deals)
+    deals = scope.includes(contact: { avatar_attachment: [:blob] }, assignee: { avatar_attachment: [:blob] }).ordered
+    deals = deals.where(deal_stage_id: params[:stage_id]) if params[:stage_id].present? && action_name != 'board'
     deals = deals.where(assignee_id: params[:assignee_id]) if params[:assignee_id].present?
     deals = deals.where(temperature: params[:temperature]) if params[:temperature].present?
     deals = deals.overdue if ActiveModel::Type::Boolean.new.cast(params[:overdue])

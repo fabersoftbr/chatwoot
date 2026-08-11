@@ -83,6 +83,21 @@ RSpec.describe 'Api::V1::Accounts::DealsController', type: :request do
 
       expect(response.parsed_body['payload'].length).to eq(5)
     end
+
+    it 'applies the same filters as the index and reflects them in the counts' do
+      create(:deal, account: account, contact: contact, deal_stage: open_stage, value_cents: 10_000)
+      wanted = create(:deal, account: account, contact: contact, deal_stage: open_stage,
+                             value_cents: 25_000, temperature: :hot)
+
+      get "/api/v1/accounts/#{account.id}/deals/board",
+          params: { temperature: 'hot' },
+          headers: agent.create_new_auth_token
+
+      column = response.parsed_body['payload'].find { |stage| stage['id'] == open_stage.id }
+      expect(column['deals'].pluck('id')).to eq([wanted.id])
+      expect(column['deals_count']).to eq(1)
+      expect(column['deals_value_cents']).to eq(25_000)
+    end
   end
 
   describe 'POST /api/v1/accounts/{account.id}/deals' do

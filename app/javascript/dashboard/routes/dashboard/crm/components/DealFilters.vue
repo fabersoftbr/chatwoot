@@ -1,0 +1,87 @@
+<script setup>
+import { onMounted, reactive } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { useStore, useMapGetter } from 'dashboard/composables/store';
+
+const emit = defineEmits(['change']);
+
+const { t } = useI18n();
+const store = useStore();
+
+const agents = useMapGetter('agents/getAgents');
+
+const filters = reactive({
+  q: '',
+  assignee_id: '',
+  temperature: '',
+  overdue: false,
+});
+
+onMounted(() => {
+  if (!agents.value.length) {
+    store.dispatch('agents/get');
+  }
+});
+
+const emitChange = () => {
+  const payload = Object.fromEntries(
+    Object.entries(filters).filter(
+      ([, value]) => value !== '' && value !== null && value !== false
+    )
+  );
+
+  emit('change', payload);
+};
+</script>
+
+<template>
+  <div class="flex items-center gap-2">
+    <input
+      v-model="filters.q"
+      class="input"
+      :aria-label="t('CRM.SEARCH_PLACEHOLDER')"
+      :placeholder="t('CRM.SEARCH_PLACEHOLDER')"
+      @input="emitChange"
+    />
+
+    <select
+      v-model="filters.assignee_id"
+      class="input"
+      :aria-label="t('CRM.FILTERS.ASSIGNEE')"
+      @change="emitChange"
+    >
+      <option value="">{{ t('CRM.FILTERS.ALL') }}</option>
+      <option v-for="agent in agents" :key="agent.id" :value="agent.id">
+        {{ agent.name }}
+      </option>
+    </select>
+
+    <select
+      v-model="filters.temperature"
+      class="input"
+      :aria-label="t('CRM.FILTERS.TEMPERATURE')"
+      @change="emitChange"
+    >
+      <option value="">{{ t('CRM.FILTERS.ALL') }}</option>
+      <option value="hot">{{ t('CRM.TEMPERATURE.HOT') }}</option>
+      <option value="warm">{{ t('CRM.TEMPERATURE.WARM') }}</option>
+      <option value="cold">{{ t('CRM.TEMPERATURE.COLD') }}</option>
+    </select>
+
+    <label class="flex items-center gap-1 text-sm">
+      <input
+        v-model="filters.overdue"
+        type="checkbox"
+        :aria-label="t('CRM.FILTERS.OVERDUE')"
+        @change="emitChange"
+      />
+      {{ t('CRM.FILTERS.OVERDUE') }}
+    </label>
+  </div>
+</template>
+
+<style scoped>
+.input {
+  @apply p-2 text-sm border rounded border-slate-200 dark:border-slate-600 dark:bg-slate-900;
+}
+</style>
