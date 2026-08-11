@@ -20,6 +20,52 @@
             "GO_BACK_LABEL": "Go Back",
             "SEND_MESSAGE_LABEL": "Send Message",
             "FORM_ERROR_MESSAGE": "Please fill all variables before sending"
+        },
+        "SETTINGS": {
+            "TITLE": "Message templates",
+            "SUBTITLE": "Templates are created here and approved by Meta. Approval takes from a few minutes up to 24 hours.",
+            "NEW_TEMPLATE": "New template",
+            "EMPTY": "No templates yet. Create the first one.",
+            "TABLE": {
+                "NAME": "Name",
+                "LANGUAGE": "Language",
+                "CATEGORY": "Category",
+                "STATUS": "Status",
+                "ACTIONS": "Actions"
+            },
+            "DELETE": {
+                "BUTTON": "Delete",
+                "CONFIRM_TITLE": "Delete template",
+                "CONFIRM_MESSAGE": "Are you sure you want to delete {name}? This cannot be undone.",
+                "CONFIRM_YES": "Yes, delete",
+                "CONFIRM_NO": "Cancel",
+                "SUCCESS": "Template deleted"
+            },
+            "FORM": {
+                "TITLE": "New template",
+                "NAME": {
+                    "LABEL": "Name",
+                    "PLACEHOLDER": "order_shipped",
+                    "HELP": "Lowercase letters, numbers and underscores only.",
+                    "ERROR": "Use only lowercase letters, numbers and underscores."
+                },
+                "LANGUAGE": { "LABEL": "Language" },
+                "CATEGORY": { "LABEL": "Category" },
+                "BODY": {
+                    "LABEL": "Body",
+                    "PLACEHOLDER": "Hi {{1}}, your order {{2}} has shipped.",
+                    "HELP": "Use {{1}}, {{2}} for variables.",
+                    "ERROR": "Body is required."
+                },
+                "EXAMPLES": {
+                    "LABEL": "Variable examples",
+                    "HELP": "Meta rejects templates without an example for every variable.",
+                    "PLACEHOLDER": "Example for {variable}"
+                },
+                "SUBMIT": "Create template",
+                "CANCEL": "Cancel",
+                "SUCCESS": "Template submitted. Meta review is pending."
+            }
         }
     }
 }

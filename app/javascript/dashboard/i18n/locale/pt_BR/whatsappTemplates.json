@@ -20,6 +20,52 @@
             "GO_BACK_LABEL": "Voltar",
             "SEND_MESSAGE_LABEL": "Enviar Mensagem",
             "FORM_ERROR_MESSAGE": "Por favor, preencha todas as variáveis antes de enviar"
+        },
+        "SETTINGS": {
+            "TITLE": "Modelos de mensagem",
+            "SUBTITLE": "Os modelos são criados aqui e aprovados pela Meta. A aprovação leva de alguns minutos a 24 horas.",
+            "NEW_TEMPLATE": "Novo modelo",
+            "EMPTY": "Nenhum modelo ainda. Crie o primeiro.",
+            "TABLE": {
+                "NAME": "Nome",
+                "LANGUAGE": "Idioma",
+                "CATEGORY": "Categoria",
+                "STATUS": "Status",
+                "ACTIONS": "Ações"
+            },
+            "DELETE": {
+                "BUTTON": "Excluir",
+                "CONFIRM_TITLE": "Excluir modelo",
+                "CONFIRM_MESSAGE": "Tem certeza que deseja excluir {name}? Esta ação não pode ser desfeita.",
+                "CONFIRM_YES": "Sim, excluir",
+                "CONFIRM_NO": "Cancelar",
+                "SUCCESS": "Modelo excluído"
+            },
+            "FORM": {
+                "TITLE": "Novo modelo",
+                "NAME": {
+                    "LABEL": "Nome",
+                    "PLACEHOLDER": "pedido_enviado",
+                    "HELP": "Apenas letras minúsculas, números e sublinhado.",
+                    "ERROR": "Use apenas letras minúsculas, números e sublinhado."
+                },
+                "LANGUAGE": { "LABEL": "Idioma" },
+                "CATEGORY": { "LABEL": "Categoria" },
+                "BODY": {
+                    "LABEL": "Corpo",
+                    "PLACEHOLDER": "Olá {{1}}, seu pedido {{2}} foi enviado.",
+                    "HELP": "Use {{1}}, {{2}} para variáveis.",
+                    "ERROR": "O corpo é obrigatório."
+                },
+                "EXAMPLES": {
+                    "LABEL": "Exemplos das variáveis",
+                    "HELP": "A Meta rejeita modelos sem exemplo para cada variável.",
+                    "PLACEHOLDER": "Exemplo para {variable}"
+                },
+                "SUBMIT": "Criar modelo",
+                "CANCEL": "Cancelar",
+                "SUCCESS": "Modelo enviado. Aguardando revisão da Meta."
+            }
         }
     }
 }
