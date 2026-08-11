@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useDebounceFn } from '@vueuse/core';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 
 const emit = defineEmits(['change']);
@@ -32,6 +33,10 @@ const emitChange = () => {
 
   emit('change', payload);
 };
+
+// Only the free-text search fires per keystroke; the selects and checkbox
+// are discrete choices and should apply immediately.
+const emitChangeDebounced = useDebounceFn(emitChange, 300);
 </script>
 
 <template>
@@ -41,7 +46,7 @@ const emitChange = () => {
       class="input"
       :aria-label="t('CRM.SEARCH_PLACEHOLDER')"
       :placeholder="t('CRM.SEARCH_PLACEHOLDER')"
-      @input="emitChange"
+      @input="emitChangeDebounced"
     />
 
     <select

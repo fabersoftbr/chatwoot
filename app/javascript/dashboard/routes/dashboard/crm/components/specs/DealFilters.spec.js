@@ -38,16 +38,40 @@ describe('DealFilters', () => {
     expect(dispatch).not.toHaveBeenCalledWith('agents/get');
   });
 
-  it('emits change with { q } when typing in the search box', async () => {
+  it('emits change with { q } when typing in the search box, debounced by 300ms', async () => {
+    vi.useFakeTimers();
     const wrapper = mountFilters();
 
     await wrapper
       .find('input[type="text"], input:not([type])')
       .setValue('acme');
 
+    expect(wrapper.emitted('change')).toBeFalsy();
+
+    vi.advanceTimersByTime(300);
+
     const emitted = wrapper.emitted('change');
     expect(emitted).toBeTruthy();
     expect(emitted[emitted.length - 1]).toEqual([{ q: 'acme' }]);
+    vi.useRealTimers();
+  });
+
+  it('emits a single change for rapid successive keystrokes in the search box', async () => {
+    vi.useFakeTimers();
+    const wrapper = mountFilters();
+    const input = wrapper.find('input[type="text"], input:not([type])');
+
+    await input.setValue('a');
+    await input.setValue('ac');
+    await input.setValue('acm');
+    await input.setValue('acme');
+
+    vi.advanceTimersByTime(300);
+
+    const emitted = wrapper.emitted('change');
+    expect(emitted).toHaveLength(1);
+    expect(emitted[0]).toEqual([{ q: 'acme' }]);
+    vi.useRealTimers();
   });
 
   it('emits change with the temperature when a temperature is selected', async () => {
