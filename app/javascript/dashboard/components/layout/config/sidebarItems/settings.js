@@ -40,6 +40,7 @@ const settings = accountId => ({
     'settings_teams_new',
     'sla_list',
     'custom_roles_list',
+    'settings_deal_stages',
   ],
   menuItems: [
     {
@@ -203,6 +204,17 @@ const settings = accountId => ({
       isEnterpriseOnly: true,
       featureFlag: FEATURE_FLAGS.SLA,
       beta: true,
+    },
+    {
+      icon: 'heart-handshake',
+      label: 'DEAL_STAGES',
+      hasSubMenu: false,
+      meta: {
+        permissions: ['administrator'],
+      },
+      toState: frontendURL(`accounts/${accountId}/settings/deal-stages`),
+      toStateName: 'settings_deal_stages',
+      featureFlag: FEATURE_FLAGS.DEALS,
     },
     {
       icon: 'credit-card-person',
