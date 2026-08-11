@@ -1,8 +1,10 @@
 <script>
+import { mapGetters } from 'vuex';
 import EditContact from 'dashboard/routes/dashboard/conversation/contact/EditContact.vue';
 import NewConversation from 'dashboard/routes/dashboard/conversation/contact/NewConversation.vue';
 import AddCustomAttribute from 'dashboard/modules/contact/components/AddCustomAttribute.vue';
 import ContactDeals from 'dashboard/routes/dashboard/conversation/contact/ContactDeals.vue';
+import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import ContactIntro from './ContactIntro.vue';
 import ContactFields from './ContactFields.vue';
 
@@ -29,8 +31,18 @@ export default {
     };
   },
   computed: {
+    ...mapGetters({
+      isFeatureEnabledonAccount: 'accounts/isFeatureEnabledonAccount',
+      accountId: 'getCurrentAccountId',
+    }),
     enableNewConversation() {
       return this.contact && this.contact.id;
+    },
+    isDealsFeatureEnabled() {
+      return this.isFeatureEnabledonAccount(
+        this.accountId,
+        FEATURE_FLAGS.DEALS
+      );
     },
   },
   methods: {
@@ -81,7 +93,10 @@ export default {
       @update="updateField"
       @create-attribute="toggleCustomAttributeModal"
     />
-    <ContactDeals v-if="contact && contact.id" :contact-id="contact.id" />
+    <ContactDeals
+      v-if="isDealsFeatureEnabled && contact && contact.id"
+      :contact-id="contact.id"
+    />
     <EditContact
       v-if="showEditModal"
       :show="showEditModal"

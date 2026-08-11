@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useEventListener } from '@vueuse/core';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 
 const props = defineProps({
@@ -25,7 +26,12 @@ const form = reactive({
 });
 
 onMounted(() => {
-  if (!contacts.value.length) store.dispatch('contacts/get', {});
+  // The contact select only renders when contactId isn't already fixed by
+  // the caller (see `v-if="!contactId"` below), so skip the fetch entirely
+  // in that case — it's the sidebar's only use of this dialog.
+  if (!props.contactId && !contacts.value.length) {
+    store.dispatch('contacts/get', {});
+  }
 });
 
 const open = () => {
@@ -45,84 +51,93 @@ const submit = async () => {
   emit('created', deal);
 };
 
+useEventListener(document, 'keydown', e => {
+  if (isOpen.value && e.key === 'Escape') isOpen.value = false;
+});
+
 defineExpose({ open });
 </script>
 
 <template>
-  <div
-    v-if="isOpen"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
-  >
+  <div>
     <div
-      class="flex flex-col gap-3 p-5 bg-white rounded-lg w-96 dark:bg-slate-800"
+      v-if="isOpen"
+      role="dialog"
+      aria-modal="true"
+      :aria-label="t('CRM.NEW_DEAL')"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
     >
-      <h3 class="text-base font-medium">{{ t('CRM.NEW_DEAL') }}</h3>
-
-      <input
-        v-model="form.title"
-        class="input"
-        :aria-label="t('CRM.FORM.TITLE')"
-        :placeholder="t('CRM.FORM.TITLE')"
-      />
-
-      <select
-        v-if="!contactId"
-        v-model="form.contact_id"
-        class="input"
-        :aria-label="t('CRM.FORM.CONTACT')"
+      <div
+        class="flex flex-col gap-3 p-5 bg-white rounded-lg w-96 dark:bg-slate-800"
       >
-        <option :value="null" disabled>{{ t('CRM.FORM.CONTACT') }}</option>
-        <option
-          v-for="contact in contacts"
-          :key="contact.id"
-          :value="contact.id"
+        <h3 class="text-base font-medium">{{ t('CRM.NEW_DEAL') }}</h3>
+
+        <input
+          v-model="form.title"
+          class="input"
+          :aria-label="t('CRM.FORM.TITLE')"
+          :placeholder="t('CRM.FORM.TITLE')"
+        />
+
+        <select
+          v-if="!contactId"
+          v-model="form.contact_id"
+          class="input"
+          :aria-label="t('CRM.FORM.CONTACT')"
         >
-          {{ contact.name }}
-        </option>
-      </select>
+          <option :value="null" disabled>{{ t('CRM.FORM.CONTACT') }}</option>
+          <option
+            v-for="contact in contacts"
+            :key="contact.id"
+            :value="contact.id"
+          >
+            {{ contact.name }}
+          </option>
+        </select>
 
-      <select
-        v-model="form.deal_stage_id"
-        class="input"
-        :aria-label="t('CRM.FORM.STAGE')"
-      >
-        <option v-for="stage in stages" :key="stage.id" :value="stage.id">
-          {{ stage.name }}
-        </option>
-      </select>
-
-      <input
-        v-model.number="form.value_cents"
-        type="number"
-        min="0"
-        class="input"
-        :aria-label="t('CRM.FORM.VALUE')"
-        :placeholder="t('CRM.FORM.VALUE')"
-      />
-
-      <select
-        v-model="form.temperature"
-        class="input"
-        :aria-label="t('CRM.FORM.TEMPERATURE')"
-      >
-        <option value="hot">{{ t('CRM.TEMPERATURE.HOT') }}</option>
-        <option value="warm">{{ t('CRM.TEMPERATURE.WARM') }}</option>
-        <option value="cold">{{ t('CRM.TEMPERATURE.COLD') }}</option>
-      </select>
-
-      <div class="flex justify-end gap-2">
-        <button class="px-3 py-1.5 text-sm" @click="isOpen = false">
-          {{ t('CRM.FORM.CANCEL') }}
-        </button>
-        <button
-          class="px-3 py-1.5 text-sm text-white rounded bg-woot-500 disabled:opacity-50"
-          :disabled="
-            !form.title.trim() || !form.contact_id || !form.deal_stage_id
-          "
-          @click="submit"
+        <select
+          v-model="form.deal_stage_id"
+          class="input"
+          :aria-label="t('CRM.FORM.STAGE')"
         >
-          {{ t('CRM.FORM.SAVE') }}
-        </button>
+          <option v-for="stage in stages" :key="stage.id" :value="stage.id">
+            {{ stage.name }}
+          </option>
+        </select>
+
+        <input
+          v-model.number="form.value_cents"
+          type="number"
+          min="0"
+          class="input"
+          :aria-label="t('CRM.FORM.VALUE')"
+          :placeholder="t('CRM.FORM.VALUE')"
+        />
+
+        <select
+          v-model="form.temperature"
+          class="input"
+          :aria-label="t('CRM.FORM.TEMPERATURE')"
+        >
+          <option value="hot">{{ t('CRM.TEMPERATURE.HOT') }}</option>
+          <option value="warm">{{ t('CRM.TEMPERATURE.WARM') }}</option>
+          <option value="cold">{{ t('CRM.TEMPERATURE.COLD') }}</option>
+        </select>
+
+        <div class="flex justify-end gap-2">
+          <button class="px-3 py-1.5 text-sm" @click="isOpen = false">
+            {{ t('CRM.FORM.CANCEL') }}
+          </button>
+          <button
+            class="px-3 py-1.5 text-sm text-white rounded bg-woot-500 disabled:opacity-50"
+            :disabled="
+              !form.title.trim() || !form.contact_id || !form.deal_stage_id
+            "
+            @click="submit"
+          >
+            {{ t('CRM.FORM.SAVE') }}
+          </button>
+        </div>
       </div>
     </div>
   </div>
