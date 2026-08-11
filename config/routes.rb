@@ -130,6 +130,16 @@ Rails.application.routes.draw do
           resources :macros, only: [:index, :create, :show, :update, :destroy] do
             post :execute, on: :member
           end
+          resources :deal_stages, only: [:index, :show, :create, :update, :destroy] do
+            patch :reorder, on: :collection
+          end
+          resources :deals, only: [:index, :show, :create, :update, :destroy] do
+            get :board, on: :collection
+            patch :move, on: :member
+            scope module: :deals do
+              resources :activities, only: [:index, :create]
+            end
+          end
           resources :sla_policies, only: [:index, :create, :show, :update, :destroy]
           resources :custom_roles, only: [:index, :create, :show, :update, :destroy]
           resources :agent_capacity_policies, only: [:index, :create, :show, :update, :destroy] do
@@ -224,6 +234,7 @@ Rails.application.routes.draw do
               resources :contact_inboxes, only: [:create]
               resources :labels, only: [:create, :index]
               resources :notes
+              resources :deals, only: [:index]
               get :attachments, to: 'attachments#index'
               post :call, on: :member, to: 'calls#create' if ChatwootApp.enterprise?
             end
