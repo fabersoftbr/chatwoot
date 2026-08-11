@@ -1,4 +1,6 @@
 class Deal < ApplicationRecord
+  include DealActivityLoggable
+
   belongs_to :account
   belongs_to :contact
   belongs_to :deal_stage
