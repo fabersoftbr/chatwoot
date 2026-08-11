@@ -41,6 +41,8 @@ en:
       presence: must not be blank
     webhook:
       invalid: Invalid events
+    deal_stages:
+      has_deals: 'This stage still has deals. Move them to another stage first.'
     signup:
       disposable_email: We do not allow disposable emails
       blocked_domain: This domain is not allowed. If you believe this is a mistake, please contact support.
