@@ -1,0 +1,83 @@
+{
+  "CRM": {
+    "HEADER": "Deals",
+    "NEW_DEAL": "New deal",
+    "EMPTY_STAGE": "No deals here",
+    "SEARCH_PLACEHOLDER": "Search deals or contacts",
+    "FILTERS": {
+      "ASSIGNEE": "Owner",
+      "TEMPERATURE": "Temperature",
+      "OVERDUE": "Overdue",
+      "ALL": "All"
+    },
+    "TEMPERATURE": {
+      "HOT": "Hot",
+      "WARM": "Warm",
+      "COLD": "Cold"
+    },
+    "CARD": {
+      "OVERDUE": "Overdue",
+      "NO_VALUE": "No value"
+    },
+    "FORM": {
+      "TITLE": "Title",
+      "CONTACT": "Contact",
+      "STAGE": "Stage",
+      "VALUE": "Value",
+      "TEMPERATURE": "Temperature",
+      "ASSIGNEE": "Owner",
+      "DESCRIPTION": "Description",
+      "EXPECTED_CLOSE_ON": "Expected close date",
+      "NEXT_ACTION": "Next action",
+      "NEXT_ACTION_AT": "Next action date",
+      "SAVE": "Save",
+      "CANCEL": "Cancel",
+      "CREATED": "Deal created",
+      "UPDATED": "Deal updated"
+    },
+    "LOST_DIALOG": {
+      "TITLE": "Why was this deal lost?",
+      "PLACEHOLDER": "Price, timing, competitor...",
+      "CONFIRM": "Mark as lost",
+      "CANCEL": "Cancel"
+    },
+    "TABS": {
+      "DETAILS": "Details",
+      "ACTIVITY": "History",
+      "CONTACT": "Contact"
+    },
+    "ACTIVITY": {
+      "ADD": "Log activity",
+      "PLACEHOLDER": "What happened?",
+      "SUBMIT": "Save",
+      "TYPES": {
+        "NOTE": "Note",
+        "CALL": "Call",
+        "MEETING": "Meeting",
+        "EMAIL": "Email",
+        "CREATED": "Deal created",
+        "STAGE_CHANGED": "Stage changed",
+        "TEMPERATURE_CHANGED": "Temperature changed",
+        "ASSIGNED": "Owner changed"
+      },
+      "EMPTY": "No activity yet"
+    },
+    "CONTACT_PANEL": {
+      "TITLE": "Deals",
+      "EMPTY": "No deals for this contact",
+      "NEW": "New deal",
+      "TOTAL_WON": "Total won"
+    },
+    "SETTINGS": {
+      "TITLE": "Pipeline",
+      "DESCRIPTION": "Rename, reorder and color the stages of your sales pipeline.",
+      "ADD_STAGE": "Add stage",
+      "NAME": "Name",
+      "COLOR": "Color",
+      "TYPE": "Type",
+      "TYPES": { "OPEN": "Open", "WON": "Won", "LOST": "Lost" },
+      "DELETE": "Delete",
+      "DELETE_BLOCKED": "Move the deals out of this stage first."
+    }
+  }
+}

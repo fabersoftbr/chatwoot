@@ -1,0 +1,83 @@
+{
+  "CRM": {
+    "HEADER": "Negócios",
+    "NEW_DEAL": "Novo negócio",
+    "EMPTY_STAGE": "Nenhum negócio aqui",
+    "SEARCH_PLACEHOLDER": "Buscar negócios ou contatos",
+    "FILTERS": {
+      "ASSIGNEE": "Responsável",
+      "TEMPERATURE": "Temperatura",
+      "OVERDUE": "Atrasados",
+      "ALL": "Todos"
+    },
+    "TEMPERATURE": {
+      "HOT": "Quente",
+      "WARM": "Morno",
+      "COLD": "Frio"
+    },
+    "CARD": {
+      "OVERDUE": "Atrasado",
+      "NO_VALUE": "Sem valor"
+    },
+    "FORM": {
+      "TITLE": "Título",
+      "CONTACT": "Contato",
+      "STAGE": "Estágio",
+      "VALUE": "Valor",
+      "TEMPERATURE": "Temperatura",
+      "ASSIGNEE": "Responsável",
+      "DESCRIPTION": "Descrição",
+      "EXPECTED_CLOSE_ON": "Previsão de fechamento",
+      "NEXT_ACTION": "Próxima ação",
+      "NEXT_ACTION_AT": "Data da próxima ação",
+      "SAVE": "Salvar",
+      "CANCEL": "Cancelar",
+      "CREATED": "Negócio criado",
+      "UPDATED": "Negócio atualizado"
+    },
+    "LOST_DIALOG": {
+      "TITLE": "Por que esse negócio foi perdido?",
+      "PLACEHOLDER": "Preço, prazo, concorrente...",
+      "CONFIRM": "Marcar como perdido",
+      "CANCEL": "Cancelar"
+    },
+    "TABS": {
+      "DETAILS": "Detalhes",
+      "ACTIVITY": "Histórico",
+      "CONTACT": "Contato"
+    },
+    "ACTIVITY": {
+      "ADD": "Registrar ação",
+      "PLACEHOLDER": "O que aconteceu?",
+      "SUBMIT": "Salvar",
+      "TYPES": {
+        "NOTE": "Nota",
+        "CALL": "Ligação",
+        "MEETING": "Reunião",
+        "EMAIL": "E-mail",
+        "CREATED": "Negócio criado",
+        "STAGE_CHANGED": "Mudou de estágio",
+        "TEMPERATURE_CHANGED": "Mudou de temperatura",
+        "ASSIGNED": "Mudou de responsável"
+      },
+      "EMPTY": "Nenhuma ação registrada"
+    },
+    "CONTACT_PANEL": {
+      "TITLE": "Negócios",
+      "EMPTY": "Nenhum negócio para esse contato",
+      "NEW": "Novo negócio",
+      "TOTAL_WON": "Total ganho"
+    },
+    "SETTINGS": {
+      "TITLE": "Funil",
+      "DESCRIPTION": "Renomeie, reordene e colora os estágios do seu funil de vendas.",
+      "ADD_STAGE": "Adicionar estágio",
+      "NAME": "Nome",
+      "COLOR": "Cor",
+      "TYPE": "Tipo",
+      "TYPES": { "OPEN": "Aberto", "WON": "Ganho", "LOST": "Perdido" },
+      "DELETE": "Excluir",
+      "DELETE_BLOCKED": "Mova os negócios desse estágio antes."
+    }
+  }
+}

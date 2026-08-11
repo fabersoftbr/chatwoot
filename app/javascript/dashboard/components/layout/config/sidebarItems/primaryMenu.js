@@ -35,6 +35,14 @@ const primaryMenuItems = accountId => [
   },
   {
     icon: 'arrow-trending-lines',
+    key: 'deals',
+    label: 'CRM',
+    featureFlag: FEATURE_FLAGS.DEALS,
+    toState: frontendURL(`accounts/${accountId}/crm`),
+    toStateName: 'deals_board',
+  },
+  {
+    icon: 'arrow-trending-lines',
     key: 'reports',
     label: 'REPORTS',
     featureFlag: FEATURE_FLAGS.REPORTS,
