@@ -76,6 +76,10 @@ Rails.application.routes.draw do
           resources :deal_stages, only: [:index, :show, :create, :update, :destroy] do
             patch :reorder, on: :collection
           end
+          resources :deals, only: [:index, :show, :create, :update, :destroy] do
+            get :board, on: :collection
+            patch :move, on: :member
+          end
           resources :sla_policies, only: [:index, :create, :show, :update, :destroy]
           resources :custom_roles, only: [:index, :create, :show, :update, :destroy]
           resources :campaigns, only: [:index, :create, :show, :update, :destroy]
