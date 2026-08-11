@@ -11,6 +11,7 @@ class Deal < ApplicationRecord
   validates :title, presence: true
   validates :value_cents, numericality: { greater_than_or_equal_to: 0 }
   validate :lost_reason_present_in_lost_stage
+  validate :associations_belong_to_account
 
   before_validation :ensure_account_id
   before_validation :append_to_stage, on: :create
@@ -74,5 +75,11 @@ class Deal < ApplicationRecord
     return if lost_reason.present?
 
     errors.add(:lost_reason, I18n.t('errors.messages.blank'))
+  end
+
+  def associations_belong_to_account
+    errors.add(:contact, :invalid) if contact.present? && contact.account_id != account_id
+    errors.add(:deal_stage, :invalid) if deal_stage.present? && deal_stage.account_id != account_id
+    errors.add(:assignee, :invalid) if assignee.present? && !account.users.exists?(assignee.id)
   end
 end

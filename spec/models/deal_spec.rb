@@ -29,6 +29,33 @@ RSpec.describe Deal do
       deal = build(:deal, account: account, contact: contact, deal_stage: lost_stage, lost_reason: 'Preço')
       expect(deal).to be_valid
     end
+
+    it 'rejects a contact belonging to another account' do
+      other_contact = create(:contact, account: create(:account))
+      deal = build(:deal, account: account, contact: other_contact, deal_stage: open_stage)
+      expect(deal).not_to be_valid
+      expect(deal.errors[:contact]).to be_present
+    end
+
+    it 'rejects a deal_stage belonging to another account' do
+      other_stage = create(:deal_stage, account: create(:account))
+      deal = build(:deal, account: account, contact: contact, deal_stage: other_stage)
+      expect(deal).not_to be_valid
+      expect(deal.errors[:deal_stage]).to be_present
+    end
+
+    it 'rejects an assignee who is not a member of the account' do
+      outsider = create(:user, account: create(:account))
+      deal = build(:deal, account: account, contact: contact, deal_stage: open_stage, assignee: outsider)
+      expect(deal).not_to be_valid
+      expect(deal.errors[:assignee]).to be_present
+    end
+
+    it 'accepts a contact, deal_stage and assignee that belong to the account' do
+      member = create(:user, account: account)
+      deal = build(:deal, account: account, contact: contact, deal_stage: open_stage, assignee: member)
+      expect(deal).to be_valid
+    end
   end
 
   describe 'closed_at' do

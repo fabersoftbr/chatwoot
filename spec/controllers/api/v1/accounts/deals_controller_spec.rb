@@ -132,6 +132,18 @@ RSpec.describe 'Api::V1::Accounts::DealsController', type: :request do
       expect(deal.reload.deal_stage_id).to eq(open_stage.id)
     end
 
+    it 'returns 422 when the target stage belongs to another account' do
+      deal = create(:deal, account: account, contact: contact, deal_stage: open_stage)
+      foreign_stage = create(:deal_stage, account: create(:account), stage_type: :open, position: 0)
+
+      patch "/api/v1/accounts/#{account.id}/deals/#{deal.id}/move",
+            params: { stage_id: foreign_stage.id, position: 0 },
+            headers: agent.create_new_auth_token
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(deal.reload.deal_stage_id).to eq(open_stage.id)
+    end
+
     it 'records the lost reason' do
       deal = create(:deal, account: account, contact: contact, deal_stage: open_stage)
 
