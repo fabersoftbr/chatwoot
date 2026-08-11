@@ -17,10 +17,17 @@ const activityType = ref('call');
 const content = ref('');
 
 const load = async () => {
-  activities.value = await store.dispatch(
-    'deals/fetchActivities',
-    props.dealId
-  );
+  try {
+    activities.value = await store.dispatch(
+      'deals/fetchActivities',
+      props.dealId
+    );
+  } catch (error) {
+    // fetchActivities rejects on API errors (via throwErrorMessage); swallow
+    // it here so a transient failure doesn't surface as an unhandled
+    // rejection on tab open. Same rationale as ContactDeals.load().
+    activities.value = [];
+  }
 };
 
 onMounted(load);
@@ -28,13 +35,18 @@ onMounted(load);
 const submit = async () => {
   if (!content.value.trim()) return;
 
-  await store.dispatch('deals/createActivity', {
-    dealId: props.dealId,
-    activityType: activityType.value,
-    content: content.value.trim(),
-  });
-  content.value = '';
-  load();
+  try {
+    await store.dispatch('deals/createActivity', {
+      dealId: props.dealId,
+      activityType: activityType.value,
+      content: content.value.trim(),
+    });
+    content.value = '';
+    load();
+  } catch (error) {
+    // createActivity rejects on API errors (via throwErrorMessage); swallow
+    // it so a failed submit doesn't surface as an unhandled rejection.
+  }
 };
 
 const describe = activity => {
