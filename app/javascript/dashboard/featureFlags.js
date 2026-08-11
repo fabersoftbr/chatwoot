@@ -12,6 +12,7 @@ export const FEATURE_FLAGS = {
   WHATSAPP_RECONFIGURE: 'whatsapp_reconfigure',
   CANNED_RESPONSES: 'canned_responses',
   CRM: 'crm',
+  DEALS: 'deals',
   CUSTOM_ATTRIBUTES: 'custom_attributes',
   DATA_IMPORT: 'data_import',
   API_AND_WEBHOOKS: 'api_and_webhooks',
