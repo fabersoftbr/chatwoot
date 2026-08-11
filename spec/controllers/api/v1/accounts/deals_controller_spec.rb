@@ -36,7 +36,9 @@ RSpec.describe 'Api::V1::Accounts::DealsController', type: :request do
           params: { stage_id: open_stage.id, assignee_id: agent.id, temperature: 'hot' },
           headers: agent.create_new_auth_token
 
-      expect(response.parsed_body['payload'].pluck('id')).to eq([wanted.id])
+      payload = response.parsed_body['payload']
+      expect(payload.pluck('id')).to eq([wanted.id])
+      expect(payload.first['assignee_id']).to eq(agent.id)
     end
 
     it 'filters overdue deals' do

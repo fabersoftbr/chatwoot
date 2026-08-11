@@ -21,6 +21,8 @@ json.contact do
   json.thumbnail deal.contact.avatar_url
 end
 
+json.assignee_id deal.assignee_id
+
 if deal.assignee.present?
   json.assignee do
     json.id deal.assignee.id

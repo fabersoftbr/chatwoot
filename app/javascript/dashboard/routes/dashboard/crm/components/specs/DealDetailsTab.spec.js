@@ -22,7 +22,12 @@ const baseDeal = {
   value_cents: 120000,
   temperature: 'hot',
   deal_stage_id: 1,
+  // The real API payload (see _deal.json.jbuilder) sends BOTH a flat
+  // assignee_id (what the form actually seeds from) and a nested assignee
+  // object (what DealCard etc. render) — keep both here so this fixture
+  // can't drift from what the backend actually sends again.
   assignee_id: 1,
+  assignee: { id: 1, name: 'Jane Agent', thumbnail: '' },
   currency: 'BRL',
   expected_close_on: '2026-09-01',
   next_action: 'Call back',
@@ -115,6 +120,17 @@ describe('DealDetailsTab', () => {
     const options = assigneeSelect.findAll('option').map(o => o.text());
     expect(options).toEqual(['', 'Jane Agent', 'John Agent']);
     expect(assigneeSelect.element.value).toBe('1');
+  });
+
+  it('renders the blank option selected for a deal with no owner (assignee_id: null)', () => {
+    const wrapper = mountTab({
+      ...baseDeal,
+      assignee_id: null,
+      assignee: null,
+    });
+
+    const assigneeSelect = wrapper.get('[aria-label="Owner"]');
+    expect(assigneeSelect.element.value).toBe('');
   });
 
   it('emits update with only the assignee_id field when the assignee select changes', async () => {
