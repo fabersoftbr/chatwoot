@@ -1,19 +1,36 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRoute, useRouter } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
 import DealColumn from '../components/DealColumn.vue';
+import DealDrawer from '../components/DealDrawer.vue';
 import LostReasonDialog from '../components/LostReasonDialog.vue';
 
 const { t } = useI18n();
 const store = useStore();
+const route = useRoute();
+const router = useRouter();
 
 const stages = useMapGetter('deals/getStages');
 const dealsByStage = useMapGetter('deals/getDealsByStage');
 
 const lostDialogRef = ref(null);
 const pendingMove = ref(null);
+
+const selectedDealId = computed(() =>
+  route.params.dealId ? Number(route.params.dealId) : null
+);
+
+const onSelect = deal =>
+  router.push({
+    name: 'deal_details',
+    params: { ...route.params, dealId: deal.id },
+  });
+
+const closeDrawer = () =>
+  router.push({ name: 'deals_board', params: route.params });
 
 const refresh = () => store.dispatch('deals/fetchBoard', {});
 
@@ -69,6 +86,7 @@ const onLostCancel = () => {
         :stage="stage"
         :deals="dealsByStage(stage.id)"
         @move="onMove"
+        @select="onSelect"
       />
     </div>
 
@@ -76,6 +94,12 @@ const onLostCancel = () => {
       ref="lostDialogRef"
       @confirm="onLostConfirm"
       @cancel="onLostCancel"
+    />
+
+    <DealDrawer
+      v-if="selectedDealId"
+      :deal-id="selectedDealId"
+      @close="closeDrawer"
     />
   </div>
 </template>

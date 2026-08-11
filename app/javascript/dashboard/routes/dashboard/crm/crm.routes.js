@@ -13,6 +13,17 @@ const crmRoutes = {
         permissions: ['administrator', 'agent'],
         featureFlag: FEATURE_FLAGS.DEALS,
       },
+      children: [
+        {
+          path: ':dealId',
+          name: 'deal_details',
+          component: DealsBoardPage,
+          meta: {
+            permissions: ['administrator', 'agent'],
+            featureFlag: FEATURE_FLAGS.DEALS,
+          },
+        },
+      ],
     },
   ],
 };
