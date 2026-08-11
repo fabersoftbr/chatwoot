@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2024_09_23_215335) do
+ActiveRecord::Schema[7.0].define(version: 2026_08_11_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -572,6 +572,17 @@ ActiveRecord::Schema[7.0].define(version: 2024_09_23_215335) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["account_id"], name: "index_data_imports_on_account_id"
+  end
+
+  create_table "deal_stages", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.string "color", default: "#6B7280", null: false
+    t.integer "position", default: 0, null: false
+    t.integer "stage_type", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "position"], name: "index_deal_stages_on_account_id_and_position"
   end
 
   create_table "email_templates", force: :cascade do |t|
