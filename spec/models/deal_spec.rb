@@ -87,6 +87,18 @@ RSpec.describe Deal do
         .to raise_error(ActiveRecord::RecordInvalid)
       expect(deal.reload.deal_stage_id).to eq(open_stage.id)
     end
+
+    it 'does not contaminate the in-memory object when validation fails' do
+      deal = create(:deal, account: account, contact: contact, deal_stage: open_stage)
+      original_lost_reason = deal.lost_reason
+
+      expect { deal.move_to!(stage_id: lost_stage.id, position: 0) }
+        .to raise_error(ActiveRecord::RecordInvalid)
+
+      # The unreloaded object must still report the original stage and lost_reason
+      expect(deal.deal_stage_id).to eq(open_stage.id)
+      expect(deal.lost_reason).to eq(original_lost_reason)
+    end
   end
 
   describe 'scopes' do

@@ -19,10 +19,19 @@ class Deal < ApplicationRecord
   scope :ordered, -> { order(:position, :id) }
 
   def move_to!(stage_id:, position:, lost_reason: nil)
-    transaction do
-      self.lost_reason = lost_reason if lost_reason.present?
-      update!(deal_stage_id: stage_id)
-      reposition!(stage_id, position)
+    original_deal_stage_id = deal_stage_id
+    original_lost_reason = self.lost_reason
+
+    begin
+      transaction do
+        self.lost_reason = lost_reason if lost_reason.present?
+        update!(deal_stage_id: stage_id)
+        reposition!(stage_id, position)
+      end
+    rescue ActiveRecord::RecordInvalid
+      self.deal_stage_id = original_deal_stage_id
+      self.lost_reason = original_lost_reason
+      raise
     end
 
     true
