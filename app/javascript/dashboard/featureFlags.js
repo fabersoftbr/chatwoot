@@ -6,6 +6,7 @@ export const FEATURE_FLAGS = {
   CAMPAIGNS: 'campaigns',
   CANNED_RESPONSES: 'canned_responses',
   CRM: 'crm',
+  DEALS: 'deals',
   CUSTOM_ATTRIBUTES: 'custom_attributes',
   INBOX_MANAGEMENT: 'inbox_management',
   INTEGRATIONS: 'integrations',
