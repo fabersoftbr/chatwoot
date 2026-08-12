@@ -1,6 +1,15 @@
 # pre-build stage
-FROM node:24-alpine as node
-FROM ruby:3.4.4-alpine3.21 AS pre-builder
+#
+# Debian (glibc), not Alpine (musl), on purpose. Alpine forces
+# `bundle config force_ruby_platform true` further down, because the
+# precompiled native gems on rubygems.org target glibc and cannot run on musl.
+# That made bundler compile nokogiri, pg, grpc, protobuf, ffi and friends from
+# C source on every build: 45+ minutes, and grpc alone peaks at 2-4 GB RSS,
+# which OOM-kills the build on a modest host. On glibc those same gems install
+# as prebuilt binaries in a couple of minutes. Gemfile.lock already carries the
+# x86_64-linux variants. The cost is a larger final image.
+FROM node:24-slim as node
+FROM ruby:3.4.4-slim AS pre-builder
 
 ARG NODE_VERSION="24.13.0"
 ARG PNPM_VERSION="10.2.0"
@@ -24,16 +33,17 @@ ENV NODE_OPTIONS ${NODE_OPTIONS}
 
 ENV BUNDLE_PATH="/gems"
 
-RUN apk update && apk add --no-cache \
+RUN apt-get update && apt-get install --no-install-recommends -y \
   openssl \
   tar \
-  build-base \
+  build-essential \
   tzdata \
-  postgresql-dev \
+  libpq-dev \
   postgresql-client \
   git \
   curl \
-  xz \
+  xz-utils \
+  && rm -rf /var/lib/apt/lists/* \
   && mkdir -p /var/app \
   && gem install bundler -v "$BUNDLER_VERSION"
 
@@ -58,12 +68,14 @@ WORKDIR /app
 
 COPY Gemfile Gemfile.lock ./
 
-# natively compile grpc and protobuf to support alpine musl (dialogflow-docker workflow)
-# https://github.com/googleapis/google-cloud-ruby/issues/13306
-# adding xz as nokogiri was failing to build libxml
-# https://github.com/chatwoot/chatwoot/issues/4045
-RUN apk update && apk add --no-cache build-base musl ruby-full ruby-dev gcc make musl-dev openssl openssl-dev g++ linux-headers xz vips
-RUN bundle config set --local force_ruby_platform true
+# The upstream Alpine build compiled grpc, protobuf and nokogiri from source here
+# to work around musl (https://github.com/googleapis/google-cloud-ruby/issues/13306
+# and https://github.com/chatwoot/chatwoot/issues/4045). On glibc none of that is
+# needed: bundler resolves the prebuilt x86_64-linux gems, so there is no
+# force_ruby_platform and no compiler toolchain to install beyond build-essential,
+# which the base layer already has. libvips stays for the image_processing gem.
+RUN apt-get update && apt-get install --no-install-recommends -y libvips42 \
+  && rm -rf /var/lib/apt/lists/*
 
 # Do not install development or test gems in production
 RUN if [ "$RAILS_ENV" = "production" ]; then \
@@ -101,7 +113,7 @@ RUN rm -rf /gems/ruby/3.4.0/cache/*.gem \
   && rm .gitignore
 
 # final build stage
-FROM ruby:3.4.4-alpine3.21
+FROM ruby:3.4.4-slim
 
 ARG NODE_VERSION="24.13.0"
 ARG PNPM_VERSION="10.2.0"
@@ -118,28 +130,33 @@ ENV EXECJS_RUNTIME ${EXECJS_RUNTIME}
 ARG RAILS_SERVE_STATIC_FILES=true
 ENV RAILS_SERVE_STATIC_FILES ${RAILS_SERVE_STATIC_FILES}
 
-ARG BUNDLE_FORCE_RUBY_PLATFORM=1
-ENV BUNDLE_FORCE_RUBY_PLATFORM ${BUNDLE_FORCE_RUBY_PLATFORM}
+# BUNDLE_FORCE_RUBY_PLATFORM is deliberately absent: setting it here would make
+# the runtime reject the prebuilt gems the pre-builder stage installed.
 
 ARG RAILS_ENV=production
 ENV RAILS_ENV ${RAILS_ENV}
 ENV BUNDLE_PATH="/gems"
 
-RUN apk update && apk add --no-cache \
-  build-base \
+# No compiler in the runtime image: the gems arrive prebuilt from the pre-builder
+# stage, so build-essential is dead weight here. libpq5 is the client library the
+# pg gem links against at runtime (libpq-dev is only needed to compile).
+RUN apt-get update && apt-get install --no-install-recommends -y \
   openssl \
   tzdata \
+  libpq5 \
   postgresql-client \
   imagemagick \
   git \
-  vips \
+  libvips42 \
+  && rm -rf /var/lib/apt/lists/* \
   && gem install bundler -v "$BUNDLER_VERSION"
 
 COPY --from=node /usr/local/bin/node /usr/local/bin/
 COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
 
 RUN if [ "$RAILS_ENV" != "production" ]; then \
-  apk add --no-cache curl \
+  apt-get update && apt-get install --no-install-recommends -y curl \
+  && rm -rf /var/lib/apt/lists/* \
   && ln -s /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
   && ln -s /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx \
   && npm install -g pnpm@${PNPM_VERSION} \
