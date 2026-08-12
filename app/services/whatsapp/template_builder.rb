@@ -10,7 +10,7 @@ class Whatsapp::TemplateBuilder
   NAME_MAX_LENGTH = 512
   VARIABLE_PATTERN = /\{\{(\d+)\}\}/
 
-  def initialize(name:, language:, category:, body:, examples: [])
+  def initialize(name: nil, language: nil, category: nil, body: nil, examples: [])
     @name = name.to_s.strip
     @language = language.to_s.strip
     @category = category.to_s.strip.upcase

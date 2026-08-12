@@ -23,11 +23,11 @@ RSpec.describe 'WhatsApp Templates API', type: :request do
     end
 
     context 'when the user is an agent' do
-      it 'returns forbidden — templates are an administrator action' do
+      it 'returns unauthorized — templates are an administrator action' do
         post "/api/v1/accounts/#{account.id}/inboxes/#{inbox.id}/whatsapp_templates",
              params: valid_params, headers: agent.create_new_auth_token
 
-        expect(response).to have_http_status(:forbidden)
+        expect(response).to have_http_status(:unauthorized)
       end
     end
 
@@ -83,6 +83,28 @@ RSpec.describe 'WhatsApp Templates API', type: :request do
 
         post "/api/v1/accounts/#{account.id}/inboxes/#{inbox.id}/whatsapp_templates",
              params: valid_params, headers: administrator.create_new_auth_token
+
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      it 'returns 422 with a body-specific message when body is missing' do
+        post "/api/v1/accounts/#{account.id}/inboxes/#{inbox.id}/whatsapp_templates",
+             params: valid_params.except(:body), headers: administrator.create_new_auth_token
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.parsed_body['error']).to match(/body/i)
+      end
+    end
+
+    context 'when the inbox belongs to another account' do
+      let(:other_account) { create(:account) }
+      let(:other_administrator) { create(:user, account: other_account, role: :administrator) }
+
+      it 'returns not found' do
+        post "/api/v1/accounts/#{other_account.id}/inboxes/#{inbox.id}/whatsapp_templates",
+             params: valid_params, headers: other_administrator.create_new_auth_token
+
+        expect(response).to have_http_status(:not_found)
       end
     end
 
@@ -99,11 +121,11 @@ RSpec.describe 'WhatsApp Templates API', type: :request do
   end
 
   describe 'DELETE /api/v1/accounts/{account.id}/inboxes/{inbox.id}/whatsapp_templates/{name}' do
-    it 'returns forbidden for an agent' do
+    it 'returns unauthorized for an agent' do
       delete "/api/v1/accounts/#{account.id}/inboxes/#{inbox.id}/whatsapp_templates/boas_vindas",
              headers: agent.create_new_auth_token
 
-      expect(response).to have_http_status(:forbidden)
+      expect(response).to have_http_status(:unauthorized)
     end
 
     it 'deletes the template and returns the refreshed list for an administrator' do

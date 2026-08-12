@@ -26,13 +26,7 @@ class Api::V1::Accounts::Inboxes::WhatsappTemplatesController < Api::V1::Account
   def fetch_inbox
     @inbox = Current.account.inboxes.find(params[:inbox_id])
     # Administrator-level on purpose: these calls write to the account's Meta WABA.
-    # Checked directly (not via `authorize`) because the app-wide
-    # Pundit::NotAuthorizedError handler renders 401 for every controller;
-    # a denied write to the WABA must read as 403, a deliberate block, not
-    # an authentication problem.
-    return if InboxPolicy.new(pundit_user, @inbox).update?
-
-    render json: { error: 'You are not authorized to do this action' }, status: :forbidden
+    authorize @inbox, :update?
   end
 
   def validate_whatsapp_cloud_channel
