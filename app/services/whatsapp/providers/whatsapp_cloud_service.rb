@@ -118,8 +118,11 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
     "#{api_base_path}/#{version}/#{whatsapp_channel.provider_config['phone_number_id']}"
   end
 
+  # Meta serves an expired version string from its oldest supported version, so a
+  # stale pin here drifts silently instead of failing. Template writes also need
+  # v16.0+, which the shared WHATSAPP_API_VERSION default satisfies.
   def business_account_path
-    "#{api_base_path}/v14.0/#{whatsapp_channel.provider_config['business_account_id']}"
+    "#{api_base_path}/#{GlobalConfigService.load('WHATSAPP_API_VERSION', 'v22.0')}/#{whatsapp_channel.provider_config['business_account_id']}"
   end
 
   def send_text_message(phone_number, message)
