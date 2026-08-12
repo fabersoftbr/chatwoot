@@ -652,7 +652,9 @@ docker exec -w /app -e RAILS_ENV=test cw-v4-rails-1 bundle exec rspec spec/contr
 
 Expected: PASS.
 
-If the agent case returns 401 rather than 403, check that `authorize` runs — Pundit raises `NotAuthorizedError` which `BaseController` renders as 403. Do not weaken the assertion to make it pass; a wrong status here is the difference between "agents cannot touch the WABA" and "we thought they could not".
+**Amended 2026-08-12 after the Task 3 review — the original text here was factually wrong.** This app's `RequestExceptionHandler` (`app/controllers/concerns/request_exception_handler.rb:24-26`) is an `around_action` that rescues `Pundit::NotAuthorizedError` and renders **401**, not 403. Every other administrator-gated inbox endpoint returns 401 for a denied agent, including the nearest sibling `POST /inboxes/:id/sync_templates` (`spec/controllers/api/v1/accounts/inboxes_controller_spec.rb:1271-1276`). A 403 here would make this the only role-denial in the API that does not return 401.
+
+So: use `authorize @inbox, :update?` — the greppable, auditable idiom — and the agent expectations in the spec are `:unauthorized`, not `:forbidden`. What must NOT be weakened is the rule: `InboxPolicy#update?` requires `administrator?`, and an agent must be denied. The status code is a contract detail; the denial is the security property.
 
 - [ ] **Step 6: Rubocop and commit**
 
