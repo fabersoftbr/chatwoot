@@ -14,7 +14,8 @@ class Api::V1::Accounts::Inboxes::WhatsappTemplatesController < Api::V1::Account
   end
 
   def destroy
-    result = @inbox.channel.delete_template(params[:name])
+    # hsm_id scopes the delete to one language version; without it Meta removes all of them.
+    result = @inbox.channel.delete_template(params[:name], params[:hsm_id])
     return render_meta_error(result) unless result[:success]
 
     @inbox.channel.sync_templates
@@ -45,6 +46,6 @@ class Api::V1::Accounts::Inboxes::WhatsappTemplatesController < Api::V1::Account
   def render_meta_error(result)
     body = result[:body]
     message = body.is_a?(Hash) ? body.dig('error', 'message') : nil
-    render json: { error: message || 'Template request failed', details: body }, status: :unprocessable_entity
+    render json: { error: message || 'Template request failed' }, status: :unprocessable_entity
   end
 end

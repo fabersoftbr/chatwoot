@@ -29,7 +29,8 @@
     "DELETE": {
       "BUTTON": "Delete",
       "CONFIRM_TITLE": "Delete this template?",
-      "CONFIRM_MESSAGE": "The template will be removed from Meta. Past conversations are not affected.",
+      "CONFIRM_MESSAGE": "The template will be removed from Meta, and its name cannot be reused for 30 days. Past conversations are not affected.",
+      "CONFIRM_MESSAGE_ALL_LANGUAGES": "This template has no Meta id, so every language version that shares this name will be removed. The name cannot be reused for 30 days. Past conversations are not affected.",
       "CONFIRM_YES": "Yes, delete it",
       "CONFIRM_NO": "Cancel"
     },

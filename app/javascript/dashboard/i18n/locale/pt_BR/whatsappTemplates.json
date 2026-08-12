@@ -29,7 +29,8 @@
     "DELETE": {
       "BUTTON": "Excluir",
       "CONFIRM_TITLE": "Excluir este modelo?",
-      "CONFIRM_MESSAGE": "O modelo será removido da Meta. Conversas antigas não são afetadas.",
+      "CONFIRM_MESSAGE": "O modelo será removido da Meta e esse nome só poderá ser usado de novo depois de 30 dias. Conversas antigas não são afetadas.",
+      "CONFIRM_MESSAGE_ALL_LANGUAGES": "Este modelo não tem id da Meta, então todas as versões de idioma com esse nome serão removidas. O nome só poderá ser usado de novo depois de 30 dias. Conversas antigas não são afetadas.",
       "CONFIRM_YES": "Sim, excluir",
       "CONFIRM_NO": "Cancelar"
     },

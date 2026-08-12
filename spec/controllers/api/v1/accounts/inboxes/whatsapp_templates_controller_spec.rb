@@ -118,6 +118,21 @@ RSpec.describe 'WhatsApp Templates API', type: :request do
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
+
+    context 'when the channel is WhatsApp but not the cloud provider' do
+      let(:dialog_inbox) do
+        create(:channel_whatsapp, account: account, provider: 'default',
+                                  validate_provider_config: false, sync_templates: false).inbox
+      end
+
+      it 'returns 422 — 360dialog has no template management API here' do
+        post "/api/v1/accounts/#{account.id}/inboxes/#{dialog_inbox.id}/whatsapp_templates",
+             params: valid_params, headers: administrator.create_new_auth_token
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.parsed_body['error']).to match(/WhatsApp Cloud/)
+      end
+    end
   end
 
   describe 'DELETE /api/v1/accounts/{account.id}/inboxes/{inbox.id}/whatsapp_templates/{name}' do
@@ -130,11 +145,22 @@ RSpec.describe 'WhatsApp Templates API', type: :request do
 
     it 'deletes the template and returns the refreshed list for an administrator' do
       expect_any_instance_of(Channel::Whatsapp).to receive(:delete_template)
-        .with('boas_vindas').and_return({ success: true, body: {} })
+        .with('boas_vindas', nil).and_return({ success: true, body: {} })
       allow_any_instance_of(Channel::Whatsapp).to receive(:sync_templates)
 
       delete "/api/v1/accounts/#{account.id}/inboxes/#{inbox.id}/whatsapp_templates/boas_vindas",
              headers: administrator.create_new_auth_token
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'forwards hsm_id so only the clicked language version is deleted' do
+      expect_any_instance_of(Channel::Whatsapp).to receive(:delete_template)
+        .with('boas_vindas', '9876543210987654').and_return({ success: true, body: {} })
+      allow_any_instance_of(Channel::Whatsapp).to receive(:sync_templates)
+
+      delete "/api/v1/accounts/#{account.id}/inboxes/#{inbox.id}/whatsapp_templates/boas_vindas",
+             params: { hsm_id: '9876543210987654' }, headers: administrator.create_new_auth_token
 
       expect(response).to have_http_status(:ok)
     end

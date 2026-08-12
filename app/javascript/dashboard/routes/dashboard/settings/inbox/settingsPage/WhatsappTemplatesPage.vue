@@ -5,9 +5,13 @@ import NextButton from 'dashboard/components-next/button/Button.vue';
 import NextDialog from 'dashboard/components-next/dialog/Dialog.vue';
 import WhatsappTemplateForm from '../components/WhatsappTemplateForm.vue';
 
+// Anything unlisted is still under review, hence the amber fallback. PAUSED and
+// DISABLED are not "pending" — they are inactive, so they get their own colour.
 const STATUS_CLASSES = {
   approved: 'text-n-teal-11',
   rejected: 'text-n-ruby-11',
+  paused: 'text-n-slate-11',
+  disabled: 'text-n-slate-11',
 };
 
 export default {
@@ -30,6 +34,13 @@ export default {
       const stored = this.inbox.message_templates;
       return Array.isArray(stored) ? stored : [];
     },
+    // Without Meta's template id we can only delete by name, which wipes every
+    // language version. Say so instead of silently doing it.
+    deleteConfirmMessage() {
+      return this.templateToDelete && !this.templateToDelete.id
+        ? this.$t('WHATSAPP_TEMPLATES.DELETE.CONFIRM_MESSAGE_ALL_LANGUAGES')
+        : this.$t('WHATSAPP_TEMPLATES.DELETE.CONFIRM_MESSAGE');
+    },
   },
   methods: {
     statusClass(status) {
@@ -48,14 +59,18 @@ export default {
       this.$refs.formDialog?.close();
       await this.refreshInbox();
     },
-    openDeleteDialog(name) {
-      this.templateToDelete = name;
+    openDeleteDialog(template) {
+      this.templateToDelete = template;
       this.$refs.deleteDialog?.open();
     },
     async confirmDelete() {
       this.isDeleting = true;
       try {
-        await WhatsappTemplatesAPI.delete(this.inbox.id, this.templateToDelete);
+        await WhatsappTemplatesAPI.delete(
+          this.inbox.id,
+          this.templateToDelete.name,
+          this.templateToDelete.id
+        );
         this.$refs.deleteDialog?.close();
         await this.refreshInbox();
         useAlert(this.$t('WHATSAPP_TEMPLATES.API.DELETE_SUCCESS'));
@@ -123,7 +138,7 @@ export default {
               ghost
               ruby
               :label="$t('WHATSAPP_TEMPLATES.DELETE.BUTTON')"
-              @click="openDeleteDialog(template.name)"
+              @click="openDeleteDialog(template)"
             />
           </td>
         </tr>
@@ -149,7 +164,7 @@ export default {
       ref="deleteDialog"
       type="alert"
       :title="$t('WHATSAPP_TEMPLATES.DELETE.CONFIRM_TITLE')"
-      :description="$t('WHATSAPP_TEMPLATES.DELETE.CONFIRM_MESSAGE')"
+      :description="deleteConfirmMessage"
       :confirm-button-label="$t('WHATSAPP_TEMPLATES.DELETE.CONFIRM_YES')"
       :cancel-button-label="$t('WHATSAPP_TEMPLATES.DELETE.CONFIRM_NO')"
       :is-loading="isDeleting"
