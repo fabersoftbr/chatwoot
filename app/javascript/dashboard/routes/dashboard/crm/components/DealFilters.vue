@@ -51,7 +51,7 @@ const emitChangeDebounced = useDebounceFn(emitChange, 300);
 
     <select
       v-model="filters.assignee_id"
-      class="!mb-0"
+      class="!mb-0 !w-auto"
       :aria-label="t('CRM.FILTERS.ASSIGNEE')"
       @change="emitChange"
     >
@@ -63,7 +63,7 @@ const emitChangeDebounced = useDebounceFn(emitChange, 300);
 
     <select
       v-model="filters.temperature"
-      class="!mb-0"
+      class="!mb-0 !w-auto"
       :aria-label="t('CRM.FILTERS.TEMPERATURE')"
       @change="emitChange"
     >

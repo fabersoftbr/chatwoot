@@ -48,7 +48,7 @@ defineExpose({ open });
         <textarea
           v-model="reason"
           rows="3"
-          class="w-full !mb-0"
+          class="w-full !mb-0 !h-auto"
           :placeholder="t('CRM.LOST_DIALOG.PLACEHOLDER')"
         />
         <div class="flex justify-end gap-2 mt-4">

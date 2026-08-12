@@ -156,7 +156,7 @@ const saveAssignee = () =>
     <textarea
       v-model="form.description"
       rows="4"
-      class="w-full !mb-0"
+      class="w-full !mb-0 !h-auto"
       @blur="save('description')"
     />
   </div>

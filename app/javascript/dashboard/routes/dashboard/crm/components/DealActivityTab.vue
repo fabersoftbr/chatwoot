@@ -64,7 +64,7 @@ const describe = activity => {
       <div class="flex gap-2">
         <select
           v-model="activityType"
-          class="!mb-0"
+          class="!mb-0 !w-auto"
           :aria-label="t('CRM.ACTIVITY.ADD')"
         >
           <option v-for="type in MANUAL_TYPES" :key="type" :value="type">
@@ -80,7 +80,7 @@ const describe = activity => {
       <textarea
         v-model="content"
         rows="2"
-        class="w-full !mb-0"
+        class="w-full !mb-0 !h-auto"
         :aria-label="t('CRM.ACTIVITY.PLACEHOLDER')"
         :placeholder="t('CRM.ACTIVITY.PLACEHOLDER')"
       />
