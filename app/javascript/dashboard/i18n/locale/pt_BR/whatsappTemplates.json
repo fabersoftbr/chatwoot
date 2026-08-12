@@ -1,5 +1,43 @@
 {
   "WHATSAPP_TEMPLATES": {
+    "TITLE": "Modelos de mensagem",
+    "SUBTITLE": "Crie e remova os modelos que esta caixa de entrada pode enviar. A Meta revisa cada modelo novo.",
+    "EMPTY": "Nenhum modelo ainda.",
+    "ADD": "Novo modelo",
+    "TABLE": {
+      "NAME": "Nome",
+      "LANGUAGE": "Idioma",
+      "CATEGORY": "Categoria",
+      "STATUS": "Status",
+      "ACTIONS": "Ações"
+    },
+    "FORM": {
+      "TITLE": "Novo modelo",
+      "NAME": "Nome",
+      "NAME_PLACEHOLDER": "pedido_enviado",
+      "NAME_HINT": "Somente letras minúsculas, números e underscore.",
+      "LANGUAGE": "Idioma",
+      "CATEGORY": "Categoria",
+      "BODY": "Corpo",
+      "BODY_PLACEHOLDER": "Olá {'{{'}1{'}}'}, seu pedido {'{{'}2{'}}'} foi enviado.",
+      "BODY_HINT": "Use {'{{'}1{'}}'}, {'{{'}2{'}}'} para variáveis. Cada uma precisa de um exemplo.",
+      "EXAMPLE_LABEL": "Exemplo para {'{{'}{index}{'}}'}",
+      "SUBMIT": "Criar modelo",
+      "CANCEL": "Cancelar",
+      "PENDING_NOTICE": "A Meta costuma revisar em minutos, mas pode levar até 24 horas."
+    },
+    "DELETE": {
+      "BUTTON": "Excluir",
+      "CONFIRM_TITLE": "Excluir este modelo?",
+      "CONFIRM_MESSAGE": "O modelo será removido da Meta. Conversas antigas não são afetadas.",
+      "CONFIRM_YES": "Sim, excluir",
+      "CONFIRM_NO": "Cancelar"
+    },
+    "API": {
+      "CREATE_SUCCESS": "Modelo enviado. A Meta está revisando.",
+      "DELETE_SUCCESS": "Modelo excluído.",
+      "ERROR": "Algo deu errado. Tente novamente."
+    },
     "MODAL": {
       "TITLE": "Templates do Whatsapp",
       "SUBTITLE": "Selecione o template do whatsapp que você deseja enviar",
