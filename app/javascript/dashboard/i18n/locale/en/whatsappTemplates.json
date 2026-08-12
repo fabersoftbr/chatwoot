@@ -1,5 +1,44 @@
 {
   "WHATSAPP_TEMPLATES": {
+    "TITLE": "Message templates",
+    "SUBTITLE": "Create and remove the templates this inbox can send. Meta reviews every new template.",
+    "EMPTY": "No templates yet.",
+    "ADD": "New template",
+    "TABLE": {
+      "NAME": "Name",
+      "LANGUAGE": "Language",
+      "CATEGORY": "Category",
+      "STATUS": "Status",
+      "ACTIONS": "Actions"
+    },
+    "FORM": {
+      "TITLE": "New template",
+      "NAME": "Name",
+      "NAME_PLACEHOLDER": "order_shipped",
+      "NAME_HINT": "Lowercase letters, numbers and underscores only.",
+      "LANGUAGE": "Language",
+      "CATEGORY": "Category",
+      "BODY": "Body",
+      "BODY_PLACEHOLDER": "Hi {'{{'}1{'}}'}, your order {'{{'}2{'}}'} has shipped.",
+      "BODY_HINT": "Use {'{{'}1{'}}'}, {'{{'}2{'}}'} for variables. Each one needs an example.",
+      "EXAMPLE_LABEL": "Example for {'{{'}{index}{'}}'}",
+      "SUBMIT": "Create template",
+      "CANCEL": "Cancel",
+      "PENDING_NOTICE": "Meta usually reviews templates within minutes, but it can take up to 24 hours."
+    },
+    "DELETE": {
+      "BUTTON": "Delete",
+      "CONFIRM_TITLE": "Delete this template?",
+      "CONFIRM_MESSAGE": "The template will be removed from Meta, and its name cannot be reused for 30 days. Past conversations are not affected.",
+      "CONFIRM_MESSAGE_ALL_LANGUAGES": "This template has no Meta id, so every language version that shares this name will be removed. The name cannot be reused for 30 days. Past conversations are not affected.",
+      "CONFIRM_YES": "Yes, delete it",
+      "CONFIRM_NO": "Cancel"
+    },
+    "API": {
+      "CREATE_SUCCESS": "Template submitted. Meta is reviewing it.",
+      "DELETE_SUCCESS": "Template deleted.",
+      "ERROR": "Something went wrong. Please try again."
+    },
     "MODAL": {
       "TITLE": "Whatsapp Templates",
       "SUBTITLE": "Select the whatsapp template you want to send",

@@ -315,6 +315,24 @@ describe Whatsapp::Providers::WhatsappCloudService do
         subject.sync_templates
         expect(whatsapp_channel.reload.message_templates_last_updated).not_to eq(timstamp)
       end
+
+      it 'keeps the stored templates when the request fails' do
+        stub_request(:get, 'https://graph.facebook.com/v22.0/123456789/message_templates?access_token=test_key')
+          .to_return(status: 401)
+
+        stored = whatsapp_channel.reload.message_templates
+        subject.sync_templates
+        expect(whatsapp_channel.reload.message_templates).to eq(stored)
+      end
+
+      it 'clears the stored templates when Meta reports an empty list' do
+        stub_request(:get, 'https://graph.facebook.com/v22.0/123456789/message_templates?access_token=test_key')
+          .to_return(status: 200, headers: response_headers, body: { data: [] }.to_json)
+
+        expect(whatsapp_channel.reload.message_templates).to be_present
+        subject.sync_templates
+        expect(whatsapp_channel.reload.message_templates).to eq([])
+      end
     end
   end
 
@@ -486,6 +504,69 @@ describe Whatsapp::Providers::WhatsappCloudService do
         # Verify the service was only instantiated once
         expect(Whatsapp::CsatTemplateService).to have_received(:new).once
       end
+    end
+  end
+
+  describe '#create_template' do
+    let(:payload) do
+      { name: 'boas_vindas', language: 'pt_BR', category: 'UTILITY',
+        components: [{ type: 'BODY', text: 'Olá' }] }
+    end
+
+    it 'posts the payload to the business account templates endpoint and reports success' do
+      stub_request(:post, 'https://graph.facebook.com/v22.0/123456789/message_templates')
+        .with(body: payload.to_json,
+              headers: { 'Authorization' => 'Bearer test_key', 'Content-Type' => 'application/json' })
+        .to_return(status: 200, body: { id: '999', status: 'PENDING' }.to_json,
+                   headers: { 'Content-Type' => 'application/json' })
+
+      result = service.create_template(payload)
+
+      expect(result[:success]).to be(true)
+      expect(result[:body]['id']).to eq('999')
+    end
+
+    it 'surfaces the Meta error body verbatim instead of swallowing it' do
+      stub_request(:post, 'https://graph.facebook.com/v22.0/123456789/message_templates')
+        .to_return(status: 400,
+                   body: { error: { message: 'Template name already exists', code: 100 } }.to_json,
+                   headers: { 'Content-Type' => 'application/json' })
+
+      result = service.create_template(payload)
+
+      expect(result[:success]).to be(false)
+      expect(result[:body].dig('error', 'message')).to eq('Template name already exists')
+    end
+  end
+
+  describe '#delete_template' do
+    it 'deletes by name and reports success' do
+      stub_request(:delete, 'https://graph.facebook.com/v22.0/123456789/message_templates?name=boas_vindas')
+        .with(headers: { 'Authorization' => 'Bearer test_key' })
+        .to_return(status: 200, body: { success: true }.to_json,
+                   headers: { 'Content-Type' => 'application/json' })
+
+      expect(service.delete_template('boas_vindas')[:success]).to be(true)
+    end
+
+    it 'sends hsm_id alongside name so only that language version is deleted' do
+      url = 'https://graph.facebook.com/v22.0/123456789/message_templates?hsm_id=9876543210987654&name=boas_vindas'
+      stub_request(:delete, url)
+        .with(headers: { 'Authorization' => 'Bearer test_key' })
+        .to_return(status: 200, body: { success: true }.to_json,
+                   headers: { 'Content-Type' => 'application/json' })
+
+      expect(service.delete_template('boas_vindas', '9876543210987654')[:success]).to be(true)
+      expect(WebMock).to have_requested(:delete, url)
+    end
+
+    it 'escapes the template name in the query string' do
+      stub_request(:delete, 'https://graph.facebook.com/v22.0/123456789/message_templates?name=a%20b')
+        .to_return(status: 200, body: {}.to_json, headers: { 'Content-Type' => 'application/json' })
+
+      service.delete_template('a b')
+
+      expect(WebMock).to have_requested(:delete, 'https://graph.facebook.com/v22.0/123456789/message_templates?name=a%20b')
     end
   end
 end

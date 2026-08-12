@@ -19,6 +19,14 @@ class Whatsapp::Providers::BaseService
     raise 'Overwrite this method in child class'
   end
 
+  def create_template(_payload)
+    raise 'Overwrite this method in child class'
+  end
+
+  def delete_template(_name, _hsm_id = nil)
+    raise 'Overwrite this method in child class'
+  end
+
   def sync_template
     raise 'Overwrite this method in child class'
   end

@@ -647,7 +647,8 @@
       "ACCOUNT_HEALTH": "Saúde da conta",
       "CSAT": "CSAT",
       "VOICE": "Voz",
-      "CALLS": "Chamadas"
+      "CALLS": "Chamadas",
+      "WHATSAPP_TEMPLATES": "Modelos"
     },
     "VOICE_CONFIGURATION": {
       "ENABLE_VOICE": {
