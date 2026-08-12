@@ -5,7 +5,12 @@
 class Whatsapp::TemplateBuilder
   InvalidTemplateError = Class.new(StandardError)
 
-  CATEGORIES = %w[UTILITY MARKETING AUTHENTICATION].freeze
+  # AUTHENTICATION is deliberately absent: Meta rejects it in the shape this
+  # builder emits. An authentication template needs a BODY carrying
+  # `add_security_recommendation` and no free text, a FOOTER with
+  # `code_expiration_minutes`, and a mandatory OTP BUTTONS component — a
+  # different payload and a different form. Do not re-add it here alone.
+  CATEGORIES = %w[UTILITY MARKETING].freeze
   NAME_FORMAT = /\A[a-z0-9_]+\z/
   NAME_MAX_LENGTH = 512
   VARIABLE_PATTERN = /\{\{(\d+)\}\}/

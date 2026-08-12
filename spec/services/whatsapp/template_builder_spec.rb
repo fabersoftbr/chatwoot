@@ -67,6 +67,14 @@ describe Whatsapp::TemplateBuilder do
         .to raise_error(described_class::InvalidTemplateError, /category/i)
     end
 
+    # AUTHENTICATION needs an OTP BUTTONS component plus a security BODY/FOOTER
+    # this builder does not emit, so Meta would reject every submission anyway.
+    it 'rejects AUTHENTICATION, which it cannot build a valid payload for' do
+      expect(described_class::CATEGORIES).not_to include('AUTHENTICATION')
+      expect { build(category: 'AUTHENTICATION') }
+        .to raise_error(described_class::InvalidTemplateError, /category/i)
+    end
+
     it 'rejects a blank body' do
       expect { build(body: '   ') }
         .to raise_error(described_class::InvalidTemplateError, /body/i)

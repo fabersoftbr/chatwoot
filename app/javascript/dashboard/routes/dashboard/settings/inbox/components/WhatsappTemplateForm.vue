@@ -24,7 +24,9 @@ export default {
       body: '',
       examples: {},
       isSubmitting: false,
-      categories: ['UTILITY', 'MARKETING', 'AUTHENTICATION'],
+      // AUTHENTICATION needs an OTP button plus a security footer this form does
+      // not build, so Meta rejects every submission. See TemplateBuilder::CATEGORIES.
+      categories: ['UTILITY', 'MARKETING'],
       languages: ['pt_BR', 'en_US', 'es_ES'],
     };
   },
