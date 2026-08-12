@@ -64,7 +64,8 @@ const overdue = computed(() => isOverdue(props.deal));
       v-if="overdue"
       class="px-1.5 py-0.5 mt-1 text-xs rounded bg-n-ruby-9/10 text-n-ruby-11"
     >
-      {{ t('CRM.CARD.OVERDUE') }} · {{ deal.next_action }}
+      {{ t('CRM.CARD.OVERDUE')
+      }}<template v-if="deal.next_action"> · {{ deal.next_action }}</template>
     </span>
   </button>
 </template>

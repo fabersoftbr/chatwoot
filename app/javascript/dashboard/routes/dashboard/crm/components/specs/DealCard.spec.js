@@ -54,6 +54,17 @@ describe('DealCard', () => {
     expect(wrapper.text()).toContain('Overdue');
   });
 
+  it('omits the separator when an overdue deal has no next action text', () => {
+    const wrapper = mountCard({
+      ...baseDeal,
+      next_action_at: '2020-01-01T00:00:00Z',
+      next_action: null,
+      closed_at: null,
+    });
+    expect(wrapper.text()).toContain('Overdue');
+    expect(wrapper.text()).not.toContain('·');
+  });
+
   it('does not render the overdue badge for a closed deal', () => {
     const wrapper = mountCard({
       ...baseDeal,
