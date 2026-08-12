@@ -15,3 +15,5 @@ vendor/bundle
 .DS_Store
 *.swp
 *~
+public/vite*
+scripts/seed_crm_demo.rb

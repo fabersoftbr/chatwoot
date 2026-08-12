@@ -1,0 +1,151 @@
+# =============================================================================
+# Chatwoot — deploy para Dokploy (https://dokploy.com)
+#
+#  - Imagem BUILDADA a partir deste repositório (docker/Dockerfile), não a
+#    oficial: é o que faz o CRM (Deals) e demais alterações do fork subirem.
+#  - Postgres (pgvector) + Redis embutidos, com volumes nomeados persistentes
+#  - Exposição pública via Traefik do Dokploy (labels abaixo) + TLS Let's Encrypt
+#  - Migrations rodam automaticamente no boot (db:chatwoot_prepare, idempotente)
+#
+# Antes do primeiro deploy, defina em Dokploy > Environment (ver .env.dokploy.example):
+#     FRONTEND_HOST   SECRET_KEY_BASE   POSTGRES_PASSWORD   REDIS_PASSWORD
+#
+# O primeiro build é demorado (compila grpc/nokogiri nativos, pnpm i e
+# assets:precompile). Os seguintes reaproveitam o cache de camadas do Docker.
+#
+# O CRM sobe com a feature flag `deals` DESLIGADA. Para ligar numa conta:
+#     docker compose exec rails bundle exec rails runner \
+#       'a = Account.find(ID); a.enable_features("deals"); a.save!'
+# =============================================================================
+
+x-app-build: &app-build
+  image: chatwoot-fork:${CHATWOOT_TAG:-local}
+  build:
+    context: .
+    dockerfile: docker/Dockerfile
+    args:
+      RAILS_ENV: production
+      # O build do Vite estoura o heap padrão do Node neste projeto. O valor
+      # precisa caber na RAM (+ swap) do servidor: se a máquina tem menos que
+      # isso, o build morre com SIGABRT em vez de terminar. Ajuste NODE_HEAP_MB.
+      NODE_OPTIONS: "--max-old-space-size=${NODE_HEAP_MB:-8192} --openssl-legacy-provider"
+
+x-app-env: &app-env
+  RAILS_ENV: production
+  NODE_ENV: production
+  INSTALLATION_ENV: docker
+  SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+  FRONTEND_URL: https://${FRONTEND_HOST}
+  DEFAULT_LOCALE: ${DEFAULT_LOCALE:-en}
+  FORCE_SSL: ${FORCE_SSL:-true}
+  ENABLE_ACCOUNT_SIGNUP: ${ENABLE_ACCOUNT_SIGNUP:-false}
+  RAILS_LOG_TO_STDOUT: "true"
+  RAILS_MAX_THREADS: ${RAILS_MAX_THREADS:-5}
+  # --- Postgres ---
+  POSTGRES_HOST: postgres
+  POSTGRES_PORT: "5432"
+  POSTGRES_USERNAME: ${POSTGRES_USERNAME:-postgres}
+  POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  POSTGRES_DATABASE: ${POSTGRES_DATABASE:-chatwoot_production}
+  # --- Redis ---
+  REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+  REDIS_PASSWORD: ${REDIS_PASSWORD}
+  # --- Active Storage (arquivos locais no volume `storage`) ---
+  ACTIVE_STORAGE_SERVICE: local
+  # --- SMTP (opcional — preencha no Dokploy para habilitar e-mail de saída) ---
+  MAILER_SENDER_EMAIL: ${MAILER_SENDER_EMAIL:-Chatwoot <accounts@chatwoot.com>}
+  SMTP_ADDRESS: ${SMTP_ADDRESS:-}
+  SMTP_PORT: ${SMTP_PORT:-587}
+  SMTP_USERNAME: ${SMTP_USERNAME:-}
+  SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+  SMTP_AUTHENTICATION: ${SMTP_AUTHENTICATION:-login}
+  SMTP_ENABLE_STARTTLS_AUTO: ${SMTP_ENABLE_STARTTLS_AUTO:-true}
+
+services:
+  rails:
+    <<: *app-build
+    environment: *app-env
+    entrypoint: docker/entrypoints/rails.sh
+    command: ["sh", "-c", "bundle exec rails db:chatwoot_prepare && bundle exec rails s -p 3000 -b 0.0.0.0"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - storage:/app/storage
+    restart: unless-stopped
+    networks:
+      - default
+      - dokploy-network
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=dokploy-network
+      # HTTPS
+      - traefik.http.routers.chatwoot.rule=Host(`${FRONTEND_HOST}`)
+      - traefik.http.routers.chatwoot.entrypoints=websecure
+      - traefik.http.routers.chatwoot.tls.certresolver=letsencrypt
+      - traefik.http.services.chatwoot.loadbalancer.server.port=3000
+      # HTTP -> HTTPS
+      - traefik.http.routers.chatwoot-web.rule=Host(`${FRONTEND_HOST}`)
+      - traefik.http.routers.chatwoot-web.entrypoints=web
+      - traefik.http.routers.chatwoot-web.middlewares=chatwoot-redirect
+      - traefik.http.middlewares.chatwoot-redirect.redirectscheme.scheme=https
+
+  # Mesma imagem do `rails`: o build acima já a produziu, então esta etapa
+  # resolve inteira pelo cache.
+  sidekiq:
+    <<: *app-build
+    environment: *app-env
+    command: ["bundle", "exec", "sidekiq", "-C", "config/sidekiq.yml"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - storage:/app/storage
+    restart: unless-stopped
+    networks:
+      - default
+
+  postgres:
+    image: pgvector/pgvector:pg15
+    environment:
+      POSTGRES_DB: ${POSTGRES_DATABASE:-chatwoot_production}
+      POSTGRES_USER: ${POSTGRES_USERNAME:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USERNAME:-postgres} -d ${POSTGRES_DATABASE:-chatwoot_production}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - default
+
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$REDIS_PASSWORD\" ping | grep -q PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - default
+
+volumes:
+  postgres_data:
+  redis_data:
+  storage:
+
+networks:
+  default:
+  dokploy-network:
+    external: true
