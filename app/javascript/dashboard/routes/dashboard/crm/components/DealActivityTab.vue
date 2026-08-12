@@ -3,6 +3,7 @@ import { onMounted, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import { useStore } from 'dashboard/composables/store';
+import Button from 'dashboard/components-next/button/Button.vue';
 
 const props = defineProps({
   dealId: { type: Number, required: true },
@@ -63,25 +64,23 @@ const describe = activity => {
       <div class="flex gap-2">
         <select
           v-model="activityType"
-          class="p-2 text-sm border rounded border-slate-200 dark:border-slate-600 dark:bg-slate-900"
+          class="!mb-0"
           :aria-label="t('CRM.ACTIVITY.ADD')"
         >
           <option v-for="type in MANUAL_TYPES" :key="type" :value="type">
             {{ t(`CRM.ACTIVITY.TYPES.${type.toUpperCase()}`) }}
           </option>
         </select>
-        <button
-          class="px-3 text-sm text-white rounded bg-woot-500 disabled:opacity-50"
+        <Button
+          :label="t('CRM.ACTIVITY.SUBMIT')"
           :disabled="!content.trim()"
           @click="submit"
-        >
-          {{ t('CRM.ACTIVITY.SUBMIT') }}
-        </button>
+        />
       </div>
       <textarea
         v-model="content"
         rows="2"
-        class="w-full p-2 text-sm border rounded border-slate-200 dark:border-slate-600 dark:bg-slate-900"
+        class="w-full !mb-0"
         :aria-label="t('CRM.ACTIVITY.PLACEHOLDER')"
         :placeholder="t('CRM.ACTIVITY.PLACEHOLDER')"
       />
@@ -91,12 +90,12 @@ const describe = activity => {
       <li
         v-for="activity in activities"
         :key="activity.id"
-        class="pl-3 border-l-2 border-slate-200 dark:border-slate-600"
+        class="pl-3 border-l-2 border-n-weak"
       >
-        <p class="text-sm text-slate-800 dark:text-slate-100">
+        <p class="text-sm text-n-slate-12">
           {{ describe(activity) }}
         </p>
-        <p class="text-xs text-slate-500">
+        <p class="text-xs text-n-slate-11">
           {{ t(`CRM.ACTIVITY.TYPES.${activity.activity_type.toUpperCase()}`) }}
           <template v-if="activity.user"> · {{ activity.user.name }}</template>
           · {{ new Date(activity.created_at).toLocaleString() }}
@@ -104,6 +103,6 @@ const describe = activity => {
       </li>
     </ul>
 
-    <p v-else class="text-sm text-slate-400">{{ t('CRM.ACTIVITY.EMPTY') }}</p>
+    <p v-else class="text-sm text-n-slate-10">{{ t('CRM.ACTIVITY.EMPTY') }}</p>
   </div>
 </template>

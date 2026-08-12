@@ -29,11 +29,11 @@ const overdue = computed(() => isOverdue(props.deal));
 
 <template>
   <button
-    class="flex flex-col w-full gap-1 p-3 text-left border rounded-lg bg-white dark:bg-slate-800 border-slate-100 dark:border-slate-700 hover:border-woot-400"
+    class="flex flex-col w-full gap-1 p-3 text-left border rounded-lg bg-n-solid-2 border-n-weak hover:border-n-brand"
     @click="$emit('click', deal)"
   >
     <div class="flex items-start justify-between w-full gap-2">
-      <span class="text-sm font-medium text-slate-900 dark:text-slate-100">
+      <span class="text-sm font-medium text-n-slate-12">
         {{ deal.title }}
       </span>
       <span :title="t(`CRM.TEMPERATURE.${deal.temperature.toUpperCase()}`)">
@@ -41,18 +41,15 @@ const overdue = computed(() => isOverdue(props.deal));
       </span>
     </div>
 
-    <span v-if="showContact" class="text-xs text-slate-600 dark:text-slate-400">
+    <span v-if="showContact" class="text-xs text-n-slate-11">
       {{ deal.contact.name }}
     </span>
-    <span
-      v-else-if="stageName"
-      class="text-xs text-slate-600 dark:text-slate-400"
-    >
+    <span v-else-if="stageName" class="text-xs text-n-slate-11">
       {{ stageName }}
     </span>
 
     <div class="flex items-center justify-between w-full gap-2 mt-1">
-      <span class="text-xs font-medium text-slate-800 dark:text-slate-200">
+      <span class="text-xs font-medium text-n-slate-12">
         {{ formattedValue || t('CRM.CARD.NO_VALUE') }}
       </span>
       <Avatar
@@ -65,7 +62,7 @@ const overdue = computed(() => isOverdue(props.deal));
 
     <span
       v-if="overdue"
-      class="px-1.5 py-0.5 mt-1 text-xs rounded bg-red-50 text-red-700 dark:bg-red-900 dark:text-red-100"
+      class="px-1.5 py-0.5 mt-1 text-xs rounded bg-n-ruby-9/10 text-n-ruby-11"
     >
       {{ t('CRM.CARD.OVERDUE') }} · {{ deal.next_action }}
     </span>

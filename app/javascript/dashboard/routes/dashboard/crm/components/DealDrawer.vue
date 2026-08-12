@@ -6,6 +6,7 @@ import { useStore, useMapGetter } from 'dashboard/composables/store';
 import DealDetailsTab from './DealDetailsTab.vue';
 import DealActivityTab from './DealActivityTab.vue';
 import DealContactTab from './DealContactTab.vue';
+import Button from 'dashboard/components-next/button/Button.vue';
 
 const props = defineProps({
   dealId: { type: Number, required: true },
@@ -51,35 +52,36 @@ watch(
   <div>
     <aside
       v-if="deal"
-      class="fixed top-0 right-0 z-40 flex flex-col h-full bg-white border-l w-96 dark:bg-slate-800 border-slate-100 dark:border-slate-700"
+      class="fixed top-0 right-0 z-40 flex flex-col h-full border-l bg-n-solid-2 w-96 border-n-weak"
     >
       <header
-        class="flex items-start justify-between gap-2 p-4 border-b border-slate-100 dark:border-slate-700"
+        class="flex items-start justify-between gap-2 p-4 border-b border-n-weak"
       >
         <div>
-          <h2 class="text-base font-medium">{{ deal.title }}</h2>
-          <p class="text-xs text-slate-500">{{ deal.contact.name }}</p>
+          <h2 class="text-base font-medium text-n-slate-12">
+            {{ deal.title }}
+          </h2>
+          <p class="text-xs text-n-slate-11">{{ deal.contact.name }}</p>
         </div>
-        <woot-button
-          icon="dismiss"
-          variant="clear"
-          color-scheme="secondary"
+        <Button
+          variant="ghost"
+          color="slate"
+          size="sm"
+          icon="i-lucide-x"
           :aria-label="t('CRM.CLOSE')"
           @click="emit('close')"
         />
       </header>
 
-      <nav
-        class="flex gap-4 px-4 border-b border-slate-100 dark:border-slate-700"
-      >
+      <nav class="flex gap-4 px-4 border-b border-n-weak">
         <button
           v-for="tab in ['details', 'activity', 'contact']"
           :key="tab"
           class="py-2 text-sm"
           :class="
             activeTab === tab
-              ? 'text-woot-600 border-b-2 border-woot-500'
-              : 'text-slate-500'
+              ? 'text-n-blue-11 border-b-2 border-n-brand'
+              : 'text-n-slate-11'
           "
           @click="activeTab = tab"
         >

@@ -54,13 +54,18 @@ const saveAssignee = () =>
 
 <template>
   <div class="flex flex-col gap-3 p-4">
-    <label class="text-xs text-slate-500">{{ t('CRM.FORM.TITLE') }}</label>
-    <input v-model="form.title" class="input" @blur="save('title')" />
+    <label class="text-xs text-n-slate-11">{{ t('CRM.FORM.TITLE') }}</label>
+    <input
+      v-model="form.title"
+      type="text"
+      class="w-full !mb-0"
+      @blur="save('title')"
+    />
 
-    <label class="text-xs text-slate-500">{{ t('CRM.FORM.STAGE') }}</label>
+    <label class="text-xs text-n-slate-11">{{ t('CRM.FORM.STAGE') }}</label>
     <select
       v-model="form.deal_stage_id"
-      class="input"
+      class="w-full !mb-0"
       @change="save('deal_stage_id')"
     >
       <option v-for="stage in stages" :key="stage.id" :value="stage.id">
@@ -68,10 +73,10 @@ const saveAssignee = () =>
       </option>
     </select>
 
-    <label class="text-xs text-slate-500">{{ t('CRM.FORM.ASSIGNEE') }}</label>
+    <label class="text-xs text-n-slate-11">{{ t('CRM.FORM.ASSIGNEE') }}</label>
     <select
       v-model="form.assignee_id"
-      class="input"
+      class="w-full !mb-0"
       :aria-label="t('CRM.FORM.ASSIGNEE')"
       @change="saveAssignee"
     >
@@ -81,10 +86,10 @@ const saveAssignee = () =>
       </option>
     </select>
 
-    <label class="text-xs text-slate-500">{{ t('CRM.FORM.CURRENCY') }}</label>
+    <label class="text-xs text-n-slate-11">{{ t('CRM.FORM.CURRENCY') }}</label>
     <select
       v-model="form.currency"
-      class="input"
+      class="w-full !mb-0"
       :aria-label="t('CRM.FORM.CURRENCY')"
       @change="save('currency')"
     >
@@ -93,21 +98,21 @@ const saveAssignee = () =>
       </option>
     </select>
 
-    <label class="text-xs text-slate-500">{{ t('CRM.FORM.VALUE') }}</label>
+    <label class="text-xs text-n-slate-11">{{ t('CRM.FORM.VALUE') }}</label>
     <input
       v-model.number="valueInput"
       type="number"
       min="0"
-      class="input"
+      class="w-full !mb-0"
       @blur="saveValue"
     />
 
-    <label class="text-xs text-slate-500">{{
+    <label class="text-xs text-n-slate-11">{{
       t('CRM.FORM.TEMPERATURE')
     }}</label>
     <select
       v-model="form.temperature"
-      class="input"
+      class="w-full !mb-0"
       @change="save('temperature')"
     >
       <option value="hot">{{ t('CRM.TEMPERATURE.HOT') }}</option>
@@ -115,49 +120,44 @@ const saveAssignee = () =>
       <option value="cold">{{ t('CRM.TEMPERATURE.COLD') }}</option>
     </select>
 
-    <label class="text-xs text-slate-500">{{
+    <label class="text-xs text-n-slate-11">{{
       t('CRM.FORM.EXPECTED_CLOSE_ON')
     }}</label>
     <input
       v-model="form.expected_close_on"
       type="date"
-      class="input"
+      class="w-full !mb-0"
       @change="save('expected_close_on')"
     />
 
-    <label class="text-xs text-slate-500">{{
+    <label class="text-xs text-n-slate-11">{{
       t('CRM.FORM.NEXT_ACTION')
     }}</label>
     <input
       v-model="form.next_action"
-      class="input"
+      type="text"
+      class="w-full !mb-0"
       @blur="save('next_action')"
     />
 
-    <label class="text-xs text-slate-500">{{
+    <label class="text-xs text-n-slate-11">{{
       t('CRM.FORM.NEXT_ACTION_AT')
     }}</label>
     <input
       v-model="form.next_action_at"
       type="datetime-local"
-      class="input"
+      class="w-full !mb-0"
       @change="save('next_action_at')"
     />
 
-    <label class="text-xs text-slate-500">{{
+    <label class="text-xs text-n-slate-11">{{
       t('CRM.FORM.DESCRIPTION')
     }}</label>
     <textarea
       v-model="form.description"
       rows="4"
-      class="input"
+      class="w-full !mb-0"
       @blur="save('description')"
     />
   </div>
 </template>
-
-<style scoped>
-.input {
-  @apply w-full p-2 text-sm border rounded border-slate-200 dark:border-slate-600 dark:bg-slate-900;
-}
-</style>

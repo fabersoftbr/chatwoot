@@ -41,14 +41,14 @@ defineExpose({ open });
       :aria-label="t('CRM.LOST_DIALOG.TITLE')"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
     >
-      <div class="w-96 p-5 bg-white rounded-lg dark:bg-slate-800">
+      <div class="w-96 p-5 rounded-lg bg-n-alpha-3 backdrop-blur-[100px]">
         <h3 class="mb-3 text-base font-medium">
           {{ t('CRM.LOST_DIALOG.TITLE') }}
         </h3>
         <textarea
           v-model="reason"
           rows="3"
-          class="w-full p-2 text-sm border rounded border-slate-200 dark:border-slate-600 dark:bg-slate-900"
+          class="w-full !mb-0"
           :placeholder="t('CRM.LOST_DIALOG.PLACEHOLDER')"
         />
         <div class="flex justify-end gap-2 mt-4">

@@ -9,6 +9,7 @@ import DealDrawer from '../components/DealDrawer.vue';
 import DealFilters from '../components/DealFilters.vue';
 import DealFormDialog from '../components/DealFormDialog.vue';
 import LostReasonDialog from '../components/LostReasonDialog.vue';
+import Button from 'dashboard/components-next/button/Button.vue';
 
 const { t } = useI18n();
 const store = useStore();
@@ -85,15 +86,14 @@ const onLostCancel = () => {
 <template>
   <div class="flex flex-col w-full h-full gap-4 p-4 overflow-hidden">
     <div class="flex items-center justify-between">
-      <h1 class="text-xl font-medium text-slate-900 dark:text-slate-100">
+      <h1 class="text-xl font-medium text-n-slate-12">
         {{ t('CRM.HEADER') }}
       </h1>
-      <button
-        class="px-3 py-1.5 text-sm text-white rounded bg-woot-500"
+      <Button
+        :label="t('CRM.NEW_DEAL')"
+        size="sm"
         @click="dealFormRef.open()"
-      >
-        {{ t('CRM.NEW_DEAL') }}
-      </button>
+      />
     </div>
 
     <DealFilters @change="onFiltersChange" />

@@ -69,7 +69,7 @@ const persistOrder = () =>
   <div class="flex flex-col gap-4 p-6">
     <div>
       <h2 class="text-lg font-medium">{{ t('CRM.SETTINGS.TITLE') }}</h2>
-      <p class="text-sm text-slate-500">{{ t('CRM.SETTINGS.DESCRIPTION') }}</p>
+      <p class="text-sm text-n-slate-11">{{ t('CRM.SETTINGS.DESCRIPTION') }}</p>
     </div>
 
     <div class="flex gap-2">
@@ -100,7 +100,7 @@ const persistOrder = () =>
         <div
           class="flex items-center gap-2 p-2 border rounded border-slate-100 dark:border-slate-700"
         >
-          <span class="cursor-grab text-slate-400" aria-hidden="true">{{
+          <span class="cursor-grab text-n-slate-10" aria-hidden="true">{{
             '⠿'
           }}</span>
           <input
@@ -116,7 +116,7 @@ const persistOrder = () =>
             :aria-label="t('CRM.SETTINGS.NAME')"
             @blur="rename(element)"
           />
-          <span class="text-xs text-slate-500">
+          <span class="text-xs text-n-slate-11">
             {{ t(`CRM.SETTINGS.TYPES.${element.stage_type.toUpperCase()}`) }}
           </span>
           <button

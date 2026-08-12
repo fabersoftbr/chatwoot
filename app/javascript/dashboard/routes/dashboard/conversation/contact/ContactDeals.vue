@@ -6,6 +6,7 @@ import { useStore, useMapGetter } from 'dashboard/composables/store';
 import { formatDealValue } from 'dashboard/routes/dashboard/crm/helpers/position';
 import DealCard from 'dashboard/routes/dashboard/crm/components/DealCard.vue';
 import DealFormDialog from 'dashboard/routes/dashboard/crm/components/DealFormDialog.vue';
+import Button from 'dashboard/components-next/button/Button.vue';
 
 const props = defineProps({
   contactId: { type: Number, required: true },
@@ -142,14 +143,15 @@ const openDealBoard = deal => {
 </script>
 
 <template>
-  <div
-    class="flex flex-col gap-2 p-3 border-b border-slate-100 dark:border-slate-700"
-  >
+  <div class="flex flex-col gap-2 p-3 border-b border-n-weak">
     <div class="flex items-center justify-between">
       <h4 class="text-sm font-medium">{{ t('CRM.CONTACT_PANEL.TITLE') }}</h4>
-      <button class="text-xs text-woot-600" @click="dealFormRef.open()">
-        {{ t('CRM.CONTACT_PANEL.NEW') }}
-      </button>
+      <Button
+        :label="t('CRM.CONTACT_PANEL.NEW')"
+        variant="link"
+        size="xs"
+        @click="dealFormRef.open()"
+      />
     </div>
 
     <div v-for="deal in sortedDeals" :key="deal.id" class="flex flex-col gap-1">
@@ -159,22 +161,23 @@ const openDealBoard = deal => {
         :stage-name="stageName(deal)"
         @click="openDealBoard"
       />
-      <button
+      <Button
         v-if="nextStageId(deal)"
-        class="self-start text-xs text-woot-600"
+        :label="`> ${nextStageName(deal)}`"
+        variant="link"
+        size="xs"
+        class="self-start"
         @click="advance(deal)"
-      >
-        &gt; {{ nextStageName(deal) }}
-      </button>
+      />
     </div>
 
-    <p v-if="!sortedDeals.length" class="text-xs text-slate-400">
+    <p v-if="!sortedDeals.length" class="text-xs text-n-slate-10">
       {{ t('CRM.CONTACT_PANEL.EMPTY') }}
     </p>
 
     <p
       v-if="wonTotal && wonTotalCurrency"
-      class="text-xs font-medium text-slate-700 dark:text-slate-300"
+      class="text-xs font-medium text-n-slate-12"
     >
       {{ t('CRM.CONTACT_PANEL.TOTAL_WON') }}:
       {{ formatDealValue(wonTotal, wonTotalCurrency) }}

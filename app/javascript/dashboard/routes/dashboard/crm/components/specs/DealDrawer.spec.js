@@ -49,6 +49,17 @@ describe('DealDrawer', () => {
     expect(wrapper.get('input').element.value).toBe('A late deal');
   });
 
+  it('renders a close button in the header that emits close when clicked', async () => {
+    const wrapper = mountDrawer(vi.fn(), () => deal);
+
+    const closeButton = wrapper.get('header button');
+    expect(closeButton.attributes('aria-label')).toBe('Close');
+
+    await closeButton.trigger('click');
+
+    expect(wrapper.emitted('close')).toHaveLength(1);
+  });
+
   it('dispatches deals/show when the deal is not already in the store', () => {
     // The board only ever loads 25 deals per stage, so a deep link to the
     // 26th card resolves to nothing in the store until fetched directly.

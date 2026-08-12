@@ -3,6 +3,7 @@ import { onMounted, reactive } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useDebounceFn } from '@vueuse/core';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
+import Input from 'dashboard/components-next/input/Input.vue';
 
 const emit = defineEmits(['change']);
 
@@ -41,9 +42,8 @@ const emitChangeDebounced = useDebounceFn(emitChange, 300);
 
 <template>
   <div class="flex items-center gap-2">
-    <input
+    <Input
       v-model="filters.q"
-      class="input"
       :aria-label="t('CRM.SEARCH_PLACEHOLDER')"
       :placeholder="t('CRM.SEARCH_PLACEHOLDER')"
       @input="emitChangeDebounced"
@@ -51,7 +51,7 @@ const emitChangeDebounced = useDebounceFn(emitChange, 300);
 
     <select
       v-model="filters.assignee_id"
-      class="input"
+      class="!mb-0"
       :aria-label="t('CRM.FILTERS.ASSIGNEE')"
       @change="emitChange"
     >
@@ -63,7 +63,7 @@ const emitChangeDebounced = useDebounceFn(emitChange, 300);
 
     <select
       v-model="filters.temperature"
-      class="input"
+      class="!mb-0"
       :aria-label="t('CRM.FILTERS.TEMPERATURE')"
       @change="emitChange"
     >
@@ -84,9 +84,3 @@ const emitChangeDebounced = useDebounceFn(emitChange, 300);
     </label>
   </div>
 </template>
-
-<style scoped>
-.input {
-  @apply p-2 text-sm border rounded border-slate-200 dark:border-slate-600 dark:bg-slate-900;
-}
-</style>

@@ -18,19 +18,19 @@ const profileUrl = computed(() =>
 
 <template>
   <div class="flex flex-col gap-3 p-4">
-    <router-link :to="profileUrl" class="text-sm font-medium text-woot-600">
+    <router-link :to="profileUrl" class="text-sm font-medium text-n-blue-11">
       {{ contact.name }}
     </router-link>
 
     <div v-if="contact.email" class="flex flex-col gap-1">
-      <span class="text-xs text-slate-500">
+      <span class="text-xs text-n-slate-11">
         {{ t('CONTACT_PANEL.EMAIL_ADDRESS') }}
       </span>
       <span class="text-sm">{{ contact.email }}</span>
     </div>
 
     <div v-if="contact.phone_number" class="flex flex-col gap-1">
-      <span class="text-xs text-slate-500">
+      <span class="text-xs text-n-slate-11">
         {{ t('CONTACT_PANEL.PHONE_NUMBER') }}
       </span>
       <span class="text-sm">{{ contact.phone_number }}</span>

@@ -51,9 +51,7 @@ const onDrop = event => {
 </script>
 
 <template>
-  <div
-    class="flex flex-col w-72 shrink-0 h-full rounded-lg bg-slate-25 dark:bg-slate-900"
-  >
+  <div class="flex flex-col w-72 shrink-0 h-full rounded-lg bg-n-solid-1">
     <div class="flex items-center justify-between gap-2 px-3 py-2">
       <span class="flex items-center gap-2 text-sm font-medium">
         <span
@@ -61,9 +59,9 @@ const onDrop = event => {
           :style="{ backgroundColor: stage.color }"
         />
         {{ stage.name }}
-        <span class="text-slate-500">{{ dealsCount }}</span>
+        <span class="text-n-slate-11">{{ dealsCount }}</span>
       </span>
-      <span class="text-xs text-slate-500">{{ total }}</span>
+      <span class="text-xs text-n-slate-11">{{ total }}</span>
     </div>
 
     <draggable
@@ -78,7 +76,7 @@ const onDrop = event => {
       </template>
     </draggable>
 
-    <p v-if="!deals.length" class="px-3 pb-3 text-xs text-slate-400">
+    <p v-if="!deals.length" class="px-3 pb-3 text-xs text-n-slate-10">
       {{ t('CRM.EMPTY_STAGE') }}
     </p>
   </div>

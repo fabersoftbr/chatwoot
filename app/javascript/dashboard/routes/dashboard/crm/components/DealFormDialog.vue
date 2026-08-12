@@ -73,13 +73,14 @@ defineExpose({ open });
       class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
     >
       <div
-        class="flex flex-col gap-3 p-5 bg-white rounded-lg w-96 dark:bg-slate-800"
+        class="flex flex-col gap-3 p-5 rounded-lg w-96 bg-n-alpha-3 backdrop-blur-[100px]"
       >
         <h3 class="text-base font-medium">{{ t('CRM.NEW_DEAL') }}</h3>
 
         <input
           v-model="form.title"
-          class="input"
+          type="text"
+          class="w-full !mb-0"
           :aria-label="t('CRM.FORM.TITLE')"
           :placeholder="t('CRM.FORM.TITLE')"
         />
@@ -87,7 +88,7 @@ defineExpose({ open });
         <select
           v-if="!contactId"
           v-model="form.contact_id"
-          class="input"
+          class="w-full !mb-0"
           :aria-label="t('CRM.FORM.CONTACT')"
         >
           <option :value="null" disabled>{{ t('CRM.FORM.CONTACT') }}</option>
@@ -102,7 +103,7 @@ defineExpose({ open });
 
         <select
           v-model="form.deal_stage_id"
-          class="input"
+          class="w-full !mb-0"
           :aria-label="t('CRM.FORM.STAGE')"
         >
           <option v-for="stage in stages" :key="stage.id" :value="stage.id">
@@ -114,14 +115,14 @@ defineExpose({ open });
           v-model.number="form.value"
           type="number"
           min="0"
-          class="input"
+          class="w-full !mb-0"
           :aria-label="t('CRM.FORM.VALUE')"
           :placeholder="t('CRM.FORM.VALUE')"
         />
 
         <select
           v-model="form.temperature"
-          class="input"
+          class="w-full !mb-0"
           :aria-label="t('CRM.FORM.TEMPERATURE')"
         >
           <option value="hot">{{ t('CRM.TEMPERATURE.HOT') }}</option>
@@ -147,9 +148,3 @@ defineExpose({ open });
     </div>
   </div>
 </template>
-
-<style scoped>
-.input {
-  @apply w-full p-2 text-sm border rounded border-slate-200 dark:border-slate-600 dark:bg-slate-900;
-}
-</style>
