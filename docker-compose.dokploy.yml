@@ -48,10 +48,22 @@ x-app-env: &app-env
   POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
   POSTGRES_DATABASE: ${POSTGRES_DATABASE:-chatwoot_production}
   # --- Redis ---
-  REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
+  # A senha vai SEPARADA, não embutida na URL: lib/redis/config.rb e
+  # config/cable.yml já leem REDIS_PASSWORD por conta própria, e concatenar
+  # numa URI quebra com qualquer senha que contenha @ / # ? : — que é
+  # exatamente o que `openssl rand -base64` gera.
+  REDIS_URL: redis://redis:6379
   REDIS_PASSWORD: ${REDIS_PASSWORD}
   # --- Active Storage (arquivos locais no volume `storage`) ---
   ACTIVE_STORAGE_SERVICE: local
+  # --- Criptografia em repouso ---
+  # Sem estas três, tokens de canal (Telegram, Twilio, Instagram, IMAP/SMTP)
+  # ficam em texto puro no Postgres e o 2FA levanta erro ao ser ativado.
+  # Defina ANTES do primeiro login: depois que existir dado criptografado,
+  # trocá-las torna esse dado ilegível.
+  ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY: ${ACTIVE_RECORD_ENCRYPTION_PRIMARY_KEY:-}
+  ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY: ${ACTIVE_RECORD_ENCRYPTION_DETERMINISTIC_KEY:-}
+  ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT: ${ACTIVE_RECORD_ENCRYPTION_KEY_DERIVATION_SALT:-}
   # --- SMTP (opcional — preencha no Dokploy para habilitar e-mail de saída) ---
   MAILER_SENDER_EMAIL: ${MAILER_SENDER_EMAIL:-Chatwoot <accounts@chatwoot.com>}
   SMTP_ADDRESS: ${SMTP_ADDRESS:-}
@@ -75,6 +87,15 @@ services:
     volumes:
       - storage:/app/storage
     restart: unless-stopped
+    # Sem isto o Traefik roteia assim que o container sobe e serve 502 durante
+    # toda a migração + boot (minutos no primeiro deploy). start_period cobre
+    # a carga do schema; só depois dele as falhas passam a contar.
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/ >/dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 180s
     networks:
       - default
       - dokploy-network

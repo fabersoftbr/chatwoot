@@ -86,8 +86,13 @@ RUN if [ "$RAILS_ENV" = "production" ]; then \
   && rm -rf spec node_modules tmp/cache; \
   fi
 
-# Generate .git_sha file with current commit hash
-RUN git rev-parse HEAD > /app/.git_sha
+# Generate .git_sha file with current commit hash.
+# Falls back when there is no usable .git: a worktree's .git is a file pointing
+# at a path that does not exist inside the container, and a tarball deploy has
+# no .git at all. config/initializers/git_sha.rb just reads this file, so an
+# "unknown" here costs a version string, while a failure here costs the whole
+# build — after the gems and the asset precompile have already run.
+RUN git rev-parse HEAD > /app/.git_sha 2>/dev/null || echo unknown > /app/.git_sha
 
 # Remove unnecessary files
 RUN rm -rf /gems/ruby/3.4.0/cache/*.gem \

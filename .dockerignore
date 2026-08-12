@@ -17,3 +17,8 @@ vendor/bundle
 *~
 public/vite*
 scripts/seed_crm_demo.rb
+spec
+docs
+.superpowers
+.github
+.devcontainer
