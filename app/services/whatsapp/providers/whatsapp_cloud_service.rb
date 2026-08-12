@@ -1,4 +1,6 @@
 class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseService
+  include Whatsapp::Providers::Concerns::TemplateManagement
+
   def send_message(phone_number, message)
     @message = message
 
@@ -85,9 +87,7 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
     csat_template_service.delete_template(template_name)
   end
 
-  def get_template_status(template_name)
-    csat_template_service.get_template_status(template_name)
-  end
+  delegate :get_template_status, to: :csat_template_service
 
   def media_url(media_id)
     "#{api_base_path}/v13.0/#{media_id}"
