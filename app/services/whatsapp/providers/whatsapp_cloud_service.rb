@@ -38,22 +38,25 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
     # ensuring that channels with wrong provider config wouldn't keep trying to sync templates
     whatsapp_channel.mark_message_templates_updated
     templates = fetch_whatsapp_templates("#{business_account_path}/message_templates?access_token=#{whatsapp_channel.provider_config['api_key']}")
-    whatsapp_channel.update(message_templates: templates, message_templates_last_updated: Time.now.utc) if templates.present?
+    # nil means "we could not ask Meta" — keep whatever we had. An empty array
+    # means Meta says there are none, and must overwrite the stored list.
+    whatsapp_channel.update(message_templates: templates, message_templates_last_updated: Time.now.utc) unless templates.nil?
   end
 
+  # Returns the templates, or nil when any page of the listing could not be fetched.
   def fetch_whatsapp_templates(url)
     response = HTTParty.get(url)
     unless response.success?
       Rails.logger.warn "[WHATSAPP] Template sync failed for account #{whatsapp_channel.account_id} " \
                         "inbox #{whatsapp_channel.inbox&.id}: #{response.code} #{error_message(response)}"
-      return []
+      return nil
     end
 
     next_url = next_url(response)
+    return response['data'] if next_url.blank?
 
-    return response['data'] + fetch_whatsapp_templates(next_url) if next_url.present?
-
-    response['data']
+    rest = fetch_whatsapp_templates(next_url)
+    rest && (response['data'] + rest)
   end
 
   def next_url(response)

@@ -315,6 +315,24 @@ describe Whatsapp::Providers::WhatsappCloudService do
         subject.sync_templates
         expect(whatsapp_channel.reload.message_templates_last_updated).not_to eq(timstamp)
       end
+
+      it 'keeps the stored templates when the request fails' do
+        stub_request(:get, 'https://graph.facebook.com/v22.0/123456789/message_templates?access_token=test_key')
+          .to_return(status: 401)
+
+        stored = whatsapp_channel.reload.message_templates
+        subject.sync_templates
+        expect(whatsapp_channel.reload.message_templates).to eq(stored)
+      end
+
+      it 'clears the stored templates when Meta reports an empty list' do
+        stub_request(:get, 'https://graph.facebook.com/v22.0/123456789/message_templates?access_token=test_key')
+          .to_return(status: 200, headers: response_headers, body: { data: [] }.to_json)
+
+        expect(whatsapp_channel.reload.message_templates).to be_present
+        subject.sync_templates
+        expect(whatsapp_channel.reload.message_templates).to eq([])
+      end
     end
   end
 
@@ -529,6 +547,17 @@ describe Whatsapp::Providers::WhatsappCloudService do
                    headers: { 'Content-Type' => 'application/json' })
 
       expect(service.delete_template('boas_vindas')[:success]).to be(true)
+    end
+
+    it 'sends hsm_id alongside name so only that language version is deleted' do
+      url = 'https://graph.facebook.com/v22.0/123456789/message_templates?hsm_id=9876543210987654&name=boas_vindas'
+      stub_request(:delete, url)
+        .with(headers: { 'Authorization' => 'Bearer test_key' })
+        .to_return(status: 200, body: { success: true }.to_json,
+                   headers: { 'Content-Type' => 'application/json' })
+
+      expect(service.delete_template('boas_vindas', '9876543210987654')[:success]).to be(true)
+      expect(WebMock).to have_requested(:delete, url)
     end
 
     it 'escapes the template name in the query string' do
