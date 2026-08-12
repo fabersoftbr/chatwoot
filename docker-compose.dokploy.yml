@@ -90,8 +90,11 @@ services:
     # Sem isto o Traefik roteia assim que o container sobe e serve 502 durante
     # toda a migração + boot (minutos no primeiro deploy). start_period cobre
     # a carga do schema; só depois dele as falhas passam a contar.
+    # Usa ruby de propósito: a imagem final é ruby:3.4.4-slim, que NÃO traz
+    # wget nem curl (o busybox do Alpine trazia). Um healthcheck com wget aqui
+    # falha sempre e deixa o container eternamente "unhealthy".
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/ >/dev/null || exit 1"]
+      test: ["CMD", "ruby", "-e", "require 'net/http'; exit(Net::HTTP.get_response(URI('http://127.0.0.1:3000/health')).code.to_i < 400 ? 0 : 1)"]
       interval: 15s
       timeout: 5s
       retries: 20
