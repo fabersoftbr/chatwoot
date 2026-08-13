@@ -9,6 +9,7 @@ class Pipeline < ApplicationRecord
   scope :ordered, -> { order(:position, :id) }
 
   after_create :seed_default_stages
+  before_destroy :flag_deal_stages_for_cascade_destroy, prepend: true
 
   def self.seed_default(account)
     return account.pipelines.ordered.first if account.pipelines.exists?
@@ -35,5 +36,9 @@ class Pipeline < ApplicationRecord
     DealStage::DEFAULT_STAGES.each_with_index do |attributes, index|
       deal_stages.create!(attributes.merge(position: index, account_id: account_id))
     end
+  end
+
+  def flag_deal_stages_for_cascade_destroy
+    deal_stages.each { |stage| stage.cascading_pipeline_destroy = true }
   end
 end
