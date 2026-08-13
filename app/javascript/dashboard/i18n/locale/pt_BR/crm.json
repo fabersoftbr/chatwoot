@@ -6,7 +6,13 @@
     "PIPELINE": {
       "LABEL": "Funil",
       "MANAGE_STAGES": "Gerenciar etapas",
-      "MANAGE": "Gerenciar funis"
+      "MANAGE": "Gerenciar funis",
+      "NEW": "Novo funil",
+      "NAME": "Nome",
+      "SAVE": "Salvar",
+      "CANCEL": "Cancelar",
+      "DELETE": "Excluir",
+      "PLACEHOLDER": "Nome do funil"
     },
     "EMPTY_STAGE": "Nenhum negócio aqui",
     "SEARCH_PLACEHOLDER": "Buscar negócios ou contatos",

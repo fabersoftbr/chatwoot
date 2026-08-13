@@ -9,6 +9,7 @@ import DealDrawer from '../components/DealDrawer.vue';
 import DealFilters from '../components/DealFilters.vue';
 import DealFormDialog from '../components/DealFormDialog.vue';
 import LostReasonDialog from '../components/LostReasonDialog.vue';
+import PipelineManagerDialog from '../components/PipelineManagerDialog.vue';
 import StageManagerDialog from '../components/StageManagerDialog.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 
@@ -179,5 +180,7 @@ const onLostCancel = () => {
       :pipeline-id="activePipelineId"
       @changed="refresh"
     />
+
+    <PipelineManagerDialog ref="pipelineManagerRef" @changed="refresh" />
   </div>
 </template>

@@ -6,7 +6,13 @@
     "PIPELINE": {
       "LABEL": "Pipeline",
       "MANAGE_STAGES": "Manage stages",
-      "MANAGE": "Manage pipelines"
+      "MANAGE": "Manage pipelines",
+      "NEW": "New pipeline",
+      "NAME": "Name",
+      "SAVE": "Save",
+      "CANCEL": "Cancel",
+      "DELETE": "Delete",
+      "PLACEHOLDER": "Pipeline name"
     },
     "EMPTY_STAGE": "No deals here",
     "SEARCH_PLACEHOLDER": "Search deals or contacts",
