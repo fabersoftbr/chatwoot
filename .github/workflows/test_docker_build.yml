@@ -3,8 +3,7 @@ name: Test Docker Build
 on:
   pull_request:
     branches:
-      - develop
-      - master
+      - main
   workflow_dispatch:
 
 permissions:
