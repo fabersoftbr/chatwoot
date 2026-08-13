@@ -2,7 +2,7 @@
 # Run: bundle exec rails runner scripts/seed_crm_demo.rb
 
 account = Account.find(677)
-user = User.find_by(email: 'john@acme.inc')
+user = User.from_email('john@acme.inc')
 
 account.enable_features('deals')
 account.save!
@@ -23,37 +23,38 @@ end
 
 temperatures = %w[hot warm cold]
 deals_spec = [
-  # [contact index, stage index, title, value in cents, temperature, next_action_days]
-  [0, 0, 'Implantação Acme — 50 licenças',        1_250_000, 'hot',  2],
-  [1, 0, 'Renovação anual',                         480_000, 'warm', 7],
-  [2, 1, 'Migração de PABX',                      3_200_000, 'hot',  1],
-  [3, 1, 'Piloto de atendimento',                   150_000, 'cold', 14],
-  [4, 1, 'Expansão para filial SP',                 890_000, 'warm', -3],
-  [5, 2, 'Contrato enviado — matriz',             5_400_000, 'hot',  3],
-  [6, 2, 'Upgrade para plano Enterprise',         2_100_000, 'warm', 10],
-  [7, 3, 'Projeto integrado WhatsApp',            7_800_000, 'hot',  nil]
+  { contact_i: 0, stage_i: 0, title: 'Implantação Acme — 50 licenças', value: 1_250_000, temperature: 'hot', days: 2 },
+  { contact_i: 1, stage_i: 0, title: 'Renovação anual', value: 480_000, temperature: 'warm', days: 7 },
+  { contact_i: 2, stage_i: 1, title: 'Migração de PABX', value: 3_200_000, temperature: 'hot', days: 1 },
+  { contact_i: 3, stage_i: 1, title: 'Piloto de atendimento', value: 150_000, temperature: 'cold', days: 14 },
+  { contact_i: 4, stage_i: 1, title: 'Expansão para filial SP', value: 890_000, temperature: 'warm', days: -3 },
+  { contact_i: 5, stage_i: 2, title: 'Contrato enviado — matriz', value: 5_400_000, temperature: 'hot', days: 3 },
+  { contact_i: 6, stage_i: 2, title: 'Upgrade para plano Enterprise', value: 2_100_000, temperature: 'warm', days: 10 },
+  { contact_i: 7, stage_i: 3, title: 'Projeto integrado WhatsApp', value: 7_800_000, temperature: 'hot', days: nil }
 ]
 
-deals_spec.each do |contact_i, stage_i, title, value, temperature, days|
-  stage = stages[stage_i] || stages.last
-  deal = account.deals.find_or_initialize_by(title: title)
+deals_spec.each do |spec|
+  raise "invalid temperature #{spec[:temperature].inspect}, must be one of #{temperatures}" unless temperatures.include?(spec[:temperature])
+
+  stage = stages[spec[:stage_i]] || stages.last
+  deal = account.deals.find_or_initialize_by(title: spec[:title])
   next if deal.persisted?
 
   deal.assign_attributes(
-    contact: contacts[contact_i],
+    contact: contacts[spec[:contact_i]],
     deal_stage: stage,
     assignee: user,
-    value_cents: value,
+    value_cents: spec[:value],
     currency: 'BRL',
-    temperature: temperature,
-    description: "Negócio de demonstração criado para validar a tela de CRM.",
-    next_action_at: days ? days.days.from_now : nil,
-    position: (contact_i + 1) * 1000
+    temperature: spec[:temperature],
+    description: 'Negócio de demonstração criado para validar a tela de CRM.',
+    next_action_at: spec[:days]&.days&.from_now,
+    position: (spec[:contact_i] + 1) * 1000
   )
   deal.save!
   deal.deal_activities.create!(
     activity_type: 'note',
-    content: "Primeiro contato feito. Cliente pediu proposta por e-mail.",
+    content: 'Primeiro contato feito. Cliente pediu proposta por e-mail.',
     user: user
   )
 end

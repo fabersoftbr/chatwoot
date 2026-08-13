@@ -13,6 +13,10 @@ RSpec.describe 'WhatsApp Templates API', type: :request do
     { name: 'boas_vindas', language: 'pt_BR', category: 'UTILITY',
       body: 'Olá {{1}}', examples: ['Pedro'] }
   end
+  # Channel::Whatsapp#create_template/#sync_templates/#delete_template delegate to a fresh
+  # Whatsapp::Providers::WhatsappCloudService.new(...) on every call, so stubbing the class'
+  # constructor intercepts every instance without any_instance_of.
+  let(:whatsapp_provider_service) { instance_double(Whatsapp::Providers::WhatsappCloudService) }
 
   describe 'POST /api/v1/accounts/{account.id}/inboxes/{inbox.id}/whatsapp_templates' do
     context 'when unauthenticated' do
@@ -32,10 +36,12 @@ RSpec.describe 'WhatsApp Templates API', type: :request do
     end
 
     context 'when the user is an administrator' do
+      before { allow(Whatsapp::Providers::WhatsappCloudService).to receive(:new).and_return(whatsapp_provider_service) }
+
       it 'creates the template and returns the refreshed list' do
-        allow_any_instance_of(Channel::Whatsapp).to receive(:create_template)
+        allow(whatsapp_provider_service).to receive(:create_template)
           .and_return({ success: true, body: { 'id' => '999' } })
-        allow_any_instance_of(Channel::Whatsapp).to receive(:sync_templates)
+        allow(whatsapp_provider_service).to receive(:sync_templates)
         whatsapp_channel.update!(message_templates: [{ 'name' => 'boas_vindas', 'status' => 'PENDING' }])
 
         post "/api/v1/accounts/#{account.id}/inboxes/#{inbox.id}/whatsapp_templates",
@@ -46,10 +52,10 @@ RSpec.describe 'WhatsApp Templates API', type: :request do
       end
 
       it 'passes the built payload to the channel' do
-        expect_any_instance_of(Channel::Whatsapp).to receive(:create_template).with(
+        expect(whatsapp_provider_service).to receive(:create_template).with(
           hash_including(name: 'boas_vindas', language: 'pt_BR', category: 'UTILITY')
         ).and_return({ success: true, body: {} })
-        allow_any_instance_of(Channel::Whatsapp).to receive(:sync_templates)
+        allow(whatsapp_provider_service).to receive(:sync_templates)
 
         post "/api/v1/accounts/#{account.id}/inboxes/#{inbox.id}/whatsapp_templates",
              params: valid_params, headers: administrator.create_new_auth_token
@@ -65,7 +71,7 @@ RSpec.describe 'WhatsApp Templates API', type: :request do
       end
 
       it 'returns 422 with the Meta error message verbatim' do
-        allow_any_instance_of(Channel::Whatsapp).to receive(:create_template).and_return(
+        allow(whatsapp_provider_service).to receive(:create_template).and_return(
           { success: false, body: { 'error' => { 'message' => 'Template name already exists' } } }
         )
 
@@ -77,9 +83,9 @@ RSpec.describe 'WhatsApp Templates API', type: :request do
       end
 
       it 'does not sync templates when creation failed' do
-        allow_any_instance_of(Channel::Whatsapp).to receive(:create_template)
+        allow(whatsapp_provider_service).to receive(:create_template)
           .and_return({ success: false, body: {} })
-        expect_any_instance_of(Channel::Whatsapp).not_to receive(:sync_templates)
+        expect(whatsapp_provider_service).not_to receive(:sync_templates)
 
         post "/api/v1/accounts/#{account.id}/inboxes/#{inbox.id}/whatsapp_templates",
              params: valid_params, headers: administrator.create_new_auth_token
@@ -136,6 +142,8 @@ RSpec.describe 'WhatsApp Templates API', type: :request do
   end
 
   describe 'DELETE /api/v1/accounts/{account.id}/inboxes/{inbox.id}/whatsapp_templates/{name}' do
+    before { allow(Whatsapp::Providers::WhatsappCloudService).to receive(:new).and_return(whatsapp_provider_service) }
+
     it 'returns unauthorized for an agent' do
       delete "/api/v1/accounts/#{account.id}/inboxes/#{inbox.id}/whatsapp_templates/boas_vindas",
              headers: agent.create_new_auth_token
@@ -144,9 +152,9 @@ RSpec.describe 'WhatsApp Templates API', type: :request do
     end
 
     it 'deletes the template and returns the refreshed list for an administrator' do
-      expect_any_instance_of(Channel::Whatsapp).to receive(:delete_template)
+      expect(whatsapp_provider_service).to receive(:delete_template)
         .with('boas_vindas', nil).and_return({ success: true, body: {} })
-      allow_any_instance_of(Channel::Whatsapp).to receive(:sync_templates)
+      allow(whatsapp_provider_service).to receive(:sync_templates)
 
       delete "/api/v1/accounts/#{account.id}/inboxes/#{inbox.id}/whatsapp_templates/boas_vindas",
              headers: administrator.create_new_auth_token
@@ -155,9 +163,9 @@ RSpec.describe 'WhatsApp Templates API', type: :request do
     end
 
     it 'forwards hsm_id so only the clicked language version is deleted' do
-      expect_any_instance_of(Channel::Whatsapp).to receive(:delete_template)
+      expect(whatsapp_provider_service).to receive(:delete_template)
         .with('boas_vindas', '9876543210987654').and_return({ success: true, body: {} })
-      allow_any_instance_of(Channel::Whatsapp).to receive(:sync_templates)
+      allow(whatsapp_provider_service).to receive(:sync_templates)
 
       delete "/api/v1/accounts/#{account.id}/inboxes/#{inbox.id}/whatsapp_templates/boas_vindas",
              params: { hsm_id: '9876543210987654' }, headers: administrator.create_new_auth_token
@@ -166,7 +174,7 @@ RSpec.describe 'WhatsApp Templates API', type: :request do
     end
 
     it 'returns 422 with the Meta error when deletion fails' do
-      allow_any_instance_of(Channel::Whatsapp).to receive(:delete_template).and_return(
+      allow(whatsapp_provider_service).to receive(:delete_template).and_return(
         { success: false, body: { 'error' => { 'message' => 'Template not found' } } }
       )
 
