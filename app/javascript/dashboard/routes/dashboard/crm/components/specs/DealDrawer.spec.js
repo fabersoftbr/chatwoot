@@ -11,6 +11,7 @@ const deal = {
   id: 26,
   title: 'A late deal',
   contact: { name: 'Jane Doe' },
+  pipeline_id: 100,
 };
 
 const mountDrawer = (dispatch, getDeal) => {
@@ -18,7 +19,8 @@ const mountDrawer = (dispatch, getDeal) => {
   useMapGetter.mockImplementation(getter => {
     const mockValues = {
       'deals/getDeal': getDeal,
-      'deals/getStages': [],
+      'dealStages/getStages': [],
+      'pipelines/getPipelines': [],
       'agents/getAgents': [],
     };
     return computed(() => mockValues[getter]);
