@@ -81,17 +81,6 @@
       "NEW": "New deal",
       "TOTAL_WON": "Total won"
     },
-    "SETTINGS": {
-      "TITLE": "Pipeline",
-      "DESCRIPTION": "Rename, reorder and color the stages of your sales pipeline.",
-      "ADD_STAGE": "Add stage",
-      "NAME": "Name",
-      "COLOR": "Color",
-      "TYPE": "Type",
-      "TYPES": { "OPEN": "Open", "WON": "Won", "LOST": "Lost" },
-      "DELETE": "Delete",
-      "DELETE_BLOCKED": "Move the deals out of this stage first."
-    },
     "STAGES": {
       "TITLE": "Manage pipeline stages",
       "NEW_STAGE": "New stage",

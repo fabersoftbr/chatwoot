@@ -13,6 +13,7 @@ class DealStage < ApplicationRecord
 
   validates :name, presence: true
   validates :position, presence: true
+  validate :pipeline_belongs_to_account
 
   enum stage_type: { open: 0, won: 1, lost: 2 }, _prefix: :stage
 
@@ -25,6 +26,10 @@ class DealStage < ApplicationRecord
 
   def ensure_account_id
     self.account_id ||= pipeline&.account_id
+  end
+
+  def pipeline_belongs_to_account
+    errors.add(:pipeline, :invalid) if pipeline.present? && pipeline.account_id != account_id
   end
 
   def ensure_not_last_closing_stage

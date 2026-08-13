@@ -81,17 +81,6 @@
       "NEW": "Novo negócio",
       "TOTAL_WON": "Total ganho"
     },
-    "SETTINGS": {
-      "TITLE": "Funil",
-      "DESCRIPTION": "Renomeie, reordene e colora os estágios do seu funil de vendas.",
-      "ADD_STAGE": "Adicionar estágio",
-      "NAME": "Nome",
-      "COLOR": "Cor",
-      "TYPE": "Tipo",
-      "TYPES": { "OPEN": "Aberto", "WON": "Ganho", "LOST": "Perdido" },
-      "DELETE": "Excluir",
-      "DELETE_BLOCKED": "Mova os negócios desse estágio antes."
-    },
     "STAGES": {
       "TITLE": "Gerenciar etapas do funil",
       "NEW_STAGE": "Nova etapa",
