@@ -113,9 +113,9 @@ const onLostCancel = () => {
       <h1 class="text-xl font-medium text-n-slate-12">
         {{ t('CRM.HEADER') }}
       </h1>
-      <div class="flex items-center gap-2">
+      <div class="flex items-center min-w-0 gap-2">
         <select
-          class="!mb-0 text-sm"
+          class="!mb-0 text-sm min-w-0 max-w-56"
           :value="activePipelineId"
           :aria-label="t('CRM.PIPELINE.LABEL')"
           @change="selectPipeline(Number($event.target.value))"
@@ -129,20 +129,27 @@ const onLostCancel = () => {
           </option>
         </select>
         <Button
-          :label="t('CRM.PIPELINE.MANAGE')"
+          v-tooltip="t('CRM.PIPELINE.MANAGE')"
+          icon="i-lucide-folder-tree"
           size="sm"
           variant="faded"
+          class="flex-shrink-0"
+          :aria-label="t('CRM.PIPELINE.MANAGE')"
           @click="pipelineManagerRef.open()"
         />
         <Button
-          :label="t('CRM.PIPELINE.MANAGE_STAGES')"
+          v-tooltip="t('CRM.PIPELINE.MANAGE_STAGES')"
+          icon="i-lucide-columns-3"
           size="sm"
           variant="faded"
+          class="flex-shrink-0"
+          :aria-label="t('CRM.PIPELINE.MANAGE_STAGES')"
           @click="stageManagerRef.open()"
         />
         <Button
           :label="t('CRM.NEW_DEAL')"
           size="sm"
+          class="flex-shrink-0"
           @click="dealFormRef.open()"
         />
       </div>
