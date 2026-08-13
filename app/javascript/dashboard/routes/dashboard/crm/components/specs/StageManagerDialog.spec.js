@@ -17,9 +17,10 @@ const stages = [
   { id: 3, name: 'Ganho', color: '#22C55E', position: 2, deals_count: 0 },
 ];
 
-const dispatch = vi.fn().mockResolvedValue();
+let dispatch;
 
 const mountDialog = () => {
+  dispatch = vi.fn().mockResolvedValue();
   useStore.mockReturnValue({ dispatch });
   useMapGetter.mockImplementation(getter => {
     const mockValues = { 'deals/getStages': stages };
@@ -34,8 +35,6 @@ const mountDialog = () => {
 };
 
 describe('StageManagerDialog', () => {
-  beforeEach(() => dispatch.mockClear());
-
   it('renders one row per stage with its deal count', () => {
     const wrapper = mountDialog();
 
