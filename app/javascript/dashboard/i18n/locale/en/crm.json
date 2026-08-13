@@ -3,6 +3,11 @@
     "HEADER": "Deals",
     "CLOSE": "Close",
     "NEW_DEAL": "New deal",
+    "PIPELINE": {
+      "LABEL": "Pipeline",
+      "MANAGE_STAGES": "Manage stages",
+      "MANAGE": "Manage pipelines"
+    },
     "EMPTY_STAGE": "No deals here",
     "SEARCH_PLACEHOLDER": "Search deals or contacts",
     "FILTERS": {

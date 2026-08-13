@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';
 import { useAlert } from 'dashboard/composables';
@@ -18,15 +18,29 @@ const router = useRouter();
 
 const stages = useMapGetter('deals/getStages');
 const dealsByStage = useMapGetter('deals/getDealsByStage');
+const pipelines = useMapGetter('pipelines/getPipelines');
 
 const lostDialogRef = ref(null);
 const dealFormRef = ref(null);
+const pipelineManagerRef = ref(null);
+const stageManagerRef = ref(null);
 const pendingMove = ref(null);
 const filters = ref({});
 
 const selectedDealId = computed(() =>
   route.params.dealId ? Number(route.params.dealId) : null
 );
+
+const activePipelineId = computed(
+  () => Number(route.query.pipeline_id) || pipelines.value[0]?.id || null
+);
+
+const selectPipeline = pipelineId =>
+  router.push({
+    name: 'deals_board',
+    params: route.params,
+    query: { ...route.query, pipeline_id: pipelineId },
+  });
 
 const onSelect = deal =>
   router.push({
@@ -37,9 +51,20 @@ const onSelect = deal =>
 const closeDrawer = () =>
   router.push({ name: 'deals_board', params: route.params });
 
-const refresh = () => store.dispatch('deals/fetchBoard', filters.value);
+const refresh = () => {
+  if (!activePipelineId.value) return;
+  store.dispatch('deals/fetchBoard', {
+    ...filters.value,
+    pipeline_id: activePipelineId.value,
+  });
+};
 
-onMounted(refresh);
+onMounted(async () => {
+  await store.dispatch('pipelines/get');
+  refresh();
+});
+
+watch(activePipelineId, refresh);
 
 const onFiltersChange = newFilters => {
   filters.value = newFilters;
@@ -89,11 +114,39 @@ const onLostCancel = () => {
       <h1 class="text-xl font-medium text-n-slate-12">
         {{ t('CRM.HEADER') }}
       </h1>
-      <Button
-        :label="t('CRM.NEW_DEAL')"
-        size="sm"
-        @click="dealFormRef.open()"
-      />
+      <div class="flex items-center gap-2">
+        <select
+          class="!mb-0 text-sm"
+          :value="activePipelineId"
+          :aria-label="t('CRM.PIPELINE.LABEL')"
+          @change="selectPipeline(Number($event.target.value))"
+        >
+          <option
+            v-for="pipeline in pipelines"
+            :key="pipeline.id"
+            :value="pipeline.id"
+          >
+            {{ pipeline.name }}
+          </option>
+        </select>
+        <Button
+          :label="t('CRM.PIPELINE.MANAGE')"
+          size="sm"
+          variant="faded"
+          @click="pipelineManagerRef.open()"
+        />
+        <Button
+          :label="t('CRM.PIPELINE.MANAGE_STAGES')"
+          size="sm"
+          variant="faded"
+          @click="stageManagerRef.open()"
+        />
+        <Button
+          :label="t('CRM.NEW_DEAL')"
+          size="sm"
+          @click="dealFormRef.open()"
+        />
+      </div>
     </div>
 
     <DealFilters @change="onFiltersChange" />

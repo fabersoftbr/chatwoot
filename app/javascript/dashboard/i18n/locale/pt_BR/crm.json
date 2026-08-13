@@ -3,6 +3,11 @@
     "HEADER": "Negócios",
     "CLOSE": "Fechar",
     "NEW_DEAL": "Novo negócio",
+    "PIPELINE": {
+      "LABEL": "Funil",
+      "MANAGE_STAGES": "Gerenciar etapas",
+      "MANAGE": "Gerenciar funis"
+    },
     "EMPTY_STAGE": "Nenhum negócio aqui",
     "SEARCH_PLACEHOLDER": "Buscar negócios ou contatos",
     "FILTERS": {
