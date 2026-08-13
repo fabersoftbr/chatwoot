@@ -14,10 +14,12 @@ const emit = defineEmits(['created']);
 const { t } = useI18n();
 const store = useStore();
 
-const stages = useMapGetter('deals/getStages');
+const pipelines = useMapGetter('pipelines/getPipelines');
+const stages = useMapGetter('dealStages/getStages');
 const contacts = useMapGetter('contacts/getContacts');
 
 const isOpen = ref(false);
+const pipelineId = ref(null);
 const form = reactive({
   title: '',
   contact_id: props.contactId,
@@ -26,6 +28,12 @@ const form = reactive({
   temperature: 'warm',
 });
 
+const loadStages = async id => {
+  pipelineId.value = id;
+  await store.dispatch('dealStages/get', { pipelineId: id });
+  form.deal_stage_id = stages.value[0]?.id ?? null;
+};
+
 onMounted(() => {
   // The contact select only renders when contactId isn't already fixed by
   // the caller (see `v-if="!contactId"` below), so skip the fetch entirely
@@ -33,15 +41,16 @@ onMounted(() => {
   if (!props.contactId && !contacts.value.length) {
     store.dispatch('contacts/get', {});
   }
+  if (!pipelines.value.length) store.dispatch('pipelines/get');
 });
 
 const open = () => {
   form.title = '';
   form.contact_id = props.contactId;
-  form.deal_stage_id = stages.value[0]?.id ?? null;
   form.value = 0;
   form.temperature = 'warm';
   isOpen.value = true;
+  loadStages(pipelines.value[0]?.id ?? null);
 };
 
 const submit = async () => {
@@ -98,6 +107,21 @@ defineExpose({ open });
             :value="contact.id"
           >
             {{ contact.name }}
+          </option>
+        </select>
+
+        <select
+          class="w-full !mb-0"
+          :value="pipelineId"
+          :aria-label="t('CRM.PIPELINE.LABEL')"
+          @change="loadStages(Number($event.target.value))"
+        >
+          <option
+            v-for="pipeline in pipelines"
+            :key="pipeline.id"
+            :value="pipeline.id"
+          >
+            {{ pipeline.name }}
           </option>
         </select>
 

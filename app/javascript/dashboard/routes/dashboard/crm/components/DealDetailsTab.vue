@@ -12,7 +12,8 @@ const emit = defineEmits(['update']);
 
 const { t } = useI18n();
 const store = useStore();
-const stages = useMapGetter('deals/getStages');
+const pipelines = useMapGetter('pipelines/getPipelines');
+const stages = useMapGetter('dealStages/getStages');
 const agents = useMapGetter('agents/getAgents');
 
 const CURRENCIES = ['BRL', 'USD', 'EUR'];
@@ -30,12 +31,31 @@ const form = reactive({
 });
 
 const valueInput = ref(centsToUnits(props.deal.value_cents));
+const pipelineId = ref(props.deal.pipeline_id);
+
+const save = field => emit('update', { [field]: form[field] });
+const saveValue = () =>
+  emit('update', { value_cents: unitsToCents(valueInput.value) });
+const saveAssignee = () =>
+  emit('update', { assignee_id: form.assignee_id || null });
+
+const loadStages = async id => {
+  pipelineId.value = id;
+  await store.dispatch('dealStages/get', { pipelineId: id });
+};
+
+const changePipeline = async id => {
+  await loadStages(id);
+  form.deal_stage_id = stages.value[0]?.id ?? null;
+  save('deal_stage_id');
+};
 
 watch(
   () => props.deal,
   deal => {
     Object.assign(form, deal);
     valueInput.value = centsToUnits(deal.value_cents);
+    if (deal.pipeline_id !== pipelineId.value) loadStages(deal.pipeline_id);
   }
 );
 
@@ -43,13 +63,9 @@ onMounted(() => {
   if (!agents.value.length) {
     store.dispatch('agents/get');
   }
+  if (!pipelines.value.length) store.dispatch('pipelines/get');
+  loadStages(props.deal.pipeline_id);
 });
-
-const save = field => emit('update', { [field]: form[field] });
-const saveValue = () =>
-  emit('update', { value_cents: unitsToCents(valueInput.value) });
-const saveAssignee = () =>
-  emit('update', { assignee_id: form.assignee_id || null });
 </script>
 
 <template>
@@ -61,6 +77,22 @@ const saveAssignee = () =>
       class="w-full !mb-0"
       @blur="save('title')"
     />
+
+    <label class="text-xs text-n-slate-11">{{ t('CRM.PIPELINE.LABEL') }}</label>
+    <select
+      class="w-full !mb-0"
+      :value="pipelineId"
+      :aria-label="t('CRM.PIPELINE.LABEL')"
+      @change="changePipeline(Number($event.target.value))"
+    >
+      <option
+        v-for="pipeline in pipelines"
+        :key="pipeline.id"
+        :value="pipeline.id"
+      >
+        {{ pipeline.name }}
+      </option>
+    </select>
 
     <label class="text-xs text-n-slate-11">{{ t('CRM.FORM.STAGE') }}</label>
     <select

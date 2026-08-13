@@ -10,6 +10,11 @@ const stages = [
   { id: 2, name: 'Qualified' },
 ];
 
+const pipelines = [
+  { id: 100, name: 'Sales' },
+  { id: 200, name: 'Support' },
+];
+
 const agents = [
   { id: 1, name: 'Jane Agent' },
   { id: 2, name: 'John Agent' },
@@ -22,6 +27,7 @@ const baseDeal = {
   value_cents: 120000,
   temperature: 'hot',
   deal_stage_id: 1,
+  pipeline_id: 100,
   // The real API payload (see _deal.json.jbuilder) sends BOTH a flat
   // assignee_id (what the form actually seeds from) and a nested assignee
   // object (what DealCard etc. render) — keep both here so this fixture
@@ -41,13 +47,15 @@ const baseDeal = {
 const mountTab = deal => mount(DealDetailsTab, { props: { deal } });
 
 describe('DealDetailsTab', () => {
-  const dispatch = vi.fn();
+  const dispatch = vi.fn().mockResolvedValue();
 
   beforeEach(() => {
     vi.clearAllMocks();
+    dispatch.mockResolvedValue();
     useMapGetter.mockImplementation(getter => {
       const mockValues = {
-        'deals/getStages': stages,
+        'dealStages/getStages': stages,
+        'pipelines/getPipelines': pipelines,
         'agents/getAgents': agents,
       };
       return computed(() => mockValues[getter]);
@@ -59,7 +67,7 @@ describe('DealDetailsTab', () => {
     const wrapper = mountTab(baseDeal);
 
     expect(wrapper.get('input').element.value).toBe('Big deal');
-    expect(wrapper.get('select').element.value).toBe('1');
+    expect(wrapper.findAll('select')[1].element.value).toBe('1');
     expect(wrapper.get('textarea').element.value).toBe('Some notes');
   });
 
@@ -96,7 +104,7 @@ describe('DealDetailsTab', () => {
   it('emits update with only the deal_stage_id field when the stage select changes', async () => {
     const wrapper = mountTab(baseDeal);
 
-    const select = wrapper.get('select');
+    const select = wrapper.findAll('select')[1];
     await select.setValue('2');
 
     expect(wrapper.emitted('update')).toBeTruthy();
@@ -156,7 +164,8 @@ describe('DealDetailsTab', () => {
   it('dispatches agents/get on mount when the agents list is empty', () => {
     useMapGetter.mockImplementation(getter => {
       const mockValues = {
-        'deals/getStages': stages,
+        'dealStages/getStages': stages,
+        'pipelines/getPipelines': pipelines,
         'agents/getAgents': [],
       };
       return computed(() => mockValues[getter]);
