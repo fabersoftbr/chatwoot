@@ -8,6 +8,7 @@ class DealStage < ApplicationRecord
   ].freeze
 
   belongs_to :account
+  belongs_to :pipeline
   has_many :deals, dependent: :restrict_with_error
 
   validates :name, presence: true
@@ -17,21 +18,20 @@ class DealStage < ApplicationRecord
 
   scope :ordered, -> { order(:position, :id) }
 
-  def self.seed_defaults(account)
-    return account.deal_stages.ordered if account.deal_stages.exists?
+  before_validation :ensure_account_id
+  before_destroy :ensure_not_last_closing_stage, prepend: true
 
-    # ponytail: account-level lock serializes concurrent first-calls so they
-    # don't each pass the exists? check and double-seed. Upgrade path: a
-    # unique DB constraint on (account_id, position) if this ever needs to
-    # scale past a single-row lock.
-    account.with_lock do
-      unless account.deal_stages.exists?
-        DEFAULT_STAGES.each_with_index do |attributes, index|
-          account.deal_stages.create!(attributes.merge(position: index))
-        end
-      end
-    end
+  private
 
-    account.deal_stages.ordered
+  def ensure_account_id
+    self.account_id ||= pipeline&.account_id
+  end
+
+  def ensure_not_last_closing_stage
+    return if stage_open?
+    return if pipeline.deal_stages.where(stage_type: stage_type).where.not(id: id).exists?
+
+    errors.add(:base, I18n.t('errors.deal_stages.last_closing_stage'))
+    throw :abort
   end
 end

@@ -11,35 +11,53 @@ RSpec.describe DealStage do
     end
   end
 
-  describe '.seed_defaults' do
-    it 'creates the five default stages for an account without stages' do
-      stages = described_class.seed_defaults(account)
+  describe 'pipeline scoping' do
+    it 'belongs to a pipeline' do
+      pipeline = create(:pipeline, account: account)
+      stage = create(:deal_stage, account: account, pipeline: pipeline)
 
-      expect(stages.map(&:name)).to eq(
-        ['Prospectado', 'Em negociação', 'Contrato enviado', 'Ganho', 'Perdido']
-      )
-      expect(stages.map(&:position)).to eq([0, 1, 2, 3, 4])
-      expect(stages.map(&:stage_type)).to eq(%w[open open open won lost])
+      expect(stage.pipeline).to eq(pipeline)
+    end
+  end
+
+  describe 'destroying closing stages' do
+    let(:pipeline) { create(:pipeline, account: account) }
+
+    it 'refuses to destroy the last won stage of the pipeline' do
+      won = pipeline.deal_stages.find_by(stage_type: :won)
+
+      expect(won.destroy).to be(false)
+      expect(won.errors[:base]).to be_present
+      expect(described_class.exists?(won.id)).to be(true)
     end
 
-    it 'is idempotent' do
-      described_class.seed_defaults(account)
-      expect { described_class.seed_defaults(account) }.not_to change(described_class, :count)
+    it 'refuses to destroy the last lost stage of the pipeline' do
+      lost = pipeline.deal_stages.find_by(stage_type: :lost)
+
+      expect(lost.destroy).to be(false)
     end
 
-    it 'does not seed an account that already has a stage' do
-      create(:deal_stage, account: account, name: 'Custom', position: 0)
+    it 'allows destroying a won stage when the pipeline has another one' do
+      won = pipeline.deal_stages.find_by(stage_type: :won)
+      create(:deal_stage, account: account, pipeline: pipeline, stage_type: :won, position: 9)
 
-      expect(described_class.seed_defaults(account).map(&:name)).to eq(['Custom'])
+      expect(won.destroy).to be_truthy
+    end
+
+    it 'allows destroying an open stage' do
+      open_stage = pipeline.deal_stages.find_by(stage_type: :open)
+
+      expect(open_stage.destroy).to be_truthy
     end
   end
 
   describe '.ordered' do
     it 'sorts by position' do
-      second = create(:deal_stage, account: account, position: 1)
-      first = create(:deal_stage, account: account, position: 0)
+      pipeline = create(:pipeline, account: account)
+      second = create(:deal_stage, account: account, pipeline: pipeline, position: 11)
+      first = create(:deal_stage, account: account, pipeline: pipeline, position: 10)
 
-      expect(account.deal_stages.ordered).to eq([first, second])
+      expect(pipeline.deal_stages.ordered.last(2)).to eq([first, second])
     end
   end
 

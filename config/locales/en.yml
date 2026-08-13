@@ -87,6 +87,7 @@ en:
       invalid: Invalid events
     deal_stages:
       has_deals: 'This stage still has deals. Move them to another stage first.'
+      last_closing_stage: 'Every pipeline needs a won stage and a lost stage. Create another one before deleting this.'
     deal_activities:
       invalid_type: 'Only note, call, meeting and email activities can be created manually.'
     signup:
