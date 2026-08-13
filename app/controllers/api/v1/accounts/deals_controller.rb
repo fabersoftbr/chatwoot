@@ -9,7 +9,7 @@ class Api::V1::Accounts::DealsController < Api::V1::Accounts::BaseController
   end
 
   def board
-    @deal_stages = DealStage.seed_defaults(Current.account)
+    @deal_stages = Pipeline.resolve(Current.account, params[:pipeline_id]).deal_stages.ordered
     stage_deals = filtered_deals(Current.account.deals.where(deal_stage_id: @deal_stages.map(&:id)))
 
     @counts = stage_deals.unscope(:order).group(:deal_stage_id).count
@@ -49,7 +49,7 @@ class Api::V1::Accounts::DealsController < Api::V1::Accounts::BaseController
 
   # rubocop:disable Metrics/AbcSize
   def filtered_deals(scope = Current.account.deals)
-    deals = scope.includes(contact: { avatar_attachment: [:blob] }, assignee: { avatar_attachment: [:blob] }).ordered
+    deals = scope.includes(:deal_stage, contact: { avatar_attachment: [:blob] }, assignee: { avatar_attachment: [:blob] }).ordered
     deals = deals.where(deal_stage_id: params[:stage_id]) if params[:stage_id].present? && action_name != 'board'
     deals = deals.where(assignee_id: params[:assignee_id]) if params[:assignee_id].present?
     deals = deals.where(temperature: params[:temperature]) if params[:temperature].present?
