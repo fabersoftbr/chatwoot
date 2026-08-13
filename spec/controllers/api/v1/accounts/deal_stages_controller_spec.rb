@@ -4,6 +4,7 @@ RSpec.describe 'Api::V1::Accounts::DealStagesController', type: :request do
   let(:account) { create(:account) }
   let(:administrator) { create(:user, account: account, role: :administrator) }
   let(:agent) { create(:user, account: account, role: :agent) }
+  let(:pipeline) { Pipeline.seed_default(account) }
 
   describe 'GET /api/v1/accounts/{account.id}/deal_stages' do
     it 'returns unauthorized for an anonymous request' do
@@ -11,21 +12,35 @@ RSpec.describe 'Api::V1::Accounts::DealStagesController', type: :request do
       expect(response).to have_http_status(:unauthorized)
     end
 
-    it 'seeds the default stages on the first call' do
-      get "/api/v1/accounts/#{account.id}/deal_stages", headers: agent.create_new_auth_token
+    it 'returns the stages of the requested pipeline' do
+      get "/api/v1/accounts/#{account.id}/deal_stages",
+          params: { pipeline_id: pipeline.id },
+          headers: agent.create_new_auth_token
 
       expect(response).to have_http_status(:success)
       payload = response.parsed_body['payload']
       expect(payload.pluck('name')).to eq(
         ['Prospectado', 'Em negociação', 'Contrato enviado', 'Ganho', 'Perdido']
       )
-      expect(payload.first['stage_type']).to eq('open')
+      expect(payload.pluck('pipeline_id').uniq).to eq([pipeline.id])
     end
 
-    it 'does not seed twice' do
-      2.times { get "/api/v1/accounts/#{account.id}/deal_stages", headers: agent.create_new_auth_token }
+    it 'does not return the stages of another pipeline' do
+      other = create(:pipeline, account: account, name: 'Outbound')
 
-      expect(account.deal_stages.count).to eq(5)
+      get "/api/v1/accounts/#{account.id}/deal_stages",
+          params: { pipeline_id: other.id },
+          headers: agent.create_new_auth_token
+
+      expect(response.parsed_body['payload'].pluck('id')).to match_array(other.deal_stages.pluck(:id))
+    end
+
+    it 'falls back to the default pipeline without a pipeline_id' do
+      pipeline
+
+      get "/api/v1/accounts/#{account.id}/deal_stages", headers: agent.create_new_auth_token
+
+      expect(response.parsed_body['payload'].pluck('pipeline_id').uniq).to eq([pipeline.id])
     end
   end
 
@@ -33,67 +48,83 @@ RSpec.describe 'Api::V1::Accounts::DealStagesController', type: :request do
     it 'creates a stage for an administrator' do
       expect do
         post "/api/v1/accounts/#{account.id}/deal_stages",
-             params: { name: 'Proposta', color: '#111111', position: 9 },
+             params: { name: 'Proposta', color: '#111111', position: 9, pipeline_id: pipeline.id },
              headers: administrator.create_new_auth_token
-      end.to change(account.deal_stages, :count).by(1)
+      end.to change(pipeline.deal_stages, :count).by(1)
 
       expect(response).to have_http_status(:success)
       expect(response.parsed_body['name']).to eq('Proposta')
     end
 
-    it 'rejects an agent' do
-      post "/api/v1/accounts/#{account.id}/deal_stages",
-           params: { name: 'Proposta' },
-           headers: agent.create_new_auth_token
+    it 'creates a stage for an agent' do
+      expect do
+        post "/api/v1/accounts/#{account.id}/deal_stages",
+             params: { name: 'Proposta', color: '#111111', position: 9, pipeline_id: pipeline.id },
+             headers: agent.create_new_auth_token
+      end.to change(pipeline.deal_stages, :count).by(1)
 
-      expect(response).to have_http_status(:unauthorized)
+      expect(response).to have_http_status(:success)
+    end
+  end
+
+  describe 'PATCH /api/v1/accounts/{account.id}/deal_stages/{id}' do
+    it 'does not move a stage into a pipeline owned by another account' do
+      stage = pipeline.deal_stages.first
+      other_pipeline = create(:pipeline)
+
+      patch "/api/v1/accounts/#{account.id}/deal_stages/#{stage.id}",
+            params: { pipeline_id: other_pipeline.id },
+            headers: agent.create_new_auth_token
+
+      expect(response).to have_http_status(:success)
+      expect(stage.reload.pipeline_id).to eq(pipeline.id)
     end
   end
 
   describe 'PATCH /api/v1/accounts/{account.id}/deal_stages/reorder' do
+    # Pipeline#after_create seeds 5 default stages, so the pipeline always has
+    # more stages than the ones each example creates and reorders explicitly.
+    # Assertions below compare relative order rather than absolute positions.
     it 'writes the new order' do
-      first = create(:deal_stage, account: account, position: 0)
-      second = create(:deal_stage, account: account, position: 1)
+      first = create(:deal_stage, account: account, pipeline: pipeline, position: 10)
+      second = create(:deal_stage, account: account, pipeline: pipeline, position: 11)
 
       patch "/api/v1/accounts/#{account.id}/deal_stages/reorder",
-            params: { stage_ids: [second.id, first.id] },
+            params: { pipeline_id: pipeline.id, stage_ids: [second.id, first.id] },
             headers: administrator.create_new_auth_token
 
       expect(response).to have_http_status(:success)
-      expect(second.reload.position).to eq(0)
-      expect(first.reload.position).to eq(1)
+      expect(second.reload.position).to be < first.reload.position
     end
 
     it 'keeps positions distinct when the request omits a stage' do
-      first = create(:deal_stage, account: account, position: 0)
-      second = create(:deal_stage, account: account, position: 1)
-      third = create(:deal_stage, account: account, position: 2)
+      first = create(:deal_stage, account: account, pipeline: pipeline, position: 10)
+      second = create(:deal_stage, account: account, pipeline: pipeline, position: 11)
+      third = create(:deal_stage, account: account, pipeline: pipeline, position: 12)
 
       patch "/api/v1/accounts/#{account.id}/deal_stages/reorder",
-            params: { stage_ids: [third.id, first.id] },
+            params: { pipeline_id: pipeline.id, stage_ids: [third.id, first.id] },
             headers: administrator.create_new_auth_token
 
       expect(response).to have_http_status(:success)
-      expect(third.reload.position).to eq(0)
-      expect(first.reload.position).to eq(1)
-      expect(second.reload.position).to eq(2)
-      expect([first, second, third].map(&:position)).to contain_exactly(0, 1, 2)
+      expect(third.reload.position).to be < first.reload.position
+      expect(first.reload.position).to be < second.reload.position
+      expect([first, second, third].map(&:position).uniq.length).to eq(3)
     end
 
     it 'ignores a stage id belonging to another account' do
-      first = create(:deal_stage, account: account, position: 0)
-      second = create(:deal_stage, account: account, position: 1)
+      first = create(:deal_stage, account: account, pipeline: pipeline, position: 10)
+      second = create(:deal_stage, account: account, pipeline: pipeline, position: 11)
       other_account_stage = create(:deal_stage)
+      other_position = other_account_stage.position
 
       patch "/api/v1/accounts/#{account.id}/deal_stages/reorder",
-            params: { stage_ids: [other_account_stage.id, second.id, first.id] },
+            params: { pipeline_id: pipeline.id, stage_ids: [other_account_stage.id, second.id, first.id] },
             headers: administrator.create_new_auth_token
 
       expect(response).to have_http_status(:success)
-      expect([first.reload.position, second.reload.position]).to contain_exactly(0, 1)
-      expect(second.position).to eq(0)
-      expect(first.position).to eq(1)
-      expect(account.deal_stages.pluck(:position)).to contain_exactly(0, 1)
+      expect(second.reload.position).to be < first.reload.position
+      expect(other_account_stage.reload.position).to eq(other_position)
     end
   end
 
@@ -117,6 +148,15 @@ RSpec.describe 'Api::V1::Accounts::DealStagesController', type: :request do
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(response.parsed_body['deals_count']).to eq(1)
+    end
+
+    it 'blocks deleting the last won stage' do
+      won = pipeline.deal_stages.find_by(stage_type: :won)
+
+      delete "/api/v1/accounts/#{account.id}/deal_stages/#{won.id}", headers: agent.create_new_auth_token
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(DealStage.exists?(won.id)).to be(true)
     end
   end
 end

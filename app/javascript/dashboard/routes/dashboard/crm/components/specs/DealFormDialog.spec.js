@@ -10,6 +10,11 @@ const stages = [
   { id: 2, name: 'Qualified' },
 ];
 
+const pipelines = [
+  { id: 10, name: 'Sales' },
+  { id: 20, name: 'Support' },
+];
+
 const contacts = [
   { id: 1, name: 'Jane Doe' },
   { id: 2, name: 'John Smith' },
@@ -22,7 +27,8 @@ const mountDialog = (dispatch, props = {}) => {
   useStore.mockReturnValue({ dispatch });
   useMapGetter.mockImplementation(getter => {
     const mockValues = {
-      'deals/getStages': stages,
+      'dealStages/getStages': stages,
+      'pipelines/getPipelines': pipelines,
       'contacts/getContacts': contacts,
     };
     return computed(() => mockValues[getter]);
@@ -36,7 +42,7 @@ describe('DealFormDialog', () => {
   });
 
   it('renders nothing until open() is called', () => {
-    const wrapper = mountDialog(vi.fn());
+    const wrapper = mountDialog(vi.fn().mockResolvedValue());
 
     expect(wrapper.find('h3').exists()).toBe(false);
 
@@ -47,12 +53,12 @@ describe('DealFormDialog', () => {
   });
 
   it('renders the contact select when no contactId prop is given', async () => {
-    const wrapper = mountDialog(vi.fn());
+    const wrapper = mountDialog(vi.fn().mockResolvedValue());
     wrapper.vm.open();
     await wrapper.vm.$nextTick();
 
     const selects = wrapper.findAll('select');
-    expect(selects).toHaveLength(3);
+    expect(selects).toHaveLength(4);
   });
 
   it('hides the contact select and pre-fills contact_id when a contactId prop is given', async () => {
@@ -62,7 +68,7 @@ describe('DealFormDialog', () => {
     await wrapper.vm.$nextTick();
 
     const selects = wrapper.findAll('select');
-    expect(selects).toHaveLength(2);
+    expect(selects).toHaveLength(3);
 
     await wrapper
       .find('input[type="text"], input:not([type])')
@@ -76,8 +82,30 @@ describe('DealFormDialog', () => {
     );
   });
 
+  it('loads the stages for the pipelineId prop rather than the first pipeline', async () => {
+    const dispatch = vi.fn().mockResolvedValue();
+    const wrapper = mountDialog(dispatch, { pipelineId: 20 });
+    wrapper.vm.open();
+    await wrapper.vm.$nextTick();
+
+    expect(dispatch).toHaveBeenCalledWith('dealStages/get', {
+      pipelineId: 20,
+    });
+  });
+
+  it('falls back to the first pipeline when no pipelineId prop is given', async () => {
+    const dispatch = vi.fn().mockResolvedValue();
+    const wrapper = mountDialog(dispatch);
+    wrapper.vm.open();
+    await wrapper.vm.$nextTick();
+
+    expect(dispatch).toHaveBeenCalledWith('dealStages/get', {
+      pipelineId: pipelines[0].id,
+    });
+  });
+
   it('disables submit while the title is empty or whitespace-only', async () => {
-    const wrapper = mountDialog(vi.fn(), { contactId: 7 });
+    const wrapper = mountDialog(vi.fn().mockResolvedValue(), { contactId: 7 });
     wrapper.vm.open();
     await wrapper.vm.$nextTick();
 
@@ -116,7 +144,7 @@ describe('DealFormDialog', () => {
   });
 
   it('gives every form control an accessible name', async () => {
-    const wrapper = mountDialog(vi.fn());
+    const wrapper = mountDialog(vi.fn().mockResolvedValue());
     wrapper.vm.open();
     await wrapper.vm.$nextTick();
 

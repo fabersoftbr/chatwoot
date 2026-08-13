@@ -1,9 +1,5 @@
-class DealStagePolicy < ApplicationPolicy
+class PipelinePolicy < ApplicationPolicy
   def index?
-    true
-  end
-
-  def show?
     true
   end
 
@@ -16,10 +12,6 @@ class DealStagePolicy < ApplicationPolicy
   end
 
   def destroy?
-    true
-  end
-
-  def reorder?
     true
   end
 end

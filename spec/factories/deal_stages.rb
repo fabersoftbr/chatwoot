@@ -5,5 +5,6 @@ FactoryBot.define do
     color { '#6B7280' }
     stage_type { :open }
     account
+    pipeline { association :pipeline, account: account }
   end
 end

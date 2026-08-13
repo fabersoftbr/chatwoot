@@ -11,6 +11,7 @@ const deal = {
   id: 26,
   title: 'A late deal',
   contact: { name: 'Jane Doe' },
+  pipeline_id: 100,
 };
 
 const mountDrawer = (dispatch, getDeal) => {
@@ -18,7 +19,8 @@ const mountDrawer = (dispatch, getDeal) => {
   useMapGetter.mockImplementation(getter => {
     const mockValues = {
       'deals/getDeal': getDeal,
-      'deals/getStages': [],
+      'dealStages/getStages': [],
+      'pipelines/getPipelines': [],
       'agents/getAgents': [],
     };
     return computed(() => mockValues[getter]);
@@ -32,7 +34,13 @@ describe('DealDrawer', () => {
   });
 
   it('surfaces the error and re-syncs the form when an inline edit is rejected by the store', async () => {
-    const dispatch = vi.fn().mockRejectedValue(new Error('Title is too long.'));
+    const dispatch = vi
+      .fn()
+      .mockImplementation(action =>
+        action === 'deals/update'
+          ? Promise.reject(new Error('Title is too long.'))
+          : Promise.resolve()
+      );
     const wrapper = mountDrawer(dispatch, () => deal);
 
     const titleInput = wrapper.get('input');

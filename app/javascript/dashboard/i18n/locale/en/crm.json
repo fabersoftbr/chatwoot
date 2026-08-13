@@ -3,6 +3,17 @@
     "HEADER": "Deals",
     "CLOSE": "Close",
     "NEW_DEAL": "New deal",
+    "PIPELINE": {
+      "LABEL": "Pipeline",
+      "MANAGE_STAGES": "Manage stages",
+      "MANAGE": "Manage pipelines",
+      "NEW": "New pipeline",
+      "NAME": "Name",
+      "SAVE": "Save",
+      "CANCEL": "Cancel",
+      "DELETE": "Delete",
+      "PLACEHOLDER": "Pipeline name"
+    },
     "EMPTY_STAGE": "No deals here",
     "SEARCH_PLACEHOLDER": "Search deals or contacts",
     "FILTERS": {
@@ -70,15 +81,18 @@
       "NEW": "New deal",
       "TOTAL_WON": "Total won"
     },
-    "SETTINGS": {
-      "TITLE": "Pipeline",
-      "DESCRIPTION": "Rename, reorder and color the stages of your sales pipeline.",
-      "ADD_STAGE": "Add stage",
+    "STAGES": {
+      "TITLE": "Manage pipeline stages",
+      "NEW_STAGE": "New stage",
+      "EDIT_STAGE": "Edit stage",
       "NAME": "Name",
       "COLOR": "Color",
-      "TYPE": "Type",
-      "TYPES": { "OPEN": "Open", "WON": "Won", "LOST": "Lost" },
+      "MOVE_UP": "Move up",
+      "MOVE_DOWN": "Move down",
+      "EDIT": "Edit",
       "DELETE": "Delete",
+      "SAVE": "Save",
+      "CANCEL": "Cancel",
       "DELETE_BLOCKED": "Move the deals out of this stage first."
     }
   }

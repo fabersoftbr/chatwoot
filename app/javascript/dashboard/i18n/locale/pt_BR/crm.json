@@ -3,6 +3,17 @@
     "HEADER": "Negócios",
     "CLOSE": "Fechar",
     "NEW_DEAL": "Novo negócio",
+    "PIPELINE": {
+      "LABEL": "Funil",
+      "MANAGE_STAGES": "Gerenciar etapas",
+      "MANAGE": "Gerenciar funis",
+      "NEW": "Novo funil",
+      "NAME": "Nome",
+      "SAVE": "Salvar",
+      "CANCEL": "Cancelar",
+      "DELETE": "Excluir",
+      "PLACEHOLDER": "Nome do funil"
+    },
     "EMPTY_STAGE": "Nenhum negócio aqui",
     "SEARCH_PLACEHOLDER": "Buscar negócios ou contatos",
     "FILTERS": {
@@ -70,16 +81,19 @@
       "NEW": "Novo negócio",
       "TOTAL_WON": "Total ganho"
     },
-    "SETTINGS": {
-      "TITLE": "Funil",
-      "DESCRIPTION": "Renomeie, reordene e colora os estágios do seu funil de vendas.",
-      "ADD_STAGE": "Adicionar estágio",
+    "STAGES": {
+      "TITLE": "Gerenciar etapas do funil",
+      "NEW_STAGE": "Nova etapa",
+      "EDIT_STAGE": "Editar etapa",
       "NAME": "Nome",
       "COLOR": "Cor",
-      "TYPE": "Tipo",
-      "TYPES": { "OPEN": "Aberto", "WON": "Ganho", "LOST": "Perdido" },
+      "MOVE_UP": "Mover para cima",
+      "MOVE_DOWN": "Mover para baixo",
+      "EDIT": "Editar",
       "DELETE": "Excluir",
-      "DELETE_BLOCKED": "Mova os negócios desse estágio antes."
+      "SAVE": "Salvar",
+      "CANCEL": "Cancelar",
+      "DELETE_BLOCKED": "Mova os negócios desta etapa antes."
     }
   }
 }

@@ -3,18 +3,18 @@ class Api::V1::Accounts::DealStagesController < Api::V1::Accounts::BaseControlle
   before_action :check_authorization
 
   def index
-    @deal_stages = DealStage.seed_defaults(Current.account)
+    @deal_stages = pipeline.deal_stages.ordered
   end
 
   def show; end
 
   def create
-    @deal_stage = Current.account.deal_stages.create!(permitted_params)
+    @deal_stage = pipeline.deal_stages.create!(permitted_params.except(:pipeline_id))
     render :show
   end
 
   def update
-    @deal_stage.update!(permitted_params)
+    @deal_stage.update!(permitted_params.except(:pipeline_id))
     render :show
   end
 
@@ -26,14 +26,15 @@ class Api::V1::Accounts::DealStagesController < Api::V1::Accounts::BaseControlle
       return
     end
 
-    @deal_stage.destroy!
-    head :ok
+    return head :ok if @deal_stage.destroy
+
+    render json: { error: @deal_stage.errors.full_messages.to_sentence }, status: :unprocessable_entity
   end
 
   def reorder
-    account_stage_ids = Current.account.deal_stages.ordered.pluck(:id)
-    supplied_ids = Array(params[:stage_ids]).map(&:to_i).uniq & account_stage_ids
-    ordered_ids = supplied_ids | account_stage_ids
+    pipeline_stage_ids = pipeline.deal_stages.ordered.pluck(:id)
+    supplied_ids = Array(params[:stage_ids]).map(&:to_i).uniq & pipeline_stage_ids
+    ordered_ids = supplied_ids | pipeline_stage_ids
 
     ActiveRecord::Base.transaction do
       ordered_ids.each_with_index do |id, position|
@@ -43,11 +44,15 @@ class Api::V1::Accounts::DealStagesController < Api::V1::Accounts::BaseControlle
       end
     end
 
-    @deal_stages = Current.account.deal_stages.ordered
+    @deal_stages = pipeline.deal_stages.ordered
     render :index
   end
 
   private
+
+  def pipeline
+    @pipeline ||= Pipeline.resolve(Current.account, params[:pipeline_id])
+  end
 
   def fetch_deal_stage
     @deal_stage = Current.account.deal_stages.find(params[:id])
@@ -58,6 +63,6 @@ class Api::V1::Accounts::DealStagesController < Api::V1::Accounts::BaseControlle
   end
 
   def permitted_params
-    params.permit(:name, :color, :position, :stage_type)
+    params.permit(:name, :color, :position, :stage_type, :pipeline_id)
   end
 end

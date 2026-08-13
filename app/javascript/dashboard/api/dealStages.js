@@ -6,8 +6,15 @@ class DealStagesAPI extends ApiClient {
     super('deal_stages', { accountScoped: true });
   }
 
-  reorder(stageIds) {
-    return axios.patch(`${this.url}/reorder`, { stage_ids: stageIds });
+  getByPipeline(pipelineId) {
+    return axios.get(this.url, { params: { pipeline_id: pipelineId } });
+  }
+
+  reorder(pipelineId, stageIds) {
+    return axios.patch(`${this.url}/reorder`, {
+      pipeline_id: pipelineId,
+      stage_ids: stageIds,
+    });
   }
 }
 

@@ -6,6 +6,7 @@ json.currency deal.currency
 json.temperature deal.temperature
 json.position deal.position
 json.deal_stage_id deal.deal_stage_id
+json.pipeline_id deal.deal_stage.pipeline_id
 json.expected_close_on deal.expected_close_on
 json.next_action deal.next_action
 json.next_action_at deal.next_action_at

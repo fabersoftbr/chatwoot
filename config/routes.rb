@@ -130,6 +130,7 @@ Rails.application.routes.draw do
           resources :macros, only: [:index, :create, :show, :update, :destroy] do
             post :execute, on: :member
           end
+          resources :pipelines, only: [:index, :create, :update, :destroy]
           resources :deal_stages, only: [:index, :show, :create, :update, :destroy] do
             patch :reorder, on: :collection
           end

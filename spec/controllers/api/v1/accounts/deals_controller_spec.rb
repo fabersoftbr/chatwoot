@@ -100,6 +100,30 @@ RSpec.describe 'Api::V1::Accounts::DealsController', type: :request do
       expect(column['deals_count']).to eq(1)
       expect(column['deals_value_cents']).to eq(25_000)
     end
+
+    it 'returns only the columns of the requested pipeline' do
+      pipeline = create(:pipeline, account: account, name: 'Outbound')
+      stage = pipeline.deal_stages.ordered.first
+      create(:deal, account: account, deal_stage: stage, title: 'Outbound deal')
+
+      get "/api/v1/accounts/#{account.id}/deals/board",
+          params: { pipeline_id: pipeline.id },
+          headers: agent.create_new_auth_token
+
+      payload = response.parsed_body['payload']
+      expect(payload.pluck('id')).to match_array(pipeline.deal_stages.pluck(:id))
+      expect(payload.flat_map { |column| column['deals'] }.pluck('title')).to eq(['Outbound deal'])
+    end
+
+    it 'exposes the pipeline of each deal' do
+      pipeline = Pipeline.seed_default(account)
+      create(:deal, account: account, deal_stage: pipeline.deal_stages.ordered.first)
+
+      get "/api/v1/accounts/#{account.id}/deals/board", headers: agent.create_new_auth_token
+
+      deal = response.parsed_body['payload'].flat_map { |column| column['deals'] }.first
+      expect(deal['pipeline_id']).to eq(pipeline.id)
+    end
   end
 
   describe 'POST /api/v1/accounts/{account.id}/deals' do
