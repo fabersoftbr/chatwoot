@@ -68,6 +68,10 @@ const mountContactDeals = async (deals, { contactId = 7 } = {}) => {
   useMapGetter.mockImplementation(getter => {
     const mockValues = {
       'deals/getStages': stages,
+      // ContactDeals mounts DealFormDialog, which reads the pipeline-scoped
+      // stage list and the account's pipelines on mount.
+      'dealStages/getStages': stages,
+      'pipelines/getPipelines': [{ id: 1, name: 'Funil padrão', position: 0 }],
       'contacts/getContacts': [],
       getCurrentAccountId: 42,
     };
