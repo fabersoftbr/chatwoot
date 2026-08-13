@@ -60,12 +60,9 @@ const refresh = () => {
   });
 };
 
-onMounted(async () => {
-  await store.dispatch('pipelines/get');
-  refresh();
-});
+onMounted(() => store.dispatch('pipelines/get'));
 
-watch(activePipelineId, refresh);
+watch(activePipelineId, refresh, { immediate: true });
 
 const onFiltersChange = newFilters => {
   filters.value = newFilters;
