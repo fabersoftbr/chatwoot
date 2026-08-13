@@ -11,8 +11,6 @@ class DealStage < ApplicationRecord
   belongs_to :pipeline
   has_many :deals, dependent: :restrict_with_error
 
-  attr_accessor :cascading_pipeline_destroy
-
   validates :name, presence: true
   validates :position, presence: true
   validate :pipeline_belongs_to_account
@@ -35,7 +33,7 @@ class DealStage < ApplicationRecord
   end
 
   def ensure_not_last_closing_stage
-    return if cascading_pipeline_destroy
+    return if destroyed_by_association.present?
     return if stage_open?
     return if pipeline.deal_stages.where(stage_type: stage_type).where.not(id: id).exists?
 

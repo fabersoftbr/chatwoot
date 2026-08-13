@@ -2,14 +2,19 @@ class Pipeline < ApplicationRecord
   DEFAULT_NAME = 'Funil padrão'.freeze
 
   belongs_to :account
-  has_many :deal_stages, dependent: :destroy
+  # delete_all, not destroy: DealStage's before_destroy guard refuses to destroy a
+  # pipeline's last won or lost stage, and that `throw :abort` propagates out of the
+  # dependent-destroy callback and aborts the pipeline's own destroy. The stages of a
+  # pipeline being deleted need no per-row callbacks; what those callbacks protected
+  # is enforced here instead by refuse_destroy_with_deals.
+  has_many :deal_stages, dependent: :delete_all
 
   validates :name, presence: true
 
   scope :ordered, -> { order(:position, :id) }
 
   after_create :seed_default_stages
-  before_destroy :flag_deal_stages_for_cascade_destroy, prepend: true
+  before_destroy :refuse_destroy_with_deals, prepend: true
 
   def self.seed_default(account)
     return account.pipelines.ordered.first if account.pipelines.exists?
@@ -38,7 +43,10 @@ class Pipeline < ApplicationRecord
     end
   end
 
-  def flag_deal_stages_for_cascade_destroy
-    deal_stages.each { |stage| stage.cascading_pipeline_destroy = true }
+  def refuse_destroy_with_deals
+    return unless account.deals.where(deal_stage_id: deal_stages.select(:id)).exists?
+
+    errors.add(:base, I18n.t('errors.pipelines.has_deals'))
+    throw :abort
   end
 end

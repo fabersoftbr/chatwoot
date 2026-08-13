@@ -62,6 +62,13 @@ RSpec.describe DealStage do
     it 'destroys all stages, including the last won and lost ones, when the pipeline itself is destroyed' do
       expect { pipeline.destroy }.to change(described_class, :count).by(-5)
     end
+
+    it 'keeps the stages when the pipeline refuses to be destroyed because it still has deals' do
+      create(:deal, account: account, deal_stage: pipeline.deal_stages.find_by(stage_type: :open))
+
+      expect(pipeline.destroy).to be(false)
+      expect(described_class.where(pipeline_id: pipeline.id).count).to eq(5)
+    end
   end
 
   describe '.ordered' do
