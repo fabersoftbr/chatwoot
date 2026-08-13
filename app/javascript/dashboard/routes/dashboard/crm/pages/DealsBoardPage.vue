@@ -173,7 +173,11 @@ const onLostCancel = () => {
       @close="closeDrawer"
     />
 
-    <DealFormDialog ref="dealFormRef" @created="refresh" />
+    <DealFormDialog
+      ref="dealFormRef"
+      :pipeline-id="activePipelineId"
+      @created="refresh"
+    />
 
     <StageManagerDialog
       ref="stageManagerRef"

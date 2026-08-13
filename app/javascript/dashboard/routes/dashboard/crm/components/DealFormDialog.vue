@@ -7,6 +7,7 @@ import { unitsToCents } from '../helpers/position';
 
 const props = defineProps({
   contactId: { type: Number, default: null },
+  pipelineId: { type: Number, default: null },
 });
 
 const emit = defineEmits(['created']);
@@ -19,7 +20,7 @@ const stages = useMapGetter('dealStages/getStages');
 const contacts = useMapGetter('contacts/getContacts');
 
 const isOpen = ref(false);
-const pipelineId = ref(null);
+const selectedPipelineId = ref(null);
 const form = reactive({
   title: '',
   contact_id: props.contactId,
@@ -29,11 +30,11 @@ const form = reactive({
 });
 
 const loadStages = async id => {
-  pipelineId.value = id;
+  selectedPipelineId.value = id;
   await store.dispatch('dealStages/get', { pipelineId: id });
   // Bail if the user picked another pipeline while this dispatch was in
   // flight — a stale resolution must not overwrite the newer selection.
-  if (pipelineId.value !== id) return;
+  if (selectedPipelineId.value !== id) return;
   form.deal_stage_id = stages.value[0]?.id ?? null;
 };
 
@@ -53,7 +54,7 @@ const open = () => {
   form.value = 0;
   form.temperature = 'warm';
   isOpen.value = true;
-  loadStages(pipelines.value[0]?.id ?? null);
+  loadStages(props.pipelineId ?? pipelines.value[0]?.id ?? null);
 };
 
 const submit = async () => {
@@ -115,7 +116,7 @@ defineExpose({ open });
 
         <select
           class="w-full !mb-0"
-          :value="pipelineId"
+          :value="selectedPipelineId"
           :aria-label="t('CRM.PIPELINE.LABEL')"
           @change="loadStages(Number($event.target.value))"
         >

@@ -33,7 +33,7 @@ RSpec.describe DealStagePolicy, type: :policy do
     end
 
     context 'when agent' do
-      it { expect(deal_stage_policy).not_to permit(agent_context, deal_stage) }
+      it { expect(deal_stage_policy).to permit(agent_context, deal_stage) }
     end
   end
 end

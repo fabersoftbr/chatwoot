@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useAlert } from 'dashboard/composables';
 import { useStore, useMapGetter } from 'dashboard/composables/store';
@@ -16,6 +16,20 @@ const pipelines = useMapGetter('pipelines/getPipelines');
 const dialogRef = ref(null);
 const newName = ref('');
 
+const list = ref([]);
+const syncList = () => {
+  // Row copies, not store references: v-model on a row must never mutate
+  // pipelines/getPipelines' objects directly, or a rejected rename would
+  // leave the store (and every other consumer of the getter) holding a
+  // value the server refused.
+  list.value = pipelines.value.map(pipeline => ({ ...pipeline }));
+};
+
+// The store getter returns a freshly sorted copy on every recompute, so the
+// local list needs to stay in step even before the user interacts with it
+// (e.g. the initial fetch resolving after mount).
+watch(pipelines, syncList, { immediate: true });
+
 const open = () => {
   newName.value = '';
   dialogRef.value.open();
@@ -27,7 +41,10 @@ const rename = pipeline =>
   store
     .dispatch('pipelines/update', { id: pipeline.id, name: pipeline.name })
     .then(notifyChange)
-    .catch(error => useAlert(error.message));
+    .catch(error => {
+      useAlert(error.message);
+      syncList();
+    });
 
 const remove = pipeline =>
   store
@@ -63,7 +80,7 @@ defineExpose({ open });
   >
     <div class="flex flex-col gap-2">
       <div
-        v-for="pipeline in pipelines"
+        v-for="pipeline in list"
         :key="pipeline.id"
         data-testid="pipeline-row"
         class="flex items-center gap-3 px-2 py-2 rounded-lg hover:bg-n-alpha-1"

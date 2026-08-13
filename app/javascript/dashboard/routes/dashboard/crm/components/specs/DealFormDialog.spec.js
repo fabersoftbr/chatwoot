@@ -82,6 +82,28 @@ describe('DealFormDialog', () => {
     );
   });
 
+  it('loads the stages for the pipelineId prop rather than the first pipeline', async () => {
+    const dispatch = vi.fn().mockResolvedValue();
+    const wrapper = mountDialog(dispatch, { pipelineId: 20 });
+    wrapper.vm.open();
+    await wrapper.vm.$nextTick();
+
+    expect(dispatch).toHaveBeenCalledWith('dealStages/get', {
+      pipelineId: 20,
+    });
+  });
+
+  it('falls back to the first pipeline when no pipelineId prop is given', async () => {
+    const dispatch = vi.fn().mockResolvedValue();
+    const wrapper = mountDialog(dispatch);
+    wrapper.vm.open();
+    await wrapper.vm.$nextTick();
+
+    expect(dispatch).toHaveBeenCalledWith('dealStages/get', {
+      pipelineId: pipelines[0].id,
+    });
+  });
+
   it('disables submit while the title is empty or whitespace-only', async () => {
     const wrapper = mountDialog(vi.fn().mockResolvedValue(), { contactId: 7 });
     wrapper.vm.open();
