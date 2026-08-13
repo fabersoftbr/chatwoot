@@ -1,5 +1,9 @@
+import { computed } from 'vue';
 import { shallowMount } from '@vue/test-utils';
+import { useStore, useMapGetter } from 'dashboard/composables/store';
 import StageManagerDialog from '../StageManagerDialog.vue';
+
+vi.mock('dashboard/composables/store');
 
 const stages = [
   { id: 1, name: 'Novo Lead', color: '#6366F1', position: 0, deals_count: 18 },
@@ -13,19 +17,21 @@ const stages = [
   { id: 3, name: 'Ganho', color: '#22C55E', position: 2, deals_count: 0 },
 ];
 
-const dispatch = vi.fn();
+const dispatch = vi.fn().mockResolvedValue();
 
-const mountDialog = () =>
-  shallowMount(StageManagerDialog, {
+const mountDialog = () => {
+  useStore.mockReturnValue({ dispatch });
+  useMapGetter.mockImplementation(getter => {
+    const mockValues = { 'deals/getStages': stages };
+    return computed(() => mockValues[getter]);
+  });
+  return shallowMount(StageManagerDialog, {
     props: { pipelineId: 7 },
     global: {
-      mocks: {
-        $t: key => key,
-        $store: { dispatch, getters: { 'deals/getStages': stages } },
-      },
       stubs: { Dialog: { template: '<div><slot /></div>' } },
     },
   });
+};
 
 describe('StageManagerDialog', () => {
   beforeEach(() => dispatch.mockClear());
