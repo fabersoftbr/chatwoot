@@ -42,10 +42,14 @@ const saveAssignee = () =>
 const loadStages = async id => {
   pipelineId.value = id;
   await store.dispatch('dealStages/get', { pipelineId: id });
+  // The selection may have moved on to another pipeline while this dispatch
+  // was in flight — tell the caller whether it's still current.
+  return pipelineId.value === id;
 };
 
 const changePipeline = async id => {
-  await loadStages(id);
+  const isCurrent = await loadStages(id);
+  if (!isCurrent) return;
   form.deal_stage_id = stages.value[0]?.id ?? null;
   save('deal_stage_id');
 };

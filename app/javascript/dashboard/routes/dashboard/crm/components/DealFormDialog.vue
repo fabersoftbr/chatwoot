@@ -31,6 +31,9 @@ const form = reactive({
 const loadStages = async id => {
   pipelineId.value = id;
   await store.dispatch('dealStages/get', { pipelineId: id });
+  // Bail if the user picked another pipeline while this dispatch was in
+  // flight — a stale resolution must not overwrite the newer selection.
+  if (pipelineId.value !== id) return;
   form.deal_stage_id = stages.value[0]?.id ?? null;
 };
 
