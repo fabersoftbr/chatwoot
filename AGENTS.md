@@ -1,5 +1,33 @@
 # Chatwoot Development Guidelines
 
+## This Fork: `main` Is the Branch That Matters
+
+This is `fabersoftbr/chatwoot`, a fork. **All fork work targets `main`.** It tracks
+upstream `chatwoot/chatwoot` releases (currently `v4.16.2`) with our features on top,
+and it is what production deploys.
+
+- **Branch from `main`, PR back into `main`.** Never commit to `main` directly.
+- **Do not use `develop`.** Upstream's `develop` is their integration branch, not ours.
+  Our own 3.14-era branches are archived as tags (`archive/3.14-crm`,
+  `archive/3.14-dokploy`, `archive/3.14-whatsapp-templates`) — that code is ~2100 commits
+  and ~112 migrations behind and will not run against a 4.16 database. Read them for
+  reference; never merge them.
+- **`main` has no shared history with upstream.** It was created by importing the v4.16.2
+  tree as a single root commit, so `git merge-base main upstream/develop` returns nothing.
+  Merging or rebasing an upstream tag into `main` conflicts on every file. To take
+  upstream changes today, import the new release as a fresh tree and replay our commits
+  onto it. Note the local `v4.16.2` tag points at that import, not at upstream's tag
+  (`e5d374f11`), though the two trees are identical.
+- **Fork-only features** live in: CRM/deals (`app/models/deal*.rb`,
+  `app/javascript/dashboard/routes/dashboard/crm/`, `db/migrate/202608111200*`) and
+  WhatsApp templates. New migrations must carry a timestamp later than upstream's
+  latest, or they run out of order against the production database.
+
+Production runs an image **built from this repo** (`docker/Dockerfile` via
+`docker-compose.dokploy.yml`), not the official `chatwoot/chatwoot` image — that is what
+makes fork features exist in the deploy. See `.env.dokploy.example` for required
+variables.
+
 ## Build / Test / Lint
 
 - **Setup**: `bundle install && pnpm install`
