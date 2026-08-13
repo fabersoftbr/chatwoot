@@ -8,11 +8,16 @@ and it is what production deploys.
 
 - **Branch from `main`, PR back into `main`.** Never commit to `main` directly.
 - **Do not use `develop`.** Upstream's `develop` is their integration branch, not ours.
-  Our old `develop` is frozen history from the 3.14 era — it is ~2100 commits and
-  ~112 migrations behind, so its code will not run against a 4.16 database. Read it for
-  reference; never merge it.
-- **To take upstream changes**, rebase or merge a release tag (`v4.16.x`) into a branch
-  off `main`. Never merge upstream `develop`.
+  Our own 3.14-era branches are archived as tags (`archive/3.14-crm`,
+  `archive/3.14-dokploy`, `archive/3.14-whatsapp-templates`) — that code is ~2100 commits
+  and ~112 migrations behind and will not run against a 4.16 database. Read them for
+  reference; never merge them.
+- **`main` has no shared history with upstream.** It was created by importing the v4.16.2
+  tree as a single root commit, so `git merge-base main upstream/develop` returns nothing.
+  Merging or rebasing an upstream tag into `main` conflicts on every file. To take
+  upstream changes today, import the new release as a fresh tree and replay our commits
+  onto it. Note the local `v4.16.2` tag points at that import, not at upstream's tag
+  (`e5d374f11`), though the two trees are identical.
 - **Fork-only features** live in: CRM/deals (`app/models/deal*.rb`,
   `app/javascript/dashboard/routes/dashboard/crm/`, `db/migrate/202608111200*`) and
   WhatsApp templates. New migrations must carry a timestamp later than upstream's
