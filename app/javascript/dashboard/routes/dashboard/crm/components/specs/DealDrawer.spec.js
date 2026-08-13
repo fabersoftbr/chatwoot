@@ -34,7 +34,13 @@ describe('DealDrawer', () => {
   });
 
   it('surfaces the error and re-syncs the form when an inline edit is rejected by the store', async () => {
-    const dispatch = vi.fn().mockRejectedValue(new Error('Title is too long.'));
+    const dispatch = vi
+      .fn()
+      .mockImplementation(action =>
+        action === 'deals/update'
+          ? Promise.reject(new Error('Title is too long.'))
+          : Promise.resolve()
+      );
     const wrapper = mountDrawer(dispatch, () => deal);
 
     const titleInput = wrapper.get('input');
