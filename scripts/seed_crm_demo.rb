@@ -21,7 +21,6 @@ contacts = names.map.with_index do |name, i|
   end
 end
 
-temperatures = %w[hot warm cold]
 deals_spec = [
   { contact_i: 0, stage_i: 0, title: 'Implantação Acme — 50 licenças', value: 1_250_000, temperature: 'hot', days: 2 },
   { contact_i: 1, stage_i: 0, title: 'Renovação anual', value: 480_000, temperature: 'warm', days: 7 },
@@ -34,8 +33,6 @@ deals_spec = [
 ]
 
 deals_spec.each do |spec|
-  raise "invalid temperature #{spec[:temperature].inspect}, must be one of #{temperatures}" unless temperatures.include?(spec[:temperature])
-
   stage = stages[spec[:stage_i]] || stages.last
   deal = account.deals.find_or_initialize_by(title: spec[:title])
   next if deal.persisted?
