@@ -85,6 +85,20 @@
       "TYPES": { "OPEN": "Open", "WON": "Won", "LOST": "Lost" },
       "DELETE": "Delete",
       "DELETE_BLOCKED": "Move the deals out of this stage first."
+    },
+    "STAGES": {
+      "TITLE": "Manage pipeline stages",
+      "NEW_STAGE": "New stage",
+      "EDIT_STAGE": "Edit stage",
+      "NAME": "Name",
+      "COLOR": "Color",
+      "MOVE_UP": "Move up",
+      "MOVE_DOWN": "Move down",
+      "EDIT": "Edit",
+      "DELETE": "Delete",
+      "SAVE": "Save",
+      "CANCEL": "Cancel",
+      "DELETE_BLOCKED": "Move the deals out of this stage first."
     }
   }
 }

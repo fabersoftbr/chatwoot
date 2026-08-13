@@ -9,6 +9,7 @@ import DealDrawer from '../components/DealDrawer.vue';
 import DealFilters from '../components/DealFilters.vue';
 import DealFormDialog from '../components/DealFormDialog.vue';
 import LostReasonDialog from '../components/LostReasonDialog.vue';
+import StageManagerDialog from '../components/StageManagerDialog.vue';
 import Button from 'dashboard/components-next/button/Button.vue';
 
 const { t } = useI18n();
@@ -175,5 +176,11 @@ const onLostCancel = () => {
     />
 
     <DealFormDialog ref="dealFormRef" @created="refresh" />
+
+    <StageManagerDialog
+      ref="stageManagerRef"
+      :pipeline-id="activePipelineId"
+      @changed="refresh"
+    />
   </div>
 </template>

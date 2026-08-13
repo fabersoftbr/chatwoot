@@ -85,6 +85,20 @@
       "TYPES": { "OPEN": "Aberto", "WON": "Ganho", "LOST": "Perdido" },
       "DELETE": "Excluir",
       "DELETE_BLOCKED": "Mova os negócios desse estágio antes."
+    },
+    "STAGES": {
+      "TITLE": "Gerenciar etapas do funil",
+      "NEW_STAGE": "Nova etapa",
+      "EDIT_STAGE": "Editar etapa",
+      "NAME": "Nome",
+      "COLOR": "Cor",
+      "MOVE_UP": "Mover para cima",
+      "MOVE_DOWN": "Mover para baixo",
+      "EDIT": "Editar",
+      "DELETE": "Excluir",
+      "SAVE": "Salvar",
+      "CANCEL": "Cancelar",
+      "DELETE_BLOCKED": "Mova os negócios desta etapa antes."
     }
   }
 }
