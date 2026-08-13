@@ -49,6 +49,10 @@ RSpec.describe DealStage do
 
       expect(open_stage.destroy).to be_truthy
     end
+
+    it 'destroys all stages, including the last won and lost ones, when the pipeline itself is destroyed' do
+      expect { pipeline.destroy }.to change(described_class, :count).by(-5)
+    end
   end
 
   describe '.ordered' do

@@ -28,6 +28,7 @@ class DealStage < ApplicationRecord
   end
 
   def ensure_not_last_closing_stage
+    return if destroyed_by_association.present?
     return if stage_open?
     return if pipeline.deal_stages.where(stage_type: stage_type).where.not(id: id).exists?
 
