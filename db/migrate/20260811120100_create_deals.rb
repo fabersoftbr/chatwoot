@@ -20,6 +20,12 @@ class CreateDeals < ActiveRecord::Migration[7.0]
       t.timestamps
     end
 
+    add_deal_indexes
+  end
+
+  private
+
+  def add_deal_indexes
     add_index :deals, [:account_id, :deal_stage_id, :position]
     add_index :deals, :contact_id
     add_index :deals, :assignee_id
