@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_08_11_120200) do
+ActiveRecord::Schema[7.1].define(version: 2026_08_13_120000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -1004,7 +1004,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_11_120200) do
     t.integer "stage_type", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["account_id", "position"], name: "index_deal_stages_on_account_id_and_position"
+    t.bigint "pipeline_id", null: false
+    t.index ["pipeline_id", "position"], name: "index_deal_stages_on_pipeline_id_and_position"
   end
 
   create_table "deals", force: :cascade do |t|
@@ -1276,6 +1277,15 @@ ActiveRecord::Schema[7.1].define(version: 2026_08_11_120200) do
     t.index ["secondary_actor_type", "secondary_actor_id"], name: "uniq_secondary_actor_per_account_notifications"
     t.index ["user_id", "account_id", "snoozed_until", "read_at"], name: "idx_notifications_performance"
     t.index ["user_id"], name: "index_notifications_on_user_id"
+  end
+
+  create_table "pipelines", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.string "name", null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id", "position"], name: "index_pipelines_on_account_id_and_position"
   end
 
   create_table "platform_app_permissibles", force: :cascade do |t|
