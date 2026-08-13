@@ -60,6 +60,10 @@ RSpec.describe DealStage do
     end
 
     it 'destroys all stages, including the last won and lost ones, when the pipeline itself is destroyed' do
+      # `pipeline` is lazy: touch it here so its five seeded stages exist before the
+      # block below, otherwise creating and destroying them inside it nets zero.
+      pipeline
+
       expect { pipeline.destroy }.to change(described_class, :count).by(-5)
     end
 
