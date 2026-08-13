@@ -33,6 +33,7 @@ import customViews from './modules/customViews';
 import dashboardApps from './modules/dashboardApps';
 import deals from './modules/deals';
 import dealStages from './modules/dealStages';
+import pipelines from './modules/pipelines';
 import draftMessages from './modules/draftMessages';
 import globalConfig from 'shared/store/globalConfig';
 import inboxAssignableAgents from './modules/inboxAssignableAgents';
@@ -102,6 +103,7 @@ export default createStore({
     dashboardApps,
     deals,
     dealStages,
+    pipelines,
     draftMessages,
     globalConfig,
     inboxAssignableAgents,
