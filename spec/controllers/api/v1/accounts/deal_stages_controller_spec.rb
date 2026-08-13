@@ -67,6 +67,20 @@ RSpec.describe 'Api::V1::Accounts::DealStagesController', type: :request do
     end
   end
 
+  describe 'PATCH /api/v1/accounts/{account.id}/deal_stages/{id}' do
+    it 'does not move a stage into a pipeline owned by another account' do
+      stage = pipeline.deal_stages.first
+      other_pipeline = create(:pipeline)
+
+      patch "/api/v1/accounts/#{account.id}/deal_stages/#{stage.id}",
+            params: { pipeline_id: other_pipeline.id },
+            headers: agent.create_new_auth_token
+
+      expect(response).to have_http_status(:success)
+      expect(stage.reload.pipeline_id).to eq(pipeline.id)
+    end
+  end
+
   describe 'PATCH /api/v1/accounts/{account.id}/deal_stages/reorder' do
     # Pipeline#after_create seeds 5 default stages, so the pipeline always has
     # more stages than the ones each example creates and reorders explicitly.
