@@ -14,7 +14,7 @@ class Api::V1::Accounts::DealStagesController < Api::V1::Accounts::BaseControlle
   end
 
   def update
-    @deal_stage.update!(permitted_params.except(:pipeline_id))
+    @deal_stage.update!(permitted_params)
     render :show
   end
 

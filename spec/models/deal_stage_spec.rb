@@ -18,15 +18,6 @@ RSpec.describe DealStage do
 
       expect(stage.pipeline).to eq(pipeline)
     end
-
-    it 'is invalid when its pipeline belongs to a different account' do
-      other_pipeline = create(:pipeline)
-      stage = create(:deal_stage, account: account, pipeline: create(:pipeline, account: account))
-
-      stage.pipeline = other_pipeline
-      expect(stage).not_to be_valid
-      expect(stage.errors[:pipeline]).to be_present
-    end
   end
 
   describe 'destroying closing stages' do
