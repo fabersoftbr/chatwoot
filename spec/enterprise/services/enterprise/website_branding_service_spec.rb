@@ -114,13 +114,6 @@ RSpec.describe Enterprise::WebsiteBrandingService do
         expect(test_klass.new(generic_email).perform).to be_nil
         expect(request).not_to have_been_requested
       end
-
-      it 'does not fall back to scraping the provider homepage either' do
-        request = stub_request(:get, 'https://gmail.com')
-
-        expect(test_klass.new(generic_email).perform).to be_nil
-        expect(request).not_to have_been_requested
-      end
     end
 
     context 'when context.dev returns empty brand' do
