@@ -58,5 +58,43 @@ RSpec.describe AccountBuilder do
         expect(account.custom_attributes['onboarding_step']).to eq('account_details')
       end
     end
+
+    context 'when account_name is blank' do
+      it 'falls back to the user full name' do
+        _user, account = described_class.new(
+          account_name: '',
+          email: email,
+          user_full_name: user_full_name,
+          user_password: user_password,
+          confirmed: true
+        ).perform
+
+        expect(account.name).to eq(user_full_name)
+      end
+
+      it 'falls back to the user full name when account_name is nil' do
+        _user, account = described_class.new(
+          account_name: nil,
+          email: email,
+          user_full_name: user_full_name,
+          user_password: user_password,
+          confirmed: true
+        ).perform
+
+        expect(account.name).to eq(user_full_name)
+      end
+
+      it 'raises when both names are blank' do
+        expect do
+          described_class.new(
+            account_name: '',
+            email: email,
+            user_full_name: '',
+            user_password: user_password,
+            confirmed: true
+          ).perform
+        end.to raise_error(ActiveRecord::RecordInvalid, /Name can't be blank/)
+      end
+    end
   end
 end
