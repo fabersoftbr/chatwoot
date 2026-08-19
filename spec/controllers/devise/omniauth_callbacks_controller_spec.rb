@@ -62,6 +62,10 @@ RSpec.describe 'DeviseOverrides::OmniauthCallbacksController', type: :request do
 
         get '/omniauth/google_oauth2/callback'
 
+        # expect a 302 redirect to auth/google_oauth2/callback
+        expect(response).to redirect_to('http://www.example.com/auth/google_oauth2/callback')
+        follow_redirect!
+
         expect(AccountBuilder).to have_received(:new).with(hash_including(account_name: nil, user_full_name: 'test'))
       end
     end
