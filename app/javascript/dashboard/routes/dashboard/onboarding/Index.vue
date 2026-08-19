@@ -49,13 +49,14 @@ const isEditingWebsite = ref(false);
 const websiteInput = ref(null);
 const showErrorOnFields = ref(false);
 const accountName = ref(currentAccount.value?.name || '');
-// Seed the name when it arrives late — the account loads after mount, and
-// enrichment can rename it (ActionCable account.enrichment_completed). Never
-// clobber what the user already typed.
+const userEditedName = ref(false);
+// Keep the name in sync with the account — it loads after mount, and
+// enrichment can rename it later (ActionCable account.enrichment_completed).
+// Once the user edits the field themselves, stop overwriting it.
 watch(
   () => currentAccount.value?.name,
   name => {
-    if (name && !accountName.value) accountName.value = name;
+    if (name && !userEditedName.value) accountName.value = name;
   }
 );
 
@@ -292,6 +293,7 @@ const handleSubmit = async () => {
                 'w-full text-sm font-medium px-1 py-0.5 -my-0.5 mx-0 placeholder:text-n-slate-9 rounded',
                 { 'animate-shake': showErrorOnFields && v$.accountName.$error },
               ]"
+              @input="userEditedName = true"
             />
           </div>
           <OnboardingFormRow
