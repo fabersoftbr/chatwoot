@@ -39,12 +39,17 @@ E para onde ele vaza depois:
 `super` quando `CONTEXT_DEV_API_KEY` está ausente. Com a chave configurada, um guard
 no `perform` do OSS nunca roda.
 
-**`brand_info.email_provider` não vem do scrape.**
-Vem de `detect_email_provider`, um probe de MX. `useDetectedChannels.js:57` usa esse
-campo para sugerir "conectar Gmail" no passo de inbox-setup. Cortar o enrichment
-inteiro para domínios genéricos mata justamente a sugestão mais relevante para quem
-usa Gmail. O corte precisa ser cirúrgico: fora a marca da empresa, dentro a detecção
-de caixa postal.
+**`brand_info.email_provider` é dado morto hoje.**
+Ele vem de `detect_email_provider`, um probe de MX, e `useDetectedChannels.js:57` o
+usa para montar a linha de "conectar Gmail" no passo de inbox-setup — mas
+`useDetectedChannels.js:87` filtra `channel.type !== 'email'` incondicionalmente, com
+o comentário de que canais de e-mail ligam num PR futuro. O spec do arquivo documenta
+o gate (`useDetectedChannels.spec.js:146`). Logo, cortar o enrichment inteiro para
+domínio genérico não tira nada visível, e o service pode simplesmente devolver `nil`.
+
+Quando o canal de e-mail for ligado, sobra uma assimetria: domínio corporativo hospedado
+no Google vai sugerir Gmail, e conta `gmail.com` não vai sugerir nada. É custo aceito
+aqui — carregar o campo agora seria carregar dado que ninguém lê.
 
 **`Account.create!(name: '')` não é válido.**
 `Api::V1::AccountsController#ensure_account_name` documenta que basta *um* entre
@@ -86,11 +91,10 @@ hotmail.com.br, live.com, msn.com, yahoo.com, yahoo.com.br, icloud.com, me.com, 
 proton.me, protonmail.com, uol.com.br, bol.com.br, terra.com.br, ig.com.br, globo.com,
 r7.com.
 
-### 2. Enrichment: corta a marca, preserva a caixa postal
+### 2. Enrichment não roda para domínio genérico
 
-Para domínio genérico, os dois `perform` retornam cedo um resultado mínimo —
-`DATA_DEFAULTS` mais `domain`, `email` e `email_provider` — sem `title`, `logos`,
-`colors` ou `socials`, e sem fazer requisição nenhuma para fora.
+Os dois `perform` retornam `nil` cedo, sem requisição nenhuma para fora — nem o scrape
+do OSS nem a chamada à Context.dev do EE.
 
 O guard fica no topo de `WebsiteBrandingService#perform` **e** no topo de
 `Enterprise::WebsiteBrandingService#perform`. Duas linhas no overlay, seguindo a
@@ -103,9 +107,9 @@ tem rescue próprio e monta um hash com chaves que o OSS não tem (`industries`,
 
 Consequências, todas desejadas:
 
-- `branding_enrichment_job:12` recebe `title` nil e não sobrescreve `account.name`
-- `useDetectedChannels` continua enxergando `email_provider` e sugerindo Gmail/Outlook
-- widget e portal caem no fallback `@account.name`, sem logo do provedor
+- `branding_enrichment_job:5` recebe `nil`, loga e sai antes de tocar em `account.name`
+- `brand_info` nunca é gravado, então widget e portal caem no fallback `@account.name`
+  e nenhum logo do provedor entra na conta
 
 ### 3. Nome da conta
 
@@ -136,15 +140,13 @@ Já commitado no branch (`2639584ad`, `c4b1bceee`), antes deste desenho existir:
 - `omniauth_callbacks_controller` deixando `account_name` nil
 - `AccountBuilder#account_name` com o fallback
 - Onboarding `Index.vue` com `InlineInput`, `required` e a string em `en.json`
-- Guard no `WebsiteBrandingService#perform` do OSS — mas com `return nil` seco,
-  que é o que mata o `email_provider`
+- Guard `return nil` no `WebsiteBrandingService#perform` do OSS
 
 Falta:
 
-1. Trocar o `return nil` do OSS pelo resultado mínimo com `email_provider`
-2. Mesmo guard no topo de `Enterprise::WebsiteBrandingService#perform`
-3. `Api::V2::AccountsController#create` repassando `account_name`/`user_full_name`
-4. Todos os specs listados abaixo
+1. Mesmo guard no topo de `Enterprise::WebsiteBrandingService#perform`
+2. `Api::V2::AccountsController#create` repassando `account_name`/`user_full_name`
+3. Todos os specs listados abaixo
 
 ## Fora de escopo
 
@@ -159,20 +161,22 @@ JavaScript:
 
 - `app/javascript/v3/helpers/specs/AuthHelper.spec.js` — domínio genérico devolve
   `accountName` vazio, com caso de caixa mista (`Hotmail.com.BR`); domínio corporativo
-  segue capitalizando
-- `useDetectedChannels.spec.js` — `email_provider` sobrevive ao corte e a linha de e-mail
-  continua sendo sugerida
+  segue capitalizando. **Já escrito, passando.**
 
 Ruby:
 
-- `spec/services/website_branding_service_spec.rb` — domínio genérico devolve o hash
-  mínimo com `email_provider` e **não** chama `SafeFetch`
-- `spec/enterprise/services/enterprise/website_branding_service_spec.rb` — mesma coisa
-  com Context.dev habilitado: não sai requisição HTTParty
-- `spec/builders/account_builder_spec.rb` — `account_name` vazio com `user_full_name`
-  presente cria conta com o nome do usuário
 - `spec/helpers/email_helper_spec.rb` — `generic_email_domain?` com caixa mista, espaço
   em volta e subdomínio (`mail.gmail.com` não é genérico)
+- `spec/services/website_branding_service_spec.rb` — domínio genérico devolve `nil` e
+  **não** chama `SafeFetch`
+- `spec/enterprise/services/enterprise/website_branding_service_spec.rb` — mesma coisa
+  com Context.dev habilitado: nenhuma requisição sai para o endpoint
+- `spec/builders/account_builder_spec.rb` — `account_name` vazio com `user_full_name`
+  presente cria conta com o nome do usuário
+- `spec/controllers/api/v2/accounts_controller_spec.rb` — o spec atual casa os argumentos
+  do `AccountBuilder` de forma exata (`params.except(:password).merge(...)`), então
+  precisa ser atualizado junto. Ele também stuba o builder inteiro, e é por isso que o
+  `Account.create!(name: '')` nunca apareceu no CI; o caso novo não pode stubar o builder
 
 ## Risco conhecido de verificação
 
