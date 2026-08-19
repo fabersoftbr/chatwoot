@@ -27,8 +27,12 @@ class AccountBuilder
   end
 
   def account_name
-    # the empty string ensures that not-null constraint is not violated
-    @account_name || ''
+    # accounts.name is NOT NULL and validated for presence, but the API contract
+    # (Api::V1::AccountsController#ensure_account_name) only requires *one* of
+    # account_name / user_full_name. Fall back to the user's name so a signup
+    # that intentionally sends no company name (generic email domain) still
+    # creates a valid account instead of raising "Name can't be blank".
+    @account_name.presence || user_full_name
   end
 
   def validate_email

@@ -1,4 +1,18 @@
 module EmailHelper
+  # Free mailbox providers. Their domain identifies the mail host, not the
+  # signing-up company, so it must never become an account name and their
+  # homepage must never be scraped for branding.
+  GENERIC_EMAIL_DOMAINS = %w[
+    gmail.com googlemail.com outlook.com outlook.com.br hotmail.com hotmail.com.br
+    live.com msn.com yahoo.com yahoo.com.br icloud.com me.com aol.com
+    proton.me protonmail.com uol.com.br bol.com.br terra.com.br ig.com.br
+    globo.com r7.com
+  ].freeze
+
+  def generic_email_domain?(email)
+    GENERIC_EMAIL_DOMAINS.include?(email.to_s.split('@').last&.downcase&.strip)
+  end
+
   def extract_domain_without_tld(email)
     domain = email.split('@').last
     domain.split('.').first
