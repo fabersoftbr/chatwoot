@@ -70,6 +70,17 @@ describe('#URL Helpers', () => {
       });
     });
 
+    it('should return an empty accountName for generic email providers', () => {
+      expect(getCredentialsFromEmail('john@gmail.com')).toEqual({
+        fullName: 'John',
+        accountName: '',
+      });
+      expect(getCredentialsFromEmail('jane@Hotmail.com.BR')).toEqual({
+        fullName: 'Jane',
+        accountName: '',
+      });
+    });
+
     it('should split by underscores and hyphens', () => {
       expect(getCredentialsFromEmail('first_last@my-company.com')).toEqual({
         fullName: 'First Last',
