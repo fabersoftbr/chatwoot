@@ -28,12 +28,39 @@ const capitalize = str =>
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 
+// Free mailbox providers: their domain says nothing about the user's company,
+// so we leave the account name blank and let onboarding ask for it.
+const GENERIC_EMAIL_DOMAINS = [
+  'gmail.com',
+  'googlemail.com',
+  'outlook.com',
+  'outlook.com.br',
+  'hotmail.com',
+  'hotmail.com.br',
+  'live.com',
+  'msn.com',
+  'yahoo.com',
+  'yahoo.com.br',
+  'icloud.com',
+  'me.com',
+  'aol.com',
+  'proton.me',
+  'protonmail.com',
+  'uol.com.br',
+  'bol.com.br',
+  'terra.com.br',
+  'ig.com.br',
+  'globo.com',
+  'r7.com',
+];
+
 export const getCredentialsFromEmail = email => {
   const [localPart, domain] = email.split('@');
   const namePart = localPart.split('+')[0];
+  const isGeneric = GENERIC_EMAIL_DOMAINS.includes(domain.toLowerCase().trim());
   return {
     fullName: capitalize(namePart),
-    accountName: capitalize(domain.split('.')[0]),
+    accountName: isGeneric ? '' : capitalize(domain.split('.')[0]),
   };
 };
 

@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, nextTick, onMounted } from 'vue';
+import { ref, computed, nextTick, onMounted, watch } from 'vue';
 import { useVuelidate } from '@vuelidate/core';
 import { required } from '@vuelidate/validators';
 import { useI18n } from 'vue-i18n';
@@ -48,9 +48,22 @@ const isSubmitting = ref(false);
 const isEditingWebsite = ref(false);
 const websiteInput = ref(null);
 const showErrorOnFields = ref(false);
+const accountName = ref(currentAccount.value?.name || '');
+// Seed the name when it arrives late — the account loads after mount, and
+// enrichment can rename it (ActionCable account.enrichment_completed). Never
+// clobber what the user already typed.
+watch(
+  () => currentAccount.value?.name,
+  name => {
+    if (name && !accountName.value) accountName.value = name;
+  }
+);
 
 const validationRules = {
   userRole: {},
+  // Account name is required: a generic email domain (gmail.com and friends)
+  // is not enriched, so the account arrives unnamed and the user must type one.
+  accountName: { required },
   // Website is required: the onboarding web-widget inbox can't be created
   // without a URL (Channel::WebWidget validates presence), so a blank value
   // would leave the "Live Chat widget" status polling forever.
@@ -64,6 +77,7 @@ const validationRules = {
 
 const v$ = useVuelidate(validationRules, {
   userRole,
+  accountName,
   website,
   locale,
   timezone,
@@ -74,7 +88,6 @@ const v$ = useVuelidate(validationRules, {
 
 const userName = computed(() => currentUser.value?.name || '');
 const userEmail = computed(() => currentUser.value?.email || '');
-const accountName = computed(() => currentAccount.value?.name || '');
 const { isEnriching, getChangedFields } = useAccountEnrichment({
   locale,
   website,
@@ -270,9 +283,16 @@ const handleSubmit = async () => {
               :alt="accountName"
               class="size-4 object-contain"
             />
-            <span class="text-sm font-medium text-n-slate-12">
-              {{ accountName }}
-            </span>
+            <InlineInput
+              v-model="accountName"
+              :placeholder="
+                t('ONBOARDING_NEXT.PLACEHOLDERS.ENTER_ACCOUNT_NAME')
+              "
+              :custom-input-class="[
+                'w-full text-sm font-medium px-1 py-0.5 -my-0.5 mx-0 placeholder:text-n-slate-9 rounded',
+                { 'animate-shake': showErrorOnFields && v$.accountName.$error },
+              ]"
+            />
           </div>
           <OnboardingFormRow
             :title="t('ONBOARDING_NEXT.FIELDS.WEBSITE')"

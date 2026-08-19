@@ -16,6 +16,7 @@
     },
     "PLACEHOLDERS": {
       "SELECT_ROLE": "Select your role",
+      "ENTER_ACCOUNT_NAME": "Enter your company name",
       "ENTER_WEBSITE": "www.example.com",
       "SELECT_LANGUAGE": "Select language",
       "SELECT_TIMEZONE": "Select timezone",
