@@ -52,6 +52,20 @@ RSpec.describe 'DeviseOverrides::OmniauthCallbacksController', type: :request do
       end
     end
 
+    it 'leaves the account name blank for generic email domains' do
+      with_modified_env ENABLE_ACCOUNT_SIGNUP: 'true', FRONTEND_URL: 'http://www.example.com' do
+        set_omniauth_config('personal@gmail.com')
+        allow(email_validation_service).to receive(:perform).and_return(true)
+        allow(AccountBuilder).to receive(:new).and_return(account_builder)
+        allow(account_builder).to receive(:perform).and_return(user_double)
+        allow(Avatar::AvatarFromUrlJob).to receive(:perform_later).and_return(true)
+
+        get '/omniauth/google_oauth2/callback'
+
+        expect(AccountBuilder).to have_received(:new).with(hash_including(account_name: nil, user_full_name: 'test'))
+      end
+    end
+
     it 'blocks personal accounts signup' do
       with_modified_env ENABLE_ACCOUNT_SIGNUP: 'true', FRONTEND_URL: 'http://www.example.com' do
         set_omniauth_config('personal@gmail.com')
