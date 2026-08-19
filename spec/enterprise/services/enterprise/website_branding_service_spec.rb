@@ -101,6 +101,21 @@ RSpec.describe Enterprise::WebsiteBrandingService do
       end
     end
 
+    context 'when the email is from a free mailbox provider' do
+      let(:generic_email) { 'someone@gmail.com' }
+
+      before do
+        create(:installation_config, name: 'CONTEXT_DEV_API_KEY', value: api_key)
+      end
+
+      it 'returns nil without calling context.dev' do
+        request = stub_request(:get, endpoint).with(query: { email: generic_email })
+
+        expect(test_klass.new(generic_email).perform).to be_nil
+        expect(request).not_to have_been_requested
+      end
+    end
+
     context 'when context.dev returns empty brand' do
       before do
         create(:installation_config, name: 'CONTEXT_DEV_API_KEY', value: api_key)

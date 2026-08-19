@@ -147,5 +147,23 @@ RSpec.describe WebsiteBrandingService do
         expect(result[:logos].first[:url]).to eq('https://example.com/favicon.ico')
       end
     end
+
+    context 'when the email is from a free mailbox provider' do
+      let(:email) { 'someone@gmail.com' }
+
+      it 'returns nil without fetching the provider homepage' do
+        request = stub_request(:get, 'https://gmail.com')
+
+        expect(described_class.new(email).perform).to be_nil
+        expect(request).not_to have_been_requested
+      end
+
+      it 'skips the fetch regardless of the domain casing' do
+        request = stub_request(:get, 'https://hotmail.com.br')
+
+        expect(described_class.new('someone@HOTMAIL.COM.BR').perform).to be_nil
+        expect(request).not_to have_been_requested
+      end
+    end
   end
 end

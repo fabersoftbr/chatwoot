@@ -81,13 +81,22 @@ class DeviseOverrides::OmniauthCallbacksController < DeviseTokenAuth::OmniauthCa
 
   def create_account_for_user
     @resource, @account = AccountBuilder.new(
-      account_name: extract_domain_without_tld(auth_hash['info']['email']),
+      account_name: account_name_from_email(auth_hash['info']['email']),
       user_full_name: auth_hash['info']['name'],
       email: auth_hash['info']['email'],
       locale: I18n.locale,
       confirmed: auth_hash['info']['email_verified']
     ).perform
     Avatar::AvatarFromUrlJob.perform_later(@resource, auth_hash['info']['image'])
+  end
+
+  # A generic mailbox domain would name the account "gmail"/"outlook"; leave it
+  # blank so AccountBuilder falls back to the user's name and onboarding asks
+  # for the real company name.
+  def account_name_from_email(email)
+    return nil if generic_email_domain?(email)
+
+    extract_domain_without_tld(email)
   end
 
   def oauth_user_needs_password_reset?

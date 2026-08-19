@@ -23,7 +23,14 @@ RSpec.describe 'Accounts API', type: :request do
                params: params,
                as: :json
 
-          expect(AccountBuilder).to have_received(:new).with(params.except(:password).merge(user_password: params[:password]))
+          expect(AccountBuilder).to have_received(:new).with(
+            account_name: nil,
+            user_full_name: nil,
+            email: email,
+            user_password: 'Password1!',
+            locale: nil,
+            user: nil
+          )
           expect(account_builder).to have_received(:perform)
           expect(response.headers.keys).to include('access-token', 'token-type', 'client', 'expiry', 'uid')
           expect(response.body).to include('en')
@@ -73,10 +80,41 @@ RSpec.describe 'Accounts API', type: :request do
                params: params,
                as: :json
 
-          expect(AccountBuilder).to have_received(:new).with(params.merge(user_password: params[:password]))
+          expect(AccountBuilder).to have_received(:new).with(
+            account_name: nil,
+            user_full_name: nil,
+            email: nil,
+            user_password: nil,
+            locale: nil,
+            user: nil
+          )
           expect(account_builder).to have_received(:perform)
           expect(response).to have_http_status(:forbidden)
           expect(response.body).to eq({ message: I18n.t('errors.signup.failed') }.to_json)
+        end
+      end
+    end
+
+    context 'when the builder actually runs' do
+      it 'creates the account using the user full name when no account name is given' do
+        with_modified_env ENABLE_ACCOUNT_SIGNUP: 'true' do
+          post api_v2_accounts_url,
+               params: { email: email, user_full_name: 'Pedro Kajiya', password: 'Password1!' },
+               as: :json
+
+          expect(response).to have_http_status(:success)
+          expect(Account.last.name).to eq('Pedro Kajiya')
+        end
+      end
+
+      it 'prefers an explicit account name over the user full name' do
+        with_modified_env ENABLE_ACCOUNT_SIGNUP: 'true' do
+          post api_v2_accounts_url,
+               params: { email: email, account_name: 'Acme Inc', user_full_name: 'Pedro Kajiya', password: 'Password1!' },
+               as: :json
+
+          expect(response).to have_http_status(:success)
+          expect(Account.last.name).to eq('Acme Inc')
         end
       end
     end
@@ -132,7 +170,14 @@ RSpec.describe 'Accounts API', type: :request do
                params: params,
                as: :json
 
-          expect(AccountBuilder).to have_received(:new).with(params.except(:password).merge(user_password: params[:password]))
+          expect(AccountBuilder).to have_received(:new).with(
+            account_name: nil,
+            user_full_name: nil,
+            email: email,
+            user_password: 'Password1!',
+            locale: nil,
+            user: nil
+          )
           expect(response).to have_http_status(:success)
         end
       end

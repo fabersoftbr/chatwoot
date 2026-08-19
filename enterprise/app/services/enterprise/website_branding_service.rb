@@ -2,6 +2,10 @@ module Enterprise::WebsiteBrandingService
   CONTEXT_DEV_ENDPOINT = 'https://api.context.dev/v1/brand/retrieve-by-email'.freeze
 
   def perform
+    # The overlay replaces the OSS #perform entirely, so the guard there does not
+    # protect this path — a free mailbox domain would be sent to Context.dev and
+    # come back branded as Gmail/Outlook.
+    return nil if generic_email_domain?(@email)
     return super unless context_dev_enabled?
 
     response = fetch_brand

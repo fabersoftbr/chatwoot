@@ -2,19 +2,11 @@ require 'resolv'
 
 class WebsiteBrandingService
   include SocialLinkParser
+  include EmailHelper
 
   attr_reader :http_status
 
   DATA_DEFAULTS = { description: nil, slogan: nil, phone: nil, address: nil, links: nil, stock: nil, industries: [], is_nsfw: false }.freeze
-
-  # Free mailbox providers: their homepage says nothing about the signing-up
-  # company, so scraping it would brand the account "Gmail"/"Outlook".
-  GENERIC_EMAIL_DOMAINS = %w[
-    gmail.com googlemail.com outlook.com outlook.com.br hotmail.com hotmail.com.br
-    live.com msn.com yahoo.com yahoo.com.br icloud.com me.com aol.com
-    proton.me protonmail.com uol.com.br bol.com.br terra.com.br ig.com.br
-    globo.com r7.com
-  ].freeze
 
   def initialize(email)
     @email = email
@@ -24,7 +16,7 @@ class WebsiteBrandingService
   end
 
   def perform
-    return nil if GENERIC_EMAIL_DOMAINS.include?(@domain)
+    return nil if generic_email_domain?(@email)
 
     doc = fetch_page
     return nil if doc.nil?
