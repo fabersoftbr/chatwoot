@@ -167,7 +167,10 @@ export default {
       const templates = this.$store.getters['inboxes/getWhatsAppTemplates'](
         this.inboxId
       );
-      return !!(templates && templates.length) && !this.isPrivate;
+      // Cloud inboxes get the button even with no templates: the modal is also
+      // where they create the first one.
+      const hasTemplates = !!(templates && templates.length);
+      return (hasTemplates || this.isAWhatsAppCloudChannel) && !this.isPrivate;
     },
     showContentTemplates() {
       return this.isATwilioWhatsAppChannel && !this.isPrivate;
@@ -1446,6 +1449,7 @@ export default {
 
     <WhatsappTemplates
       :inbox-id="inbox.id"
+      :can-create-template="isAWhatsAppCloudChannel"
       :show="showWhatsAppTemplatesModal"
       @close="hideWhatsappTemplatesModal"
       @on-send="onSendWhatsAppReply"
