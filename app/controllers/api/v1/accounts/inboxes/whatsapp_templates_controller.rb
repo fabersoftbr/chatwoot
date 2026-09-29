@@ -46,6 +46,21 @@ class Api::V1::Accounts::Inboxes::WhatsappTemplatesController < Api::V1::Account
   def render_meta_error(result)
     body = result[:body]
     message = body.is_a?(Hash) ? body.dig('error', 'message') : nil
-    render json: { error: message || 'Template request failed' }, status: :unprocessable_entity
+    error = [message || I18n.t('errors.whatsapp_templates.failed'), permission_hint].compact.join(' ')
+    render json: { error: error }, status: :unprocessable_entity
+  end
+
+  # Meta answers with the same sentence whether the WABA id is wrong, the token cannot
+  # see it, or the token can read it but not write templates. Our own read check splits
+  # those, so run it once the write has already failed and say which half broke.
+  #
+  # The hint is a bonus on a path that is already failing: if the extra call to Meta blows
+  # up, the user still needs to see what Meta said about the write.
+  def permission_hint
+    key = @inbox.channel.provider_service.validate_provider_config? ? :write_permission : :unreachable_waba
+    I18n.t("errors.whatsapp_templates.#{key}")
+  rescue StandardError => e
+    Rails.logger.error("[WHATSAPP] Could not classify the template failure for inbox #{@inbox.id}: #{e.message}")
+    nil
   end
 end

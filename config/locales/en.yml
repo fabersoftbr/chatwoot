@@ -85,6 +85,10 @@ en:
       presence: must not be blank
     webhook:
       invalid: Invalid events
+    whatsapp_templates:
+      failed: 'Template request failed.'
+      write_permission: 'The WhatsApp Business Account is reachable, so the access token can read it but cannot create templates on it. In Meta Business Settings, give the system user Full control of this WhatsApp account, then generate a new token and save it on this inbox.'
+      unreachable_waba: 'The WhatsApp Business Account is no longer reachable with the saved credentials. Reauthorize the inbox, or update its WhatsApp Business Account ID and API key.'
     deal_stages:
       has_deals: 'This stage still has deals. Move them to another stage first.'
       last_closing_stage: 'Every pipeline needs a won stage and a lost stage. Create another one before deleting this.'
