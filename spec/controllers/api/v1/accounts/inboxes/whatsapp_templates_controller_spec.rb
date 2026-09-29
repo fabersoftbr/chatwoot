@@ -70,10 +70,48 @@ RSpec.describe 'WhatsApp Templates API', type: :request do
         expect(response.parsed_body['error']).to match(/sequence/i)
       end
 
-      it 'returns 422 with the Meta error message verbatim' do
+      it 'returns 422 leading with the Meta error message verbatim' do
         allow(whatsapp_provider_service).to receive(:create_template).and_return(
           { success: false, body: { 'error' => { 'message' => 'Template name already exists' } } }
         )
+        allow(whatsapp_provider_service).to receive(:validate_provider_config?).and_return(true)
+
+        post "/api/v1/accounts/#{account.id}/inboxes/#{inbox.id}/whatsapp_templates",
+             params: valid_params, headers: administrator.create_new_auth_token
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(response.parsed_body['error']).to start_with('Template name already exists')
+      end
+
+      # Meta returns one sentence for three different causes; the read check is what
+      # tells the user whether the WABA is reachable at all.
+      it 'blames the token write permission when the WABA still reads' do
+        allow(whatsapp_provider_service).to receive(:create_template).and_return({ success: false, body: {} })
+        allow(whatsapp_provider_service).to receive(:validate_provider_config?).and_return(true)
+
+        post "/api/v1/accounts/#{account.id}/inboxes/#{inbox.id}/whatsapp_templates",
+             params: valid_params, headers: administrator.create_new_auth_token
+
+        expect(response.parsed_body['error']).to include('cannot create templates on it')
+      end
+
+      it 'blames the credentials when the WABA no longer reads' do
+        allow(whatsapp_provider_service).to receive(:create_template).and_return({ success: false, body: {} })
+        allow(whatsapp_provider_service).to receive(:validate_provider_config?).and_return(false)
+
+        post "/api/v1/accounts/#{account.id}/inboxes/#{inbox.id}/whatsapp_templates",
+             params: valid_params, headers: administrator.create_new_auth_token
+
+        expect(response.parsed_body['error']).to include('no longer reachable')
+      end
+
+      # The hint is a bonus on an already-failing path; losing it must not cost the user
+      # what Meta actually said.
+      it 'still returns the Meta message when the read check itself blows up' do
+        allow(whatsapp_provider_service).to receive(:create_template).and_return(
+          { success: false, body: { 'error' => { 'message' => 'Template name already exists' } } }
+        )
+        allow(whatsapp_provider_service).to receive(:validate_provider_config?).and_raise(StandardError, 'boom')
 
         post "/api/v1/accounts/#{account.id}/inboxes/#{inbox.id}/whatsapp_templates",
              params: valid_params, headers: administrator.create_new_auth_token
@@ -85,6 +123,7 @@ RSpec.describe 'WhatsApp Templates API', type: :request do
       it 'does not sync templates when creation failed' do
         allow(whatsapp_provider_service).to receive(:create_template)
           .and_return({ success: false, body: {} })
+        allow(whatsapp_provider_service).to receive(:validate_provider_config?).and_return(true)
         expect(whatsapp_provider_service).not_to receive(:sync_templates)
 
         post "/api/v1/accounts/#{account.id}/inboxes/#{inbox.id}/whatsapp_templates",
@@ -173,16 +212,17 @@ RSpec.describe 'WhatsApp Templates API', type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    it 'returns 422 with the Meta error when deletion fails' do
+    it 'returns 422 leading with the Meta error when deletion fails' do
       allow(whatsapp_provider_service).to receive(:delete_template).and_return(
         { success: false, body: { 'error' => { 'message' => 'Template not found' } } }
       )
+      allow(whatsapp_provider_service).to receive(:validate_provider_config?).and_return(true)
 
       delete "/api/v1/accounts/#{account.id}/inboxes/#{inbox.id}/whatsapp_templates/boas_vindas",
              headers: administrator.create_new_auth_token
 
       expect(response).to have_http_status(:unprocessable_entity)
-      expect(response.parsed_body['error']).to eq('Template not found')
+      expect(response.parsed_body['error']).to start_with('Template not found')
     end
   end
 end
