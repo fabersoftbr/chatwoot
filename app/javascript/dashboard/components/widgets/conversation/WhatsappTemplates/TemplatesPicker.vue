@@ -15,9 +15,13 @@ const props = defineProps({
     type: Number,
     default: undefined,
   },
+  canCreateTemplate: {
+    type: Boolean,
+    default: false,
+  },
 });
 
-const emit = defineEmits(['onSelect']);
+const emit = defineEmits(['onSelect', 'onCreate']);
 
 const { t } = useI18n();
 const store = useStore();
@@ -94,6 +98,14 @@ const refreshTemplates = async () => {
           class="text-n-slate-12 size-4"
           :class="{ 'animate-spin': isRefreshing }"
         />
+      </button>
+      <button
+        v-if="canCreateTemplate"
+        class="flex justify-center items-center w-9 h-9 rounded-lg bg-n-alpha-black2 outline outline-1 outline-n-weak hover:outline-n-slate-6 dark:hover:outline-n-slate-6 hover:bg-n-alpha-2 dark:hover:bg-n-solid-2"
+        :title="t('WHATSAPP_TEMPLATES.ADD')"
+        @click="emit('onCreate')"
+      >
+        <Icon icon="i-lucide-plus" class="text-n-slate-12 size-4" />
       </button>
     </div>
     <div

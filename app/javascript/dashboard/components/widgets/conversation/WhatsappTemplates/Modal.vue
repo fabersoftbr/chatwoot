@@ -1,10 +1,12 @@
 <script>
+import WhatsappTemplateForm from 'dashboard/routes/dashboard/settings/inbox/components/WhatsappTemplateForm.vue';
 import TemplatesPicker from './TemplatesPicker.vue';
 import WhatsAppTemplateReply from './WhatsAppTemplateReply.vue';
 export default {
   components: {
     TemplatesPicker,
     WhatsAppTemplateReply,
+    WhatsappTemplateForm,
   },
   props: {
     show: {
@@ -15,11 +17,17 @@ export default {
       type: Number,
       default: undefined,
     },
+    // Creating a template writes to Meta's WABA, which only the Cloud API provider exposes.
+    canCreateTemplate: {
+      type: Boolean,
+      default: false,
+    },
   },
   emits: ['onSend', 'cancel', 'update:show'],
   data() {
     return {
       selectedWaTemplate: null,
+      isCreatingTemplate: false,
     };
   },
   computed: {
@@ -32,6 +40,9 @@ export default {
       },
     },
     modalHeaderContent() {
+      if (this.isCreatingTemplate) {
+        return this.$t('WHATSAPP_TEMPLATES.FORM.TITLE');
+      }
       return this.selectedWaTemplate
         ? this.$t('WHATSAPP_TEMPLATES.MODAL.TEMPLATE_SELECTED_SUBTITLE', {
             templateName: this.selectedWaTemplate.name,
@@ -42,6 +53,12 @@ export default {
   methods: {
     pickTemplate(template) {
       this.selectedWaTemplate = template;
+    },
+    // The template lands on Meta as PENDING, so the picker only shows it once
+    // the inbox is refetched with the synced list the create call triggered.
+    async onTemplateCreated() {
+      this.isCreatingTemplate = false;
+      await this.$store.dispatch('inboxes/get');
     },
     onResetTemplate() {
       this.selectedWaTemplate = null;
@@ -63,10 +80,18 @@ export default {
       :header-content="modalHeaderContent"
     />
     <div class="row modal-content">
-      <TemplatesPicker
-        v-if="!selectedWaTemplate"
+      <WhatsappTemplateForm
+        v-if="isCreatingTemplate"
         :inbox-id="inboxId"
+        @created="onTemplateCreated"
+        @cancel="isCreatingTemplate = false"
+      />
+      <TemplatesPicker
+        v-else-if="!selectedWaTemplate"
+        :inbox-id="inboxId"
+        :can-create-template="canCreateTemplate"
         @on-select="pickTemplate"
+        @on-create="isCreatingTemplate = true"
       />
       <WhatsAppTemplateReply
         v-else
