@@ -126,6 +126,10 @@ class Inbox < ApplicationRecord
     channel_type == 'Channel::FacebookPage'
   end
 
+  def evolution?
+    channel_type == 'Channel::Evolution'
+  end
+
   def instagram?
     (facebook? || instagram_direct?) && channel.instagram_id.present?
   end

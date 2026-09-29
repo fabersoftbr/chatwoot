@@ -53,6 +53,10 @@ class Inboxes extends CacheEnabledApiClient {
     return axios.post(`${this.url}/${inboxId}/reset_secret`);
   }
 
+  evolutionQrCode(inboxId) {
+    return axios.post(`${this.url}/${inboxId}/evolution_qr_code`);
+  }
+
   enableWhatsappCalling(inboxId) {
     return axios.post(`${this.url}/${inboxId}/enable_whatsapp_calling`);
   }

@@ -4,6 +4,7 @@ import { useAlert } from 'dashboard/composables';
 import { useWhatsappEmbeddedSignup } from 'dashboard/composables/useWhatsappEmbeddedSignup';
 import { FEATURE_FLAGS } from 'dashboard/featureFlags';
 import whatsappChannel from 'dashboard/api/channel/whatsappChannel';
+import InboxesAPI from 'dashboard/api/inboxes';
 import inboxMixin from 'shared/mixins/inboxMixin';
 import SettingsFieldSection from 'dashboard/components-next/Settings/SettingsFieldSection.vue';
 import SettingsToggleSection from 'dashboard/components-next/Settings/SettingsToggleSection.vue';
@@ -47,6 +48,9 @@ export default {
       isUpdatingAllowedDomains: false,
       isSettingDefaults: false,
       isReconfiguring: false,
+      evolutionQrCode: '',
+      evolutionConnectionState: '',
+      isLoadingEvolutionQrCode: false,
     };
   },
   validations: {
@@ -99,6 +103,9 @@ export default {
         this.inbox.selected_feature_flags || []
       ).includes('allow_mobile_webview');
       this.allowedDomains = this.inbox.allowed_domains || '';
+      // The stored code is the one minted at creation; it has most likely
+      // expired, so the screen shows it and lets the user ask for a fresh one.
+      this.evolutionQrCode = this.inbox.qr_code || '';
       this.$nextTick(() => {
         this.isSettingDefaults = false;
       });
@@ -161,6 +168,22 @@ export default {
         useAlert(this.$t('INBOX_MGMT.EDIT.API.ERROR_MESSAGE'));
       } finally {
         this.isUpdatingAllowedDomains = false;
+      }
+    },
+    async refreshEvolutionQrCode() {
+      this.isLoadingEvolutionQrCode = true;
+      try {
+        const { data } = await InboxesAPI.evolutionQrCode(this.inbox.id);
+        this.evolutionQrCode = data.qr_code;
+        this.evolutionConnectionState = data.connection_state;
+      } catch (error) {
+        // Evolution's wording says if the instance is gone or already paired.
+        useAlert(
+          error?.response?.data?.error ||
+            this.$t('INBOX_MGMT.SETTINGS_POPUP.EVOLUTION_QR_ERROR')
+        );
+      } finally {
+        this.isLoadingEvolutionQrCode = false;
       }
     },
     async updateWhatsAppInboxAPIKey() {
@@ -361,6 +384,42 @@ export default {
           {{ $t('INBOX_MGMT.EDIT.ENABLE_HMAC.LABEL') }}
         </label>
       </div>
+    </SettingsFieldSection>
+  </div>
+  <div v-else-if="isEvolutionInbox">
+    <SettingsFieldSection
+      :label="$t('INBOX_MGMT.SETTINGS_POPUP.EVOLUTION_PAIRING')"
+      :help-text="$t('INBOX_MGMT.SETTINGS_POPUP.EVOLUTION_PAIRING_SUB_TEXT')"
+    >
+      <div class="flex flex-col gap-3 items-start">
+        <img
+          v-if="evolutionQrCode"
+          :src="evolutionQrCode"
+          :alt="$t('INBOX_MGMT.SETTINGS_POPUP.EVOLUTION_PAIRING')"
+          class="w-56 h-56 bg-white rounded-xl"
+        />
+        <p
+          v-if="evolutionConnectionState"
+          class="text-body-main text-n-slate-11"
+        >
+          {{ $t('INBOX_MGMT.SETTINGS_POPUP.EVOLUTION_CONNECTION_STATE') }}:
+          {{ evolutionConnectionState }}
+        </p>
+        <NextButton
+          :is-loading="isLoadingEvolutionQrCode"
+          faded
+          slate
+          :label="$t('INBOX_MGMT.SETTINGS_POPUP.EVOLUTION_REFRESH_QR')"
+          @click="refreshEvolutionQrCode"
+        />
+      </div>
+    </SettingsFieldSection>
+
+    <SettingsFieldSection
+      :label="$t('INBOX_MGMT.SETTINGS_POPUP.INBOX_IDENTIFIER')"
+      :help-text="$t('INBOX_MGMT.SETTINGS_POPUP.INBOX_IDENTIFIER_SUB_TEXT')"
+    >
+      <woot-code :script="inbox.inbox_identifier" />
     </SettingsFieldSection>
   </div>
   <div v-else-if="isAnEmailChannel">

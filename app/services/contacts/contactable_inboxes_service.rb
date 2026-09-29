@@ -20,6 +20,8 @@ class Contacts::ContactableInboxesService
       email_contactable_inbox(inbox)
     when 'Channel::Api'
       api_contactable_inbox(inbox)
+    when 'Channel::Evolution'
+      evolution_contactable_inbox(inbox)
     when 'Channel::WebWidget'
       website_contactable_inbox(inbox)
     end
@@ -39,6 +41,16 @@ class Contacts::ContactableInboxesService
     source_id = latest_contact_inbox&.source_id || SecureRandom.uuid
 
     { source_id: source_id, inbox: inbox }
+  end
+
+  # Evolution keys a contact by its bare phone number, so a first conversation
+  # has to reuse that instead of the random uuid an API inbox would get.
+  def evolution_contactable_inbox(inbox)
+    latest_contact_inbox = inbox.contact_inboxes.where(contact: @contact).last
+    return { source_id: latest_contact_inbox.source_id, inbox: inbox } if latest_contact_inbox
+    return if @contact.phone_number.blank?
+
+    { source_id: @contact.phone_number.delete('+'), inbox: inbox }
   end
 
   def email_contactable_inbox(inbox)

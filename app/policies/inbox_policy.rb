@@ -70,6 +70,10 @@ class InboxPolicy < ApplicationPolicy
     @account_user.administrator?
   end
 
+  def evolution_qr_code?
+    @account_user.administrator?
+  end
+
   def enable_whatsapp_calling?
     @account_user.administrator?
   end
