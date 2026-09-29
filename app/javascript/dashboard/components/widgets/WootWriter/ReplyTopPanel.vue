@@ -57,8 +57,17 @@ export default {
       type: Boolean,
       default: false,
     },
+    showWhatsappTemplates: {
+      type: Boolean,
+      default: false,
+    },
   },
-  emits: ['setReplyMode', 'toggleEditorSize', 'executeCopilotAction'],
+  emits: [
+    'setReplyMode',
+    'toggleEditorSize',
+    'executeCopilotAction',
+    'selectWhatsappTemplate',
+  ],
   setup(props, { emit }) {
     const setReplyMode = mode => {
       emit('setReplyMode', mode);
@@ -160,7 +169,16 @@ export default {
       :is-reply-restricted="isReplyRestricted"
       @toggle-mode="handleModeToggle"
     />
-    <div class="flex items-center mx-4 my-0">
+    <NextButton
+      v-if="showWhatsappTemplates"
+      v-tooltip.top-end="$t('CONVERSATION.FOOTER.WHATSAPP_TEMPLATES')"
+      icon="i-ph-quotes"
+      slate
+      faded
+      sm
+      @click="$emit('selectWhatsappTemplate')"
+    />
+    <div class="flex flex-1 items-center mx-4 my-0">
       <div v-if="isMessageLengthReachingThreshold" class="text-xs">
         <span :class="charLengthClass">
           {{ characterLengthWarning }}

@@ -84,10 +84,6 @@ export default {
       type: Boolean,
       default: true,
     },
-    enableWhatsAppTemplates: {
-      type: Boolean,
-      default: false,
-    },
     enableContentTemplates: {
       type: Boolean,
       default: false,
@@ -128,7 +124,6 @@ export default {
   },
   emits: [
     'toggleInsertArticle',
-    'selectWhatsappTemplate',
     'selectContentTemplate',
     'toggleQuotedReply',
   ],
@@ -348,15 +343,6 @@ export default {
         sm
         :aria-pressed="quotedReplyEnabled"
         @click="$emit('toggleQuotedReply')"
-      />
-      <NextButton
-        v-if="enableWhatsAppTemplates"
-        v-tooltip.top-end="$t('CONVERSATION.FOOTER.WHATSAPP_TEMPLATES')"
-        icon="i-ph-whatsapp-logo"
-        slate
-        faded
-        sm
-        @click="$emit('selectWhatsappTemplate')"
       />
       <NextButton
         v-if="enableContentTemplates"
