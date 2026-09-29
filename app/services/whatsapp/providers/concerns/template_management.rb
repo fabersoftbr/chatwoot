@@ -22,7 +22,17 @@ module Whatsapp::Providers::Concerns::TemplateManagement
 
   private
 
+  # Meta's error body carries code, error_subcode and fbtrace_id — the only fields that
+  # separate "wrong id" from "no permission", and the only ones Meta support accepts.
+  # Every other Meta write path in the codebase logs them; this one used to drop them.
   def template_response(response)
+    unless response.success?
+      Rails.logger.error(
+        "[WHATSAPP] Template request failed for account #{whatsapp_channel.account_id} " \
+        "waba #{whatsapp_channel.provider_config['business_account_id']}: #{response.code} #{response.body}"
+      )
+    end
+
     { success: response.success?, body: response.parsed_response }
   end
 end
