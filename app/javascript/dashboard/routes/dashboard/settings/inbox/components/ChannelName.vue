@@ -32,6 +32,7 @@ const i18nMap = {
   'Channel::Telegram': 'TELEGRAM',
   'Channel::Line': 'LINE',
   'Channel::Api': 'API',
+  'Channel::Evolution': 'EVOLUTION',
   'Channel::Instagram': 'INSTAGRAM',
   'Channel::Tiktok': 'TIKTOK',
 };

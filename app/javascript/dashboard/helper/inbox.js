@@ -9,6 +9,7 @@ export const INBOX_TYPES = {
   TELEGRAM: 'Channel::Telegram',
   LINE: 'Channel::Line',
   SMS: 'Channel::Sms',
+  EVOLUTION: 'Channel::Evolution',
   INSTAGRAM: 'Channel::Instagram',
   TIKTOK: 'Channel::Tiktok',
 };
@@ -27,6 +28,7 @@ export const CHANNEL_TYPES = {
   OUTLOOK: 'outlook',
   SMS: 'sms',
   API: 'api',
+  EVOLUTION: 'evolution',
   VOICE: 'voice',
   EMAIL: 'email',
 };
@@ -85,6 +87,7 @@ const INBOX_ICON_MAP_FILL = {
   [INBOX_TYPES.TWITTER]: 'i-ri-twitter-x-fill',
   [INBOX_TYPES.WHATSAPP]: 'i-ri-whatsapp-fill',
   [INBOX_TYPES.API]: 'i-ri-cloudy-fill',
+  [INBOX_TYPES.EVOLUTION]: 'i-ri-whatsapp-fill',
   [INBOX_TYPES.EMAIL]: 'i-ri-mail-fill',
   [INBOX_TYPES.TELEGRAM]: 'i-ri-telegram-fill',
   [INBOX_TYPES.LINE]: 'i-ri-line-fill',
@@ -100,6 +103,7 @@ const INBOX_ICON_MAP_LINE = {
   [INBOX_TYPES.TWITTER]: 'i-woot-x',
   [INBOX_TYPES.WHATSAPP]: 'i-woot-whatsapp',
   [INBOX_TYPES.API]: 'i-woot-api',
+  [INBOX_TYPES.EVOLUTION]: 'i-woot-whatsapp',
   [INBOX_TYPES.EMAIL]: 'i-woot-mail',
   [INBOX_TYPES.TELEGRAM]: 'i-woot-telegram',
   [INBOX_TYPES.LINE]: 'i-woot-line',
@@ -145,6 +149,9 @@ export const getReadableInboxByType = (type, phoneNumber) => {
     case INBOX_TYPES.API:
       return 'api';
 
+    case INBOX_TYPES.EVOLUTION:
+      return 'whatsapp';
+
     case INBOX_TYPES.EMAIL:
       return 'email';
 
@@ -180,6 +187,9 @@ export const getInboxClassByType = (type, phoneNumber) => {
 
     case INBOX_TYPES.API:
       return 'cloud';
+
+    case INBOX_TYPES.EVOLUTION:
+      return 'brand-whatsapp';
 
     case INBOX_TYPES.EMAIL:
       return 'mail';

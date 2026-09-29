@@ -125,6 +125,14 @@ if resource.api?
   json.additional_attributes resource.channel.try(:additional_attributes)
 end
 
+## Evolution Channel Attributes
+if resource.evolution?
+  json.inbox_identifier resource.channel.try(:identifier)
+  json.webhook_url resource.channel.try(:webhook_url)
+  json.qr_code resource.channel.try(:qr_code)
+  json.additional_attributes resource.channel.try(:additional_attributes)
+end
+
 json.provider resource.channel.try(:provider)
 
 ## Telegram Attributes

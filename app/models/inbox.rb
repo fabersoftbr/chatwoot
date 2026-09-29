@@ -126,6 +126,10 @@ class Inbox < ApplicationRecord
     channel_type == 'Channel::FacebookPage'
   end
 
+  def evolution?
+    channel_type == 'Channel::Evolution'
+  end
+
   def instagram?
     (facebook? || instagram_direct?) && channel.instagram_id.present?
   end
@@ -275,10 +279,6 @@ class Inbox < ApplicationRecord
     invalidator = ::Conversations::UnreadCounts::FilteredCountInvalidator.new(account)
     invalidator.conversation_changed!
     invalidator.users_visibility_changed!(user_ids: @filtered_unread_count_user_ids)
-  end
-
-  def check_channel_type?
-    ['Channel::Email', 'Channel::Api', 'Channel::WebWidget'].include?(channel_type)
   end
 end
 

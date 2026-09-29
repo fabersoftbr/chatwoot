@@ -484,6 +484,10 @@
             "TITLE": "API",
             "DESCRIPTION": "Make a custom channel using our API"
           },
+          "EVOLUTION": {
+            "TITLE": "Evolution API",
+            "DESCRIPTION": "Connect a WhatsApp number through your own Evolution API server."
+          },
           "TELEGRAM": {
             "TITLE": "Telegram",
             "DESCRIPTION": "Configure Telegram channel using Bot token"
@@ -537,6 +541,20 @@
         "SIGN_IN": "Sign in with Google",
         "EMAIL_PLACEHOLDER": "Enter email address",
         "ERROR_MESSAGE": "There was an error connecting to Google, please try again"
+      },
+      "EVOLUTION_CHANNEL": {
+        "TITLE": "Evolution API",
+        "DESC": "Connect a WhatsApp number through your Evolution API server by scanning a QR code.",
+        "CHANNEL_NAME": {
+          "LABEL": "Inbox Name",
+          "PLACEHOLDER": "Please enter an inbox name",
+          "ERROR": "This field is required",
+          "SUBTITLE": "Evolution binds the instance to this name, so renaming the inbox later breaks the link."
+        },
+        "SUBMIT_BUTTON": "Create Evolution Channel",
+        "API": {
+          "ERROR_MESSAGE": "We were not able to create the Evolution instance"
+        }
       }
     },
     "DETAILS": {
@@ -982,7 +1000,12 @@
         "LABEL": "Enable voice calling",
         "DESCRIPTION": "Allow agents to start and receive WhatsApp voice calls on this inbox. Available only on embedded-signup WhatsApp Cloud channels with calling permission granted by Meta."
       },
-      "UPDATE_PRE_CHAT_FORM_SETTINGS": "Update Pre Chat Form Settings"
+      "UPDATE_PRE_CHAT_FORM_SETTINGS": "Update Pre Chat Form Settings",
+      "EVOLUTION_PAIRING": "Pair your WhatsApp",
+      "EVOLUTION_PAIRING_SUB_TEXT": "Open WhatsApp on the phone, go to Linked devices and scan this code. It expires in a few seconds — refresh it before scanning.",
+      "EVOLUTION_CONNECTION_STATE": "Connection state",
+      "EVOLUTION_REFRESH_QR": "Refresh QR code",
+      "EVOLUTION_QR_ERROR": "We were not able to reach the Evolution instance"
     },
     "HELP_CENTER": {
       "LABEL": "Help Center",
@@ -1347,7 +1370,8 @@
       "API": "API Channel",
       "INSTAGRAM": "Instagram",
       "TIKTOK": "TikTok",
-      "VOICE": "Voice"
+      "VOICE": "Voice",
+      "EVOLUTION": "Evolution API"
     }
   }
 }

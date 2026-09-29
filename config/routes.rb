@@ -310,6 +310,9 @@ Rails.application.routes.draw do
               post :analyze, on: :collection
             end
             resources :whatsapp_templates, only: [:create, :destroy], param: :name, module: :inboxes
+            resource :evolution, only: [], controller: 'inboxes/evolution' do
+              post :qr_code
+            end
           end
 
           resources :inbox_members, only: [:create, :show], param: :inbox_id do
