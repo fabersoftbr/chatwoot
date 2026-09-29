@@ -207,17 +207,13 @@ class Api::V1::Accounts::InboxesController < Api::V1::Accounts::BaseController
     params.permit(*inbox_attributes, channel: [:type, *channel_attributes])
   end
 
+  # Every channel type the dashboard sends is its class in snake_case, so the
+  # allowlist above is what keeps this constantize away from arbitrary input.
   def channel_type_from_params
-    {
-      'web_widget' => Channel::WebWidget,
-      'api' => Channel::Api,
-      'email' => Channel::Email,
-      'line' => Channel::Line,
-      'telegram' => Channel::Telegram,
-      'whatsapp' => Channel::Whatsapp,
-      'sms' => Channel::Sms,
-      'evolution' => Channel::Evolution
-    }[permitted_params[:channel][:type]]
+    type = permitted_params[:channel][:type]
+    return unless allowed_channel_types.include?(type)
+
+    "Channel::#{type.camelize}".constantize
   end
 
   def get_channel_attributes(channel_type)
