@@ -280,10 +280,6 @@ class Inbox < ApplicationRecord
     invalidator.conversation_changed!
     invalidator.users_visibility_changed!(user_ids: @filtered_unread_count_user_ids)
   end
-
-  def check_channel_type?
-    ['Channel::Email', 'Channel::Api', 'Channel::WebWidget'].include?(channel_type)
-  end
 end
 
 Inbox.prepend_mod_with('Inbox')

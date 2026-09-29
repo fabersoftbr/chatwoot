@@ -297,7 +297,6 @@ Rails.application.routes.draw do
             get :health, on: :member
             post :register_webhook, on: :member
             post :reset_secret, on: :member
-            post :evolution_qr_code, on: :member
             if ChatwootApp.enterprise?
               resource :conference, only: %i[create destroy], controller: 'conference' do
                 get :token, on: :member
@@ -311,6 +310,9 @@ Rails.application.routes.draw do
               post :analyze, on: :collection
             end
             resources :whatsapp_templates, only: [:create, :destroy], param: :name, module: :inboxes
+            resource :evolution, only: [], controller: 'inboxes/evolution' do
+              post :qr_code
+            end
           end
 
           resources :inbox_members, only: [:create, :show], param: :inbox_id do

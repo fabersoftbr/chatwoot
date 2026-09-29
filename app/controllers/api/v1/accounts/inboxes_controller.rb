@@ -82,17 +82,6 @@ class Api::V1::Accounts::InboxesController < Api::V1::Accounts::BaseController
     @inbox.channel.reset_secret!
   end
 
-  # Evolution's QR code lives for seconds, so the pairing screen asks for a new
-  # one instead of showing whatever was stored at creation time.
-  def evolution_qr_code
-    return head :not_found unless @inbox.evolution?
-
-    @inbox.channel.refresh_qr_code!
-    render json: { qr_code: @inbox.channel.qr_code, connection_state: @inbox.channel.connection_state }
-  rescue Evolution::Api::Error => e
-    render json: { error: e.message }, status: :unprocessable_entity
-  end
-
   def destroy
     ::DeleteObjectJob.perform_later(@inbox, Current.user, request.ip) if @inbox.present?
     render status: :ok, json: { message: I18n.t('messages.inbox_deletetion_response') }

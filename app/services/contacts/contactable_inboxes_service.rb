@@ -1,6 +1,16 @@
 class Contacts::ContactableInboxesService
   pattr_initialize [:contact!]
 
+  CONTACTABLE_INBOX_BUILDERS = {
+    'Channel::TwilioSms' => :twilio_contactable_inbox,
+    'Channel::Whatsapp' => :whatsapp_contactable_inbox,
+    'Channel::Sms' => :sms_contactable_inbox,
+    'Channel::Email' => :email_contactable_inbox,
+    'Channel::Api' => :api_contactable_inbox,
+    'Channel::Evolution' => :evolution_contactable_inbox,
+    'Channel::WebWidget' => :website_contactable_inbox
+  }.freeze
+
   def get
     account = contact.account
     account.inboxes.filter_map { |inbox| get_contactable_inbox(inbox) }
@@ -9,22 +19,8 @@ class Contacts::ContactableInboxesService
   private
 
   def get_contactable_inbox(inbox)
-    case inbox.channel_type
-    when 'Channel::TwilioSms'
-      twilio_contactable_inbox(inbox)
-    when 'Channel::Whatsapp'
-      whatsapp_contactable_inbox(inbox)
-    when 'Channel::Sms'
-      sms_contactable_inbox(inbox)
-    when 'Channel::Email'
-      email_contactable_inbox(inbox)
-    when 'Channel::Api'
-      api_contactable_inbox(inbox)
-    when 'Channel::Evolution'
-      evolution_contactable_inbox(inbox)
-    when 'Channel::WebWidget'
-      website_contactable_inbox(inbox)
-    end
+    builder = CONTACTABLE_INBOX_BUILDERS[inbox.channel_type]
+    send(builder, inbox) if builder
   end
 
   def website_contactable_inbox(inbox)
