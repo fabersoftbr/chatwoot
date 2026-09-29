@@ -12,8 +12,8 @@ class Evolution::Api
   def call
     response = HTTParty.send(
       @method,
-      "#{ENV.fetch('EVOLUTION_API_URL')}/#{@path}",
-      headers: { 'Content-Type' => 'application/json', 'apikey' => ENV.fetch('EVOLUTION_API_KEY') },
+      "#{ENV.fetch('EVO_URL')}/#{@path}",
+      headers: { 'Content-Type' => 'application/json', 'apikey' => ENV.fetch('EVO_APIKEY') },
       body: @payload.to_json,
       timeout: 15
     )
