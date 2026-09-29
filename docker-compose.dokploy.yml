@@ -81,8 +81,8 @@ x-app-env: &app-env
   SMTP_SSL: ${SMTP_SSL:-true}
   SMTP_ENABLE_STARTTLS_AUTO: ${SMTP_ENABLE_STARTTLS_AUTO:-false}
   # --- Evolution API (canal WhatsApp via QR code) ---
-  EVOLUTION_API_URL: ${EVOLUTION_API_URL:-}
-  EVOLUTION_API_KEY: ${EVOLUTION_API_KEY:-}
+  EVO_URL: ${EVO_URL:-}
+  EVO_APIKEY: ${EVO_APIKEY:-}
 
 services:
   rails:

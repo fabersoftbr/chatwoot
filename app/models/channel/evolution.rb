@@ -60,7 +60,7 @@ class Channel::Evolution < ApplicationRecord
     response = Evolution::Api.new('instance/create', instance_payload).call
     self.instance_id = response.dig('instance', 'instanceId')
     self.qr_code = response.dig('qrcode', 'base64')
-    self.webhook_url = "#{ENV.fetch('EVOLUTION_API_URL')}/chatwoot/webhook/#{identifier}"
+    self.webhook_url = "#{ENV.fetch('EVO_URL')}/chatwoot/webhook/#{identifier}"
   end
 
   def instance_payload
