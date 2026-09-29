@@ -122,11 +122,7 @@ export default {
       default: false,
     },
   },
-  emits: [
-    'toggleInsertArticle',
-    'selectContentTemplate',
-    'toggleQuotedReply',
-  ],
+  emits: ['toggleInsertArticle', 'selectContentTemplate', 'toggleQuotedReply'],
   setup(props) {
     const { setSignatureFlagForInbox, fetchSignatureFlagFromUISettings } =
       useUISettings();
