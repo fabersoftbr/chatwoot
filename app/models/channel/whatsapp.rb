@@ -137,8 +137,13 @@ class Channel::Whatsapp < ApplicationRecord
     provider_config['webhook_verify_token'] ||= SecureRandom.hex(16) if provider == 'whatsapp_cloud'
   end
 
+  # One service instance on purpose: provider_service builds a new one per call, and the
+  # reason for the failure lives on the instance that ran the check.
   def validate_provider_config
-    errors.add(:provider_config, 'Invalid Credentials') unless provider_service.validate_provider_config?
+    service = provider_service
+    return if service.validate_provider_config?
+
+    errors.add(:provider_config, service.config_validation_error || 'Invalid Credentials')
   end
 
   # Logs only the embedded signup → manual migration (the save drops the

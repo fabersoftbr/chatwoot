@@ -16,6 +16,7 @@ import { required } from '@vuelidate/validators';
 import NextButton from 'dashboard/components-next/button/Button.vue';
 import TextArea from 'next/textarea/TextArea.vue';
 import { sanitizeAllowedDomains } from 'dashboard/helper/URLHelper';
+import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 
 export default {
   components: {
@@ -220,8 +221,11 @@ export default {
           this.$t('INBOX_MGMT.SETTINGS_POPUP.WHATSAPP_RECONFIGURE_SUCCESS')
         );
       } catch (error) {
+        // Meta's own words name which credential it refused; the generic copy
+        // leaves an admin rotating a token with nothing to go on.
         useAlert(
-          this.$t('INBOX_MGMT.SETTINGS_POPUP.WHATSAPP_RECONFIGURE_ERROR')
+          parseAPIErrorResponse(error) ||
+            this.$t('INBOX_MGMT.SETTINGS_POPUP.WHATSAPP_RECONFIGURE_ERROR')
         );
       } finally {
         this.isReconfiguring = false;

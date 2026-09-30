@@ -17,6 +17,7 @@ import MicrosoftReauthorize from './channels/microsoft/Reauthorize.vue';
 import GoogleReauthorize from './channels/google/Reauthorize.vue';
 import WhatsappReauthorize from './channels/whatsapp/Reauthorize.vue';
 import InboxHealthAPI from 'dashboard/api/inboxHealth';
+import { parseAPIErrorResponse } from 'dashboard/store/utils/api';
 import PreChatFormSettings from './PreChatForm/Settings.vue';
 import WeeklyAvailability from './components/WeeklyAvailability.vue';
 import GreetingsEditor from 'shared/components/GreetingsEditor.vue';
@@ -500,8 +501,10 @@ export default {
         );
         this.$refs.whatsappManualMigrationDialog?.close();
       } catch (error) {
+        // Meta names the credential it refused; the generic copy hides it.
         useAlert(
-          this.$t('INBOX_MGMT.SETTINGS_POPUP.WHATSAPP_MANUAL_TRANSFER_ERROR')
+          parseAPIErrorResponse(error) ||
+            this.$t('INBOX_MGMT.SETTINGS_POPUP.WHATSAPP_MANUAL_TRANSFER_ERROR')
         );
       } finally {
         this.isTransferringWhatsAppToManual = false;
