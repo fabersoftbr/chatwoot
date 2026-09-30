@@ -105,8 +105,13 @@ class Messages::MessageBuilder
     email_string.gsub(/\s+/, '').split(',')
   end
 
+  # Evolution reaches Chatwoot the same way an Api inbox does — its own integration posts inbound
+  # messages to this API — so it belongs on the same list the outgoing side already widened
+  # (WebhookListener#deliver_api_inbox_webhooks).
+  INBOUND_CAPABLE_CHANNELS = ['Channel::Api', 'Channel::Evolution'].freeze
+
   def message_type
-    if @conversation.inbox.channel_type != 'Channel::Api' && @message_type == 'incoming'
+    if INBOUND_CAPABLE_CHANNELS.exclude?(@conversation.inbox.channel_type) && @message_type == 'incoming'
       raise StandardError, 'Incoming messages are only allowed in Api inboxes'
     end
 

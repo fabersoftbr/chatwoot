@@ -10,6 +10,8 @@ module Limits
   COMPANY_DESCRIPTION_LENGTH_LIMIT = 1000
   MAX_CUSTOM_FILTERS_PER_USER = 1000
   MESSAGE_SEARCH_TIME_RANGE_LIMIT_DAYS = 90
+  # ponytail: global ceiling per five-minute tick; make it per-inbox if a Meta messaging tier bites.
+  CADENCE_STEPS_PER_TICK = 100
 
   def self.conversation_message_per_minute_limit
     ENV.fetch('CONVERSATION_MESSAGE_PER_MINUTE_LIMIT', '200').to_i

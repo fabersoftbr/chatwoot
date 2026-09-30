@@ -19,6 +19,9 @@ class TriggerScheduledItemsJob < ApplicationJob
 
     # Job to sync whatsapp templates
     Channels::Whatsapp::TemplatesSyncSchedulerJob.perform_later
+
+    # Job to enroll cadence audiences and deliver the steps that came due
+    Cadences::DispatchDueEnrollmentsJob.perform_later
   end
 end
 
