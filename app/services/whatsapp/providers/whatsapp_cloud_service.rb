@@ -66,7 +66,7 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
   def validate_provider_config?
     config = whatsapp_channel.provider_config
     response = HTTParty.get("#{business_account_path}/message_templates?access_token=#{config['api_key']}")
-    return log_transfer_failure('waba_or_token_check', response) unless response.success?
+    return log_config_failure('waba_or_token_check', response) unless response.success?
     # The templates check only proves the WABA/token pair, so verify the phone_number_id belongs to this WABA when it changes.
     return true unless whatsapp_channel.provider_config_changed?
 
@@ -74,7 +74,7 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
     ids = phone_response.parsed_response.is_a?(Hash) ? Array(phone_response.parsed_response['data']) : []
     return true if phone_response.success? && ids.any? { |number| number['id'] == config['phone_number_id'].to_s }
 
-    log_transfer_failure('phone_number_id_check', phone_response)
+    log_config_failure('phone_number_id_check', phone_response)
   end
 
   def api_headers
@@ -98,13 +98,15 @@ class Whatsapp::Providers::WhatsappCloudService < Whatsapp::Providers::BaseServi
 
   private
 
-  # Only saves dropping the embedded_signup source marker are transfer attempts; creation/rotation failures are setup errors. Returns false.
-  def log_transfer_failure(check, response)
-    return false unless whatsapp_channel.embedded_to_manual_transfer_pending?
-
-    error_message = response.parsed_response.is_a?(Hash) ? response.parsed_response.dig('error', 'message') : nil
-    Rails.logger.warn("[WHATSAPP_EMBEDDED_TO_MANUAL] failure account_id=#{whatsapp_channel.account_id} channel_id=#{whatsapp_channel.id} " \
-                      "check=#{check} http_status=#{response.code} meta_error=#{error_message}")
+  # Every failed check is logged, not just the embedded signup → manual transfers: a refused
+  # token rotation is exactly when an operator needs the status code and the fbtrace_id, and the
+  # raw body is where Meta puts them. Transfers keep their own tag so that audit trail stays
+  # greppable. Records the reason for the model to show, and returns false.
+  def log_config_failure(check, response)
+    @config_validation_error = "#{check} failed (HTTP #{response.code}): #{error_message(response) || response.body}"
+    tag = whatsapp_channel.embedded_to_manual_transfer_pending? ? 'WHATSAPP_EMBEDDED_TO_MANUAL' : 'WHATSAPP'
+    Rails.logger.warn("[#{tag}] provider config check failed account_id=#{whatsapp_channel.account_id} " \
+                      "channel_id=#{whatsapp_channel.id} check=#{check} http_status=#{response.code} body=#{response.body}")
     false
   end
 

@@ -11,6 +11,11 @@
 class Whatsapp::Providers::BaseService
   pattr_initialize [:whatsapp_channel!]
 
+  # Why the provider's last config check failed, set by child classes when
+  # validate_provider_config? returns false. Nil until then, and for providers
+  # that don't fill it in.
+  attr_reader :config_validation_error
+
   def send_message(_phone_number, _message)
     raise 'Overwrite this method in child class'
   end

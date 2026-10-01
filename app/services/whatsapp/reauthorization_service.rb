@@ -19,6 +19,10 @@ class Whatsapp::ReauthorizationService
     update_channel_config(channel, access_token, phone_info)
     # Mark as reauthorized
     channel.reauthorized! if channel.respond_to?(:reauthorized!)
+    # The stored list is whatever the old token last managed to read. Refresh it with the new
+    # one instead of leaving a stale list up until the next scheduled sync. Enqueued rather
+    # than inline so a hiccup talking to Meta can't fail a reauthorization that already saved.
+    Channels::Whatsapp::TemplatesSyncJob.perform_later(channel)
 
     channel
   end
