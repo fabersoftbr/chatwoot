@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_09_29_120000) do
+ActiveRecord::Schema[7.1].define(version: 2026_09_30_120000) do
   # These extensions should be enabled to support this database
   enable_extension "pg_stat_statements"
   enable_extension "pg_trgm"
@@ -288,6 +288,36 @@ ActiveRecord::Schema[7.1].define(version: 2026_09_29_120000) do
     t.datetime "updated_at", null: false
     t.boolean "active", default: true, null: false
     t.index ["account_id"], name: "index_automation_rules_on_account_id"
+  end
+
+  create_table "cadence_enrollments", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "cadence_id", null: false
+    t.bigint "contact_id", null: false
+    t.bigint "conversation_id"
+    t.integer "step_index", default: 0, null: false
+    t.integer "status", default: 0, null: false
+    t.datetime "deliver_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["cadence_id", "contact_id"], name: "index_cadence_enrollments_on_cadence_id_and_contact_id", unique: true
+    t.index ["conversation_id"], name: "index_cadence_enrollments_on_conversation_id"
+    t.index ["status", "deliver_at"], name: "index_cadence_enrollments_on_status_and_deliver_at"
+  end
+
+  create_table "cadences", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.bigint "inbox_id", null: false
+    t.bigint "sender_id"
+    t.bigint "deal_stage_id"
+    t.string "title", null: false
+    t.boolean "enabled", default: true, null: false
+    t.jsonb "audience", default: [], null: false
+    t.jsonb "steps", default: [], null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_cadences_on_account_id"
+    t.index ["deal_stage_id"], name: "index_cadences_on_deal_stage_id"
   end
 
   create_table "calls", force: :cascade do |t|

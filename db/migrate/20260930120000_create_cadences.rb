@@ -1,5 +1,13 @@
 class CreateCadences < ActiveRecord::Migration[7.1]
   def change
+    create_cadences
+    create_cadence_enrollments
+    add_cadence_indexes
+  end
+
+  private
+
+  def create_cadences
     create_table :cadences do |t|
       t.bigint :account_id, null: false
       t.bigint :inbox_id, null: false
@@ -12,7 +20,9 @@ class CreateCadences < ActiveRecord::Migration[7.1]
 
       t.timestamps
     end
+  end
 
+  def create_cadence_enrollments
     create_table :cadence_enrollments do |t|
       t.bigint :account_id, null: false
       t.bigint :cadence_id, null: false
@@ -24,11 +34,7 @@ class CreateCadences < ActiveRecord::Migration[7.1]
 
       t.timestamps
     end
-
-    add_cadence_indexes
   end
-
-  private
 
   def add_cadence_indexes
     add_index :cadences, :account_id

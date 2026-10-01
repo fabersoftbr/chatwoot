@@ -14,10 +14,10 @@ class CadenceEnrollment < ApplicationRecord
   # only on a non-nil return, so a second worker on the same record walks away empty-handed.
   def claim_next_step!
     with_lock do
-      return unless active? && deliver_at <= Time.current
+      next unless active? && deliver_at <= Time.current
 
       step = cadence.steps[step_index]
-      return if step.blank?
+      next if step.blank?
 
       advance!
       step
@@ -27,7 +27,7 @@ class CadenceEnrollment < ApplicationRecord
   def replied?
     return false if conversation.blank?
 
-    conversation.messages.incoming.where('messages.created_at > ?', created_at).exists?
+    conversation.messages.incoming.exists?(['messages.created_at > ?', created_at])
   end
 
   private
