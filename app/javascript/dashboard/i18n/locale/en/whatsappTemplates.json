@@ -20,11 +20,21 @@
       "CATEGORY": "Category",
       "BODY": "Body",
       "BODY_PLACEHOLDER": "Hi {'{{'}1{'}}'}, your order {'{{'}2{'}}'} has shipped.",
-      "BODY_HINT": "Use {'{{'}1{'}}'}, {'{{'}2{'}}'} for variables. Each one needs an example.",
+      "BODY_HINT": "Click a variable below to fill it from the contact automatically, or use {'{{'}1{'}}'}, {'{{'}2{'}}'} for values typed when sending. Each one needs an example.",
       "EXAMPLE_LABEL": "Example for {'{{'}{index}{'}}'}",
       "SUBMIT": "Create template",
       "CANCEL": "Cancel",
-      "PENDING_NOTICE": "Meta usually reviews templates within minutes, but it can take up to 24 hours."
+      "PENDING_NOTICE": "Meta usually reviews templates within minutes, but it can take up to 24 hours.",
+      "INSERT_VARIABLE": "Insert variable",
+      "NAMED_EXAMPLE_LABEL": "Example for {'{{'}{name}{'}}'} ({label})",
+      "MIXED_VARIABLES": "A template cannot mix {'{{'}1{'}}'} variables with contact variables. Pick one style.",
+      "VARIABLES": {
+        "CONTACT_NAME": "Contact name",
+        "CONTACT_FIRST_NAME": "First name",
+        "CONTACT_PHONE_NUMBER": "Phone",
+        "CONTACT_EMAIL": "Email",
+        "AGENT_NAME": "Agent name"
+      }
     },
     "DELETE": {
       "BUTTON": "Delete",

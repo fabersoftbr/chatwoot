@@ -34,8 +34,14 @@ class Cadences::SendStepService
 
   def message_params
     params = { content: rendered_content, message_type: 'outgoing' }
-    params[:template_params] = step['template_params'] if cadence.whatsapp_cloud?
+    params[:template_params] = template_params if cadence.whatsapp_cloud?
     params
+  end
+
+  # Personalising per contact is the whole point of a cadence: the step stores the variable names,
+  # and each send fills them from the contact it is going to.
+  def template_params
+    Whatsapp::TemplateVariables.fill(step['template_params'], contact: contact, sender: cadence.sender)
   end
 
   # What lands in the conversation bubble. On Cloud the wire payload is the approved template, so

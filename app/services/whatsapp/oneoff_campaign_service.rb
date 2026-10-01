@@ -73,8 +73,11 @@ class Whatsapp::OneoffCampaignService
   end
 
   def process_liquid_template_params(contact)
+    # Contact variables are per recipient, so they are filled here rather than carrying whatever
+    # the campaign form happened to show when it was saved.
+    template_params = Whatsapp::TemplateVariables.fill(campaign.template_params, contact: contact, sender: campaign.sender)
     liquid_processor = Whatsapp::LiquidTemplateProcessorService.new(campaign: campaign, contact: contact)
-    processed_template_params = liquid_processor.process_template_params(campaign.template_params)
+    processed_template_params = liquid_processor.process_template_params(template_params)
 
     Rails.logger.info "Skipping contact #{contact.name} - liquid variables resolved to blank values" if processed_template_params.nil?
 
