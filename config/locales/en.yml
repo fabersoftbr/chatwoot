@@ -89,6 +89,12 @@ en:
       failed: 'Template request failed.'
       write_permission: 'The WhatsApp Business Account is reachable, so the access token can read it but cannot create templates on it. In Meta Business Settings, give the system user Full control of this WhatsApp account, then generate a new token and save it on this inbox.'
       unreachable_waba: 'The WhatsApp Business Account is no longer reachable with the saved credentials. Reauthorize the inbox, or update its WhatsApp Business Account ID and API key.'
+    cadences:
+      unsupported_inbox: 'Cadences only run on WhatsApp Cloud and Evolution inboxes.'
+      no_steps: 'Add at least one step.'
+      template_required: 'Step %{position} needs an approved template. A WhatsApp Cloud cadence always sends outside the 24 hour window, where free text is rejected.'
+      content_required: 'Step %{position} needs a message.'
+      steps_locked: 'This cadence already has contacts running through it. Duplicate it to change the steps.'
     deal_stages:
       has_deals: 'This stage still has deals. Move them to another stage first.'
       last_closing_stage: 'Every pipeline needs a won stage and a lost stage. Create another one before deleting this.'
