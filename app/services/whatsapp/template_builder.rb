@@ -30,10 +30,17 @@ class Whatsapp::TemplateBuilder
     validate_body!
     validate_variables!
 
-    { name: @name, language: @language, category: @category, components: [body_component] }
+    payload = { name: @name, language: @language, category: @category, components: [body_component] }
+    payload[:parameter_format] = 'NAMED' if named_variables.any?
+    payload
   end
 
   private
+
+  # Contact fields written straight into the body, e.g. "Olá {{contact_first_name}}".
+  def named_variables
+    @named_variables ||= Whatsapp::TemplateVariables.extract(@body)
+  end
 
   # Ordered, de-duplicated variable indexes: "{{1}} e {{1}} e {{2}}" -> [1, 2]
   def variable_indexes
@@ -63,6 +70,8 @@ class Whatsapp::TemplateBuilder
   end
 
   def validate_variables!
+    validate_named_variables!
+    return if named_variables.any?
     return if variable_indexes.empty? && @examples.empty?
 
     # Meta requires {{1}}..{{n}} with no gaps; a hole makes the template unusable.
@@ -79,9 +88,37 @@ class Whatsapp::TemplateBuilder
     raise InvalidTemplateError, 'Every variable needs a non-blank example value'
   end
 
+  # Meta rejects a body that mixes the two styles, and an unknown name would register a parameter
+  # nothing can ever fill, so both are refused here rather than in Meta's review queue.
+  def validate_named_variables!
+    return if named_variables.empty?
+
+    unsupported = Whatsapp::TemplateVariables.unsupported(named_variables)
+    if unsupported.any?
+      raise InvalidTemplateError,
+            "Unknown template variable(s): #{unsupported.join(', ')}. Available: #{Whatsapp::TemplateVariables.supported.join(', ')}"
+    end
+
+    raise InvalidTemplateError, 'A template cannot mix {{1}} variables with contact variables' if variable_indexes.any?
+
+    if @examples.length != named_variables.length
+      raise InvalidTemplateError, "Expected #{named_variables.length} example value(s), got #{@examples.length}"
+    end
+
+    return if @examples.none? { |example| example.strip.blank? }
+
+    raise InvalidTemplateError, 'Every variable needs a non-blank example value'
+  end
+
   def body_component
     component = { type: 'BODY', text: @body }
-    component[:example] = { body_text: [@examples] } if variable_indexes.any?
+    component[:example] = example_component if variable_indexes.any? || named_variables.any?
     component
+  end
+
+  def example_component
+    return { body_text: [@examples] } if named_variables.empty?
+
+    { body_text_named_params: named_variables.each_with_index.map { |name, index| { param_name: name, example: @examples[index] } } }
   end
 end
