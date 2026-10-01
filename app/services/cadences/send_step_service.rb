@@ -7,6 +7,9 @@ class Cadences::SendStepService
 
   def perform
     return if contact.phone_number.blank?
+    # A variable that resolves to nothing would send "Olá ," so skip this contact for this step,
+    # the same call campaigns make.
+    return if cadence.whatsapp_cloud? && template_params.blank?
 
     conversation = enrollment.conversation || create_conversation
     enrollment.update!(conversation: conversation) if enrollment.conversation.blank?
@@ -34,8 +37,19 @@ class Cadences::SendStepService
 
   def message_params
     params = { content: rendered_content, message_type: 'outgoing' }
-    params[:template_params] = step['template_params'] if cadence.whatsapp_cloud?
+    params[:template_params] = template_params if cadence.whatsapp_cloud?
     params
+  end
+
+  # The step stores what the author typed, so a variable may hold Liquid like {{contact.name}}.
+  # Resolving it here is what makes a cadence personal; nil means something rendered blank.
+  # Memoized because perform checks it before building the message.
+  def template_params
+    return @template_params if defined?(@template_params)
+
+    @template_params = Whatsapp::LiquidTemplateProcessorService
+                       .new(campaign: cadence, contact: contact)
+                       .process_template_params(step['template_params'])
   end
 
   # What lands in the conversation bubble. On Cloud the wire payload is the approved template, so
