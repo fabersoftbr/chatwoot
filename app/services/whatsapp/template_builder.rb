@@ -72,6 +72,11 @@ class Whatsapp::TemplateBuilder
   def validate_variables!
     validate_named_variables!
     return if named_variables.any?
+
+    validate_positional_variables!
+  end
+
+  def validate_positional_variables!
     return if variable_indexes.empty? && @examples.empty?
 
     # Meta requires {{1}}..{{n}} with no gaps; a hole makes the template unusable.
@@ -79,10 +84,11 @@ class Whatsapp::TemplateBuilder
       raise InvalidTemplateError, 'Template variables must form the sequence {{1}}, {{2}}, ... with no gaps'
     end
 
-    if @examples.length != variable_indexes.length
-      raise InvalidTemplateError, "Expected #{variable_indexes.length} example value(s), got #{@examples.length}"
-    end
+    validate_examples!(variable_indexes.length)
+  end
 
+  def validate_examples!(expected)
+    raise InvalidTemplateError, "Expected #{expected} example value(s), got #{@examples.length}" if @examples.length != expected
     return if @examples.none? { |example| example.strip.blank? }
 
     raise InvalidTemplateError, 'Every variable needs a non-blank example value'
@@ -101,13 +107,7 @@ class Whatsapp::TemplateBuilder
 
     raise InvalidTemplateError, 'A template cannot mix {{1}} variables with contact variables' if variable_indexes.any?
 
-    if @examples.length != named_variables.length
-      raise InvalidTemplateError, "Expected #{named_variables.length} example value(s), got #{@examples.length}"
-    end
-
-    return if @examples.none? { |example| example.strip.blank? }
-
-    raise InvalidTemplateError, 'Every variable needs a non-blank example value'
+    validate_examples!(named_variables.length)
   end
 
   def body_component
