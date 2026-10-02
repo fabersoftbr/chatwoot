@@ -85,8 +85,14 @@ RSpec.describe 'WhatsApp Templates API', type: :request do
 
       # Meta returns one sentence for three different causes; the read check is what
       # tells the user whether the WABA is reachable at all.
+      let(:access_denied_body) do
+        { 'error' => { 'message' => "Unsupported post request. Object with ID '123' does not exist, cannot be loaded " \
+                                    'due to missing permissions, or does not support this operation.',
+                       'code' => 100, 'error_subcode' => 33 } }
+      end
+
       it 'blames the token write permission when the WABA still reads' do
-        allow(whatsapp_provider_service).to receive(:create_template).and_return({ success: false, body: {} })
+        allow(whatsapp_provider_service).to receive(:create_template).and_return({ success: false, body: access_denied_body })
         allow(whatsapp_provider_service).to receive(:validate_provider_config?).and_return(true)
 
         post "/api/v1/accounts/#{account.id}/inboxes/#{inbox.id}/whatsapp_templates",
@@ -96,13 +102,28 @@ RSpec.describe 'WhatsApp Templates API', type: :request do
       end
 
       it 'blames the credentials when the WABA no longer reads' do
-        allow(whatsapp_provider_service).to receive(:create_template).and_return({ success: false, body: {} })
+        allow(whatsapp_provider_service).to receive(:create_template).and_return({ success: false, body: access_denied_body })
         allow(whatsapp_provider_service).to receive(:validate_provider_config?).and_return(false)
 
         post "/api/v1/accounts/#{account.id}/inboxes/#{inbox.id}/whatsapp_templates",
              params: valid_params, headers: administrator.create_new_auth_token
 
         expect(response.parsed_body['error']).to include('no longer reachable')
+      end
+
+      # "Invalid parameter" is Meta rejecting the payload, not the token. Telling the user to go
+      # hand out Full control in Business Manager would send them to fix something that works.
+      it 'does not add an access hint when Meta rejected the payload' do
+        allow(whatsapp_provider_service).to receive(:create_template).and_return(
+          { success: false, body: { 'error' => { 'message' => 'Invalid parameter', 'code' => 100 } } }
+        )
+        allow(whatsapp_provider_service).to receive(:validate_provider_config?).and_return(true)
+
+        post "/api/v1/accounts/#{account.id}/inboxes/#{inbox.id}/whatsapp_templates",
+             params: valid_params, headers: administrator.create_new_auth_token
+
+        expect(response.parsed_body['error']).to eq('Invalid parameter')
+        expect(whatsapp_provider_service).not_to have_received(:validate_provider_config?)
       end
 
       # The hint is a bonus on an already-failing path; losing it must not cost the user
