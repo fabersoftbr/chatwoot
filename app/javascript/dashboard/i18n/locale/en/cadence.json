@@ -13,7 +13,9 @@
       "OFF": "Paused",
       "PAUSE": "Pause",
       "RESUME": "Resume",
-      "DELETE": "Delete"
+      "DELETE": "Delete",
+      "SHOW_CONTACTS": "Contacts",
+      "HIDE_CONTACTS": "Hide"
     },
     "FORM": {
       "TITLE": {
@@ -78,6 +80,17 @@
       "CREATE_SUCCESS": "Cadence created.",
       "DELETE_SUCCESS": "Cadence deleted.",
       "ERROR": "Something went wrong. Please try again."
+    },
+    "ENROLLMENTS": {
+      "EMPTY": "Nobody is running through this cadence yet.",
+      "POSITION": "step {step} · {status}",
+      "STOP": "Stop",
+      "STATUS": {
+        "ACTIVE": "running",
+        "COMPLETED": "finished",
+        "STOPPED_REPLIED": "replied",
+        "STOPPED_MANUALLY": "stopped"
+      }
     }
   }
 }

@@ -16,6 +16,9 @@ class Deal < ApplicationRecord
   before_validation :ensure_account_id
   before_validation :append_to_stage, on: :create
   before_save :sync_closed_at
+  # Covers creation and every move: a deal created straight into the stage counts too, and both
+  # writers land here — PATCH /deals/:id/move and the plain PATCH that permits deal_stage_id.
+  after_save_commit :enroll_in_stage_cadence, if: :saved_change_to_deal_stage_id?
 
   scope :open_deals, -> { joins(:deal_stage).where(deal_stages: { stage_type: DealStage.stage_types[:open] }) }
   scope :overdue, -> { open_deals.where(next_action_at: ...Time.current) }
@@ -55,6 +58,10 @@ class Deal < ApplicationRecord
   end
 
   private
+
+  def enroll_in_stage_cadence
+    Cadences::EnrollDealContactJob.perform_later(self)
+  end
 
   def ensure_account_id
     self.account_id ||= contact&.account_id

@@ -11,21 +11,7 @@ class Cadences::EnrollAudienceJob < ApplicationJob
     return if titles.blank?
 
     cadence.account.contacts.tagged_with(titles, any: true).where.not(phone_number: [nil, '']).find_each do |contact|
-      enroll(cadence, contact)
+      CadenceEnrollment.enroll(cadence, contact)
     end
-  end
-
-  private
-
-  def enroll(cadence, contact)
-    now = Time.current
-    cadence.cadence_enrollments.create!(
-      account_id: cadence.account_id,
-      contact: contact,
-      deliver_at: cadence.deliver_at_for(0, from: now)
-    )
-  rescue ActiveRecord::RecordNotUnique
-    # Already enrolled, including contacts that finished or replied — they never come back.
-    nil
   end
 end

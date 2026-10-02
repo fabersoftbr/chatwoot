@@ -10,6 +10,22 @@ class CadenceEnrollment < ApplicationRecord
 
   scope :due, -> { active.where(deliver_at: ..Time.current) }
 
+  # Idempotent through the unique index rather than a lookup, so two callers racing on the same
+  # contact cannot produce two enrolments. Returns nil when the contact is already in, finished,
+  # or has nowhere to be reached.
+  def self.enroll(cadence, contact)
+    return if contact.phone_number.blank?
+
+    create!(
+      account_id: cadence.account_id,
+      cadence: cadence,
+      contact: contact,
+      deliver_at: cadence.deliver_at_for(0, from: Time.current)
+    )
+  rescue ActiveRecord::RecordNotUnique
+    nil
+  end
+
   # Returns the step that was claimed, or nil when there is nothing left to send. The caller sends
   # only on a non-nil return, so a second worker on the same record walks away empty-handed.
   def claim_next_step!

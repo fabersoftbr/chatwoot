@@ -149,7 +149,9 @@ Rails.application.routes.draw do
               resources :inbox_limits, only: [:create, :update, :destroy]
             end
           end
-          resources :cadences, only: [:index, :create, :show, :update, :destroy]
+          resources :cadences, only: [:index, :create, :show, :update, :destroy] do
+            resources :enrollments, only: [:index, :update], module: :cadences
+          end
           resources :campaigns, only: [:index, :create, :show, :update, :destroy]
           resources :dashboard_apps, only: [:index, :show, :create, :update, :destroy]
           namespace :channels do
