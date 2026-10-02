@@ -19,7 +19,9 @@ const stepCount = computed(() => props.cadence.steps?.length ?? 0);
 </script>
 
 <template>
-  <div class="flex items-center justify-between gap-4 p-4 border rounded-lg border-n-weak">
+  <div
+    class="flex items-center justify-between gap-4 p-4 border rounded-lg border-n-weak"
+  >
     <div class="flex flex-col gap-1 min-w-0">
       <span class="text-sm font-medium truncate text-n-slate-12">
         {{ cadence.title }}
@@ -46,7 +48,9 @@ const stepCount = computed(() => props.cadence.steps?.length ?? 0);
         slate
         xs
         type="button"
-        :label="cadence.enabled ? t('CADENCE.CARD.PAUSE') : t('CADENCE.CARD.RESUME')"
+        :label="
+          cadence.enabled ? t('CADENCE.CARD.PAUSE') : t('CADENCE.CARD.RESUME')
+        "
         @click="emit('toggle', cadence)"
       />
       <Button
