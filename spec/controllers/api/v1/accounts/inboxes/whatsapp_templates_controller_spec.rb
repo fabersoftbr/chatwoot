@@ -36,6 +36,14 @@ RSpec.describe 'WhatsApp Templates API', type: :request do
     end
 
     context 'when the user is an administrator' do
+      # Meta returns one sentence for three different causes; the read check is what
+      # tells the user whether the WABA is reachable at all.
+      let(:access_denied_body) do
+        { 'error' => { 'message' => "Unsupported post request. Object with ID '123' does not exist, cannot be loaded " \
+                                    'due to missing permissions, or does not support this operation.',
+                       'code' => 100, 'error_subcode' => 33 } }
+      end
+
       before { allow(Whatsapp::Providers::WhatsappCloudService).to receive(:new).and_return(whatsapp_provider_service) }
 
       it 'creates the template and returns the refreshed list' do
@@ -81,14 +89,6 @@ RSpec.describe 'WhatsApp Templates API', type: :request do
 
         expect(response).to have_http_status(:unprocessable_entity)
         expect(response.parsed_body['error']).to start_with('Template name already exists')
-      end
-
-      # Meta returns one sentence for three different causes; the read check is what
-      # tells the user whether the WABA is reachable at all.
-      let(:access_denied_body) do
-        { 'error' => { 'message' => "Unsupported post request. Object with ID '123' does not exist, cannot be loaded " \
-                                    'due to missing permissions, or does not support this operation.',
-                       'code' => 100, 'error_subcode' => 33 } }
       end
 
       it 'blames the token write permission when the WABA still reads' do
