@@ -52,36 +52,37 @@ onMounted(load);
     <span v-else-if="!enrollments.length" class="text-xs text-n-slate-11">
       {{ t('CADENCE.ENROLLMENTS.EMPTY') }}
     </span>
-    <div
-      v-for="enrollment in enrollments"
-      v-else
-      :key="enrollment.id"
-      class="flex items-center justify-between gap-3 text-xs"
-    >
-      <span class="truncate text-n-slate-12">
-        {{ enrollment.contact.name || enrollment.contact.phone_number }}
-      </span>
-      <div class="flex items-center flex-shrink-0 gap-2">
-        <span class="text-n-slate-11">
-          {{
-            t('CADENCE.ENROLLMENTS.POSITION', {
-              step: enrollment.step_index + 1,
-              status: t(
-                `CADENCE.ENROLLMENTS.STATUS.${enrollment.status.toUpperCase()}`
-              ),
-            })
-          }}
+    <div v-else class="flex flex-col gap-2">
+      <div
+        v-for="enrollment in enrollments"
+        :key="enrollment.id"
+        class="flex items-center justify-between gap-3 text-xs"
+      >
+        <span class="truncate text-n-slate-12">
+          {{ enrollment.contact.name || enrollment.contact.phone_number }}
         </span>
-        <Button
-          v-if="enrollment.status === 'active'"
-          faded
-          slate
-          xs
-          type="button"
-          :is-loading="stoppingId === enrollment.id"
-          :label="t('CADENCE.ENROLLMENTS.STOP')"
-          @click="stop(enrollment)"
-        />
+        <div class="flex items-center flex-shrink-0 gap-2">
+          <span class="text-n-slate-11">
+            {{
+              t('CADENCE.ENROLLMENTS.POSITION', {
+                step: enrollment.step_index + 1,
+                status: t(
+                  `CADENCE.ENROLLMENTS.STATUS.${enrollment.status.toUpperCase()}`
+                ),
+              })
+            }}
+          </span>
+          <Button
+            v-if="enrollment.status === 'active'"
+            faded
+            slate
+            xs
+            type="button"
+            :is-loading="stoppingId === enrollment.id"
+            :label="t('CADENCE.ENROLLMENTS.STOP')"
+            @click="stop(enrollment)"
+          />
+        </div>
       </div>
     </div>
   </div>

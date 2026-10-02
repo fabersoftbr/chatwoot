@@ -8,6 +8,6 @@ class CadenceListener < BaseListener
 
     CadenceEnrollment.active
                      .where(conversation_id: message.conversation_id)
-                     .find_each { |enrollment| enrollment.stopped_replied! }
+                     .find_each(&:stopped_replied!)
   end
 end
