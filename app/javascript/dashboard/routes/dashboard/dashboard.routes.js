@@ -8,6 +8,7 @@ import { routes as notificationRoutes } from './notifications/routes';
 import { routes as inboxRoutes } from './inbox/routes';
 import { frontendURL } from '../../helper/URLHelper';
 import helpcenterRoutes from './helpcenter/helpcenter.routes';
+import cadencesRoutes from './cadences/cadences.routes';
 import campaignsRoutes from './campaigns/campaigns.routes';
 import crmRoutes from './crm/crm.routes';
 import { routes as captainRoutes } from './captain/captain.routes';
@@ -33,6 +34,7 @@ export default {
         ...searchRoutes,
         ...notificationRoutes,
         ...helpcenterRoutes.routes,
+        ...cadencesRoutes.routes,
         ...campaignsRoutes.routes,
         ...crmRoutes.routes,
       ],

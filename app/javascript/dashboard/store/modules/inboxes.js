@@ -118,6 +118,13 @@ export const getters = {
       item => item.channel_type === INBOX_TYPES.WHATSAPP
     );
   },
+  // Both channels a cadence can deliver on. Evolution is deliberately included here and absent
+  // from getWhatsAppInboxes, which feeds template-only screens Evolution has no templates for.
+  getCadenceInboxes($state) {
+    return $state.records.filter(item =>
+      [INBOX_TYPES.WHATSAPP, INBOX_TYPES.EVOLUTION].includes(item.channel_type)
+    );
+  },
   dialogFlowEnabledInboxes($state) {
     return $state.records.filter(
       item => item.channel_type !== INBOX_TYPES.EMAIL

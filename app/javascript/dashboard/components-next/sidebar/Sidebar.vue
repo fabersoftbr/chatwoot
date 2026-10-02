@@ -697,6 +697,11 @@ const menuItems = computed(() => {
           label: t('SIDEBAR.WHATSAPP'),
           to: accountScopedRoute('campaigns_whatsapp_index'),
         },
+        {
+          name: 'Cadences',
+          label: t('SIDEBAR.CADENCES'),
+          to: accountScopedRoute('cadences_index'),
+        },
       ],
     },
     {

@@ -1,0 +1,83 @@
+{
+  "CADENCE": {
+    "HEADER_TITLE": "Cadences",
+    "NEW": "New cadence",
+    "CREATE_TITLE": "New cadence",
+    "EMPTY_STATE": {
+      "TITLE": "No cadences yet",
+      "SUBTITLE": "A cadence sends a sequence of messages to every contact carrying a label, spread over days. It stops for anyone who replies."
+    },
+    "CARD": {
+      "SUMMARY": "{steps} step(s) · {inbox} · {active} contact(s) running",
+      "ON": "Running",
+      "OFF": "Paused",
+      "PAUSE": "Pause",
+      "RESUME": "Resume",
+      "DELETE": "Delete"
+    },
+    "FORM": {
+      "TITLE": {
+        "LABEL": "Name",
+        "PLACEHOLDER": "October prospecting"
+      },
+      "INBOX": {
+        "LABEL": "Inbox",
+        "PLACEHOLDER": "Pick the inbox that sends it",
+        "TEMPLATE_ONLY": "WhatsApp Cloud always sends outside Meta's 24 hour window, so every step has to be an approved template.",
+        "FREE_TEXT": "Evolution has no messaging window, so every step is free text."
+      },
+      "AUDIENCE": {
+        "LABEL": "Audience",
+        "PLACEHOLDER": "Pick one or more labels",
+        "INFO": "Every contact with one of these labels is enrolled. Someone who replies or finishes never re-enters."
+      },
+      "STEPS_TITLE": "Steps",
+      "ADD_STEP": "Add step",
+      "STEP": {
+        "TITLE": "Step {position}",
+        "REMOVE": "Remove",
+        "DELAY_DAYS": {
+          "LABEL": "Days after joining"
+        },
+        "SEND_HOUR": {
+          "LABEL": "Hour",
+          "PLACEHOLDER": "Any"
+        },
+        "SEND_MINUTE": {
+          "LABEL": "Minute"
+        },
+        "WEEKDAY": {
+          "LABEL": "Day of the week",
+          "ANY": "Any day",
+          "DAYS": {
+            "0": "Sunday",
+            "1": "Monday",
+            "2": "Tuesday",
+            "3": "Wednesday",
+            "4": "Thursday",
+            "5": "Friday",
+            "6": "Saturday"
+          }
+        },
+        "TEMPLATE": {
+          "LABEL": "Template",
+          "PLACEHOLDER": "Pick an approved template",
+          "INFO": "Only templates Meta has approved appear here."
+        },
+        "CONTENT": {
+          "LABEL": "Message",
+          "PLACEHOLDER": "Hi, are you still interested?"
+        }
+      },
+      "BUTTONS": {
+        "CANCEL": "Cancel",
+        "CREATE": "Create cadence"
+      }
+    },
+    "API": {
+      "CREATE_SUCCESS": "Cadence created.",
+      "DELETE_SUCCESS": "Cadence deleted.",
+      "ERROR": "Something went wrong. Please try again."
+    }
+  }
+}

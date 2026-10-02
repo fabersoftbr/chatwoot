@@ -10,6 +10,7 @@ export const FEATURE_FLAGS = {
   WHATSAPP_EMBEDDED_SIGNUP_FLOW: 'whatsapp_embedded_signup_inbox_creation',
   WHATSAPP_MANUAL_TRANSFER: 'whatsapp_manual_transfer',
   WHATSAPP_RECONFIGURE: 'whatsapp_reconfigure',
+  CADENCES: 'cadences',
   CANNED_RESPONSES: 'canned_responses',
   CRM: 'crm',
   DEALS: 'deals',
